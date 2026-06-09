@@ -43,7 +43,7 @@ _FONT_SIZE_DENSE    = 6.0           # Dense pages (> threshold annotations)
 _HEADER_FONT_SIZE   = 7.5
 _LEGEND_FONT_SIZE   = 8.0
 
-_BORDER_WIDTH       = 0.8
+_BORDER_WIDTH       = 0.6
 _BOX_PADDING_X      = 3.0
 _BOX_PADDING_Y      = 2.0
 _MULTI_BOX_SPACING  = 2.5          # Vertical gap between stacked domain boxes
@@ -345,42 +345,51 @@ def _draw_dataset_headers(
     page_width: float,
 ) -> float:
     """
-    Draw stacked colour-coded dataset-name bars at the top-right margin.
-    Returns the Y coordinate just below the last header bar.
+    Draw compact domain label boxes in the top-right corner of the page.
+    Returns the Y coordinate just below the last label box.
     """
     if not domains:
         return _PAGE_TOP_MARGIN
 
-    y = 38.0
-    right_edge = page_width - 4.0
+    _LABEL_FONT_SIZE = 6.5
+    _LABEL_BOX_H     = _LABEL_FONT_SIZE + 4.0
+    _LABEL_MAX_W     = 160.0
+    _LABEL_PAD_X     = 3.0
+    right_edge       = page_width - 4.0
+
+    y = 20.0
 
     for domain in domains:
-        full_name    = _get_domain_full_name(domain)
-        header_text  = f"  {domain}  —  {full_name}  "
+        full_name   = _get_domain_full_name(domain)
+        label_text  = f"{domain} — {full_name}"
         border_c, fill_c = _get_domain_colours(domain)
 
-        # Slightly darker fill for the header bar
-        bar_fill = (
-            max(0.0, fill_c[0] - 0.06),
-            max(0.0, fill_c[1] - 0.06),
-            max(0.0, fill_c[2] - 0.06),
+        # Very light tint fill (95% white + 5% color tint)
+        light_fill = (
+            min(1.0, 0.95 + fill_c[0] * 0.05),
+            min(1.0, 0.95 + fill_c[1] * 0.05),
+            min(1.0, 0.95 + fill_c[2] * 0.05),
         )
 
-        bar_rect = fitz.Rect(ann_x - 2, y, right_edge, y + _HEADER_BAR_HEIGHT)
+        # Measure text and clamp to max width
+        tw = fitz.get_text_length(label_text, fontname=_FONT_NAME_BOLD, fontsize=_LABEL_FONT_SIZE)
+        box_w = min(tw + 2 * _LABEL_PAD_X, _LABEL_MAX_W)
+        box_left = right_edge - box_w
 
-        page.draw_rect(bar_rect, color=border_c, fill=bar_fill, width=0.9, overlay=True)
+        box_rect = fitz.Rect(box_left, y, right_edge, y + _LABEL_BOX_H)
+        page.draw_rect(box_rect, color=border_c, fill=light_fill, width=0.5, overlay=True)
 
         page.insert_text(
-            fitz.Point(ann_x + 2, y + _HEADER_BAR_HEIGHT - 2.5),
-            header_text,
-            fontsize=_HEADER_FONT_SIZE,
+            fitz.Point(right_edge - _LABEL_PAD_X - tw, y + _LABEL_BOX_H - 2.0),
+            label_text,
+            fontsize=_LABEL_FONT_SIZE,
             fontname=_FONT_NAME_BOLD,
             color=border_c,
         )
 
-        y += _HEADER_BAR_HEIGHT + 2.0
+        y += _LABEL_BOX_H + 2.0
 
-    return y + 2.0  # return bottom edge of last header
+    return y + 2.0  # return bottom edge of last label box
 
 
 # =============================================================================
@@ -709,9 +718,6 @@ def annotate_pdf(
             d = result.sdtm_domain.upper()
             form_primary_domain[fc] = d[4:] if d.startswith("SUPP") else d
 
-    # ── Track which pages need a separator line ──
-    pages_with_separator: set[int] = set()
-
     # ── Write annotations ──
     for field, result in zip(fields, results):
 
@@ -747,11 +753,6 @@ def annotate_pdf(
             if page_doms:
                 header_bottom = _draw_dataset_headers(page, page_doms, ann_x + _TICK_LENGTH, pw)
                 tracker.reserve_top(page_idx, header_bottom)
-
-        # ── Separator line: only draw on pages with enough annotations ──
-        if page_idx not in pages_with_separator and page_ann_count.get(page_idx, 0) >= 3:
-            pages_with_separator.add(page_idx)
-            _draw_separator_line(page, sep_x, _PAGE_TOP_MARGIN - 10, ph - _PAGE_BOTTOM_MARGIN)
 
         # ── Build annotation entries ──
         ann_entries = _build_annotations_list(result)
@@ -790,7 +791,13 @@ def annotate_pdf(
                 font_n   = _FONT_NAME
                 stats["not_submitted"] += 1
             else:
-                border_c, fill_c = _get_domain_colours(entry["domain"])
+                border_c, raw_fill = _get_domain_colours(entry["domain"])
+                # Very light fill: 97% white + 3% color tint
+                fill_c = (
+                    min(1.0, 0.97 + raw_fill[0] * 0.03),
+                    min(1.0, 0.97 + raw_fill[1] * 0.03),
+                    min(1.0, 0.97 + raw_fill[2] * 0.03),
+                )
                 text_c   = _TEXT_COLOUR
                 font_n   = _FONT_NAME_BOLD
 
@@ -831,10 +838,6 @@ def annotate_pdf(
                 fontname=font_n,
                 color=text_c,
             )
-
-            # Tick line from separator to box
-            tick_y = text_y - eff_fs / 2
-            _draw_tick(page, sep_x, ann_x, tick_y)
 
             y_off     += box_h + _MULTI_BOX_SPACING
             any_drawn  = True
