@@ -1,3 +1,5 @@
+export type JobStatus = "pending" | "processing" | "completed" | "failed";
+
 export interface AnnotationStats {
   total_pages: number;
   total_fields_extracted: number;
@@ -19,7 +21,7 @@ export interface AnnotationStats {
 
 export interface AnnotationResponse {
   job_id: string;
-  status: string;
+  status: JobStatus;
   stats: AnnotationStats;
   message: string;
   filename: string;
@@ -29,6 +31,7 @@ export interface FieldMapping {
   form_code: string;
   field_label: string;
   annotation: string;
+  additional_annotations: string[];
   sdtm_domain: string | null;
   sdtm_variable: string | null;
   codelist_code: string | null;
@@ -36,7 +39,6 @@ export interface FieldMapping {
   is_not_submitted: boolean;
   confidence: number;
   tier: string;
-  additional_annotations: string[];
 }
 
 export interface AnnotationDetail {
@@ -48,15 +50,18 @@ export interface AnnotationDetail {
   unresolved: FieldMapping[];
 }
 
+export interface JobSummary {
+  job_id: string;
+  status: JobStatus;
+  filename: string;
+  annotations_written: number;
+  resolution_rate: number;
+}
+
 export interface AnnotationOverride {
   form_code: string;
   field_label: string;
-  /** Annotation strings: e.g. ["VS.VSORRES", "SUPPVS.QVAL"]. Empty = delete. */
   annotations: string[];
-}
-
-export interface EditRequest {
-  overrides: AnnotationOverride[];
 }
 
 export interface EditResponse {
@@ -64,15 +69,4 @@ export interface EditResponse {
   message: string;
   changes_applied: number;
   stats: AnnotationStats;
-}
-
-/** Parsed domain from an annotation string like "VS.VSORRES" or "SUPPVS.QVAL" */
-export interface ParsedAnnotation {
-  raw: string;
-  domain: string;       // base domain e.g. "VS"
-  variable: string;     // e.g. "VSORRES"
-  isSupp: boolean;
-  codelist: string;
-  isNotSubmitted: boolean;
-  isValid: boolean;
 }
