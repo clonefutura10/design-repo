@@ -1,11 +1,12 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import {
   Download, ArrowLeft, Search, ChevronDown, ChevronUp,
   Loader2, Filter, Pencil, Check, X, RefreshCw, AlertCircle,
+  FileDown, Copy, CheckCheck,
 } from "lucide-react";
-import { getStats, getDetails, downloadUrl, applyEdits } from "../api/client";
+import { getStats, getDetails, downloadUrl, applyEdits, exportCsv } from "../api/client";
 import type { AnnotationResponse, AnnotationDetail, FieldMapping, AnnotationOverride } from "../api/types";
 import { StatCard } from "../components/StatCard";
 import { DomainBadge } from "../components/Badges";
@@ -14,6 +15,30 @@ const PIE_COLORS = ["#6B2D88", "#E5E5E5"];
 
 // Key used to track edits: "FORMCODE::field label"
 const rowKey = (r: FieldMapping) => `${r.form_code}::${r.field_label}`;
+
+interface Toast {
+  id: number;
+  message: string;
+  type: "success" | "error" | "info" | "neutral";
+}
+
+const DOMAIN_CLASS_MAP: Record<string, string[]> = {
+  Events:        ["AE", "CE", "DD", "HO", "MH"],
+  Interventions: ["CM", "EC", "EX", "PR", "SU"],
+  Findings:      ["BE", "EG", "FA", "FACE", "FAHO", "IS", "LB", "MB", "PC", "PE", "QS", "RE", "RP", "VS"],
+  Special:       ["CO", "DM", "DS", "IE", "SC", "SV", "TI"],
+};
+
+function getDomainClass(domain: string | null): string {
+  if (!domain) return "";
+  const d = domain.toUpperCase();
+  for (const [cls, members] of Object.entries(DOMAIN_CLASS_MAP)) {
+    if (members.includes(d)) return cls;
+  }
+  return "";
+}
+
+let _toastCounter = 0;
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +53,8 @@ export default function JobDetailPage() {
   const [tab, setTab] = useState<"resolved" | "unresolved">("resolved");
   const [search, setSearch] = useState("");
   const [formFilter, setFormFilter] = useState<string>("all");
+  const [confFilter, setConfFilter] = useState<"all" | "90" | "80" | "70">("all");
+  const [classFilter, setClassFilter] = useState<"all" | "Events" | "Interventions" | "Findings" | "Special">("all");
   const [sortKey, setSortKey] = useState<keyof FieldMapping>("form_code");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
@@ -38,6 +65,30 @@ export default function JobDetailPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Toast state
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  // Copied row state (for visual feedback)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const addToast = useCallback((message: string, type: Toast["type"]) => {
+    const id = ++_toastCounter;
+    setToasts((prev) => [...prev, { id, message, type }]);
+  }, []);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  // Auto-dismiss toasts after 3s
+  useEffect(() => {
+    if (toasts.length === 0) return;
+    const timer = setTimeout(() => {
+      setToasts((prev) => prev.slice(1));
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [toasts]);
 
   useEffect(() => {
     if (!id) return;
@@ -62,8 +113,17 @@ export default function JobDetailPage() {
         r.field_label.toLowerCase().includes(search.toLowerCase()) ||
         r.form_code.toLowerCase().includes(search.toLowerCase()) ||
         (r.annotation ?? "").toLowerCase().includes(search.toLowerCase())
-      );
-  }, [allRows, search, formFilter]);
+      )
+      .filter((r) => {
+        if (confFilter === "all") return true;
+        const threshold = parseInt(confFilter) / 100;
+        return r.confidence >= threshold;
+      })
+      .filter((r) => {
+        if (classFilter === "all") return true;
+        return getDomainClass(r.sdtm_domain) === classFilter;
+      });
+  }, [allRows, search, formFilter, confFilter, classFilter]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -92,7 +152,6 @@ export default function JobDetailPage() {
       .map((s) => s.trim())
       .filter(Boolean);
     if (parsed.length === 0) {
-      // Empty = remove annotation
       setPendingEdits((prev) => ({ ...prev, [k]: [] }));
     } else {
       setPendingEdits((prev) => ({ ...prev, [k]: parsed }));
@@ -114,11 +173,6 @@ export default function JobDetailPage() {
     setSaveError(null);
     setSaveSuccess(false);
 
-    const allMappings = [
-      ...(detail?.resolved ?? []),
-      ...(detail?.unresolved ?? []),
-    ];
-
     const overrides: AnnotationOverride[] = Object.entries(pendingEdits).map(([key, anns]) => {
       const [form_code, field_label] = key.split("::");
       return { form_code, field_label, annotations: anns };
@@ -126,18 +180,37 @@ export default function JobDetailPage() {
 
     try {
       const { data } = await applyEdits(id, overrides);
-      // Update job stats
       setJob((prev) => prev ? { ...prev, stats: data.stats } : prev);
-      // Reload detail
       const detail2 = await getDetails(id);
       setDetail(detail2.data);
       setPendingEdits({});
       setSaveSuccess(true);
+      addToast("PDF regenerated successfully with your edits.", "success");
     } catch (e: any) {
-      setSaveError(e?.response?.data?.detail ?? e.message ?? "Save failed");
+      const msg = e?.response?.data?.detail ?? e.message ?? "Save failed";
+      setSaveError(msg);
+      addToast(`Save failed: ${msg}`, "error");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleExportCsv = () => {
+    if (!job || !detail) return;
+    const allMappings = [...detail.resolved, ...detail.unresolved];
+    exportCsv(job.job_id, allMappings);
+    addToast("CSV exported successfully.", "info");
+  };
+
+  const handleCopyAnnotation = (row: FieldMapping) => {
+    const k = rowKey(row);
+    const text = pendingEdits[k]?.join(", ") ?? row.annotation ?? "";
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedKey(k);
+      addToast("Annotation copied to clipboard.", "neutral");
+      setTimeout(() => setCopiedKey(null), 1500);
+    });
   };
 
   const pendingCount = Object.keys(pendingEdits).length;
@@ -167,6 +240,25 @@ export default function JobDetailPage() {
     { name: "Resolved", value: stats.resolved_count },
     { name: "Unresolved", value: stats.unresolved_count },
   ];
+
+  const toastBg: Record<Toast["type"], string> = {
+    success: "#E6F6EC",
+    error:   "#FDECEA",
+    info:    "#E3F0FC",
+    neutral: "#F5F5F5",
+  };
+  const toastBorder: Record<Toast["type"], string> = {
+    success: "#00843D",
+    error:   "#D32F2F",
+    info:    "#0077CC",
+    neutral: "#AAAAAA",
+  };
+  const toastColor: Record<Toast["type"], string> = {
+    success: "#00843D",
+    error:   "#D32F2F",
+    info:    "#0077CC",
+    neutral: "#555555",
+  };
 
   return (
     <div className="space-y-6 pb-24">
@@ -207,6 +299,34 @@ export default function JobDetailPage() {
         <StatCard label="Unique Forms" value={stats.unique_forms} sub="CRF form types" />
       </div>
 
+      {/* Tier breakdown mini-stats */}
+      <div className="flex flex-wrap gap-2">
+        <span
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+          style={{ background: "#E6F6EC", color: "#00843D", border: "1px solid #A8DCBB" }}
+        >
+          Tier 0 Regex: {stats.tier0_regex ?? 0}
+        </span>
+        <span
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+          style={{ background: "#E3F0FC", color: "#0077CC", border: "1px solid #A8CCEC" }}
+        >
+          Tier 0 Standards: {stats.tier0_standards ?? 0}
+        </span>
+        <span
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+          style={{ background: "#FFF3E0", color: "#E65100", border: "1px solid #FFCCAA" }}
+        >
+          Tier 0 AZ Spec: {stats.tier0_az_spec ?? 0}
+        </span>
+        <span
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+          style={{ background: "#F5F5F5", color: "#777777", border: "1px solid #DDDDDD" }}
+        >
+          Not Submitted: {stats.not_submitted_count ?? 0}
+        </span>
+      </div>
+
       {/* Resolution pie chart */}
       <div className="card" style={{ maxWidth: 380 }}>
         <p className="text-sm font-semibold mb-4" style={{ color: "#1A1A1A" }}>Resolution Overview</p>
@@ -240,14 +360,23 @@ export default function JobDetailPage() {
             {(["resolved", "unresolved"] as const).map((t) => (
               <button
                 key={t}
-                onClick={() => { setTab(t); setFormFilter("all"); setSearch(""); }}
-                className="px-3 py-1.5 rounded-btn font-medium transition-colors"
+                onClick={() => { setTab(t); setFormFilter("all"); setSearch(""); setConfFilter("all"); setClassFilter("all"); }}
+                className="px-3 py-1.5 rounded-btn font-medium transition-colors flex items-center gap-1.5"
                 style={tab === t
                   ? { background: "#FFFFFF", color: "#6B2D88", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
                   : { color: "#6B6B6B" }
                 }
               >
-                {t === "resolved" ? `Resolved (${detail?.resolved_count ?? "…"})` : `Unresolved (${detail?.unresolved_count ?? "…"})`}
+                {t === "resolved" ? "Resolved" : "Unresolved"}
+                <span
+                  className="inline-flex items-center justify-center rounded-full text-xs px-1.5 py-0.5 min-w-[20px]"
+                  style={tab === t
+                    ? { background: "#EDE0F5", color: "#6B2D88" }
+                    : { background: "#E5E5E5", color: "#6B6B6B" }
+                  }
+                >
+                  {t === "resolved" ? (detail?.resolved_count ?? "…") : (detail?.unresolved_count ?? "…")}
+                </span>
               </button>
             ))}
           </div>
@@ -280,7 +409,62 @@ export default function JobDetailPage() {
               ))}
             </select>
           </div>
+
+          {/* Confidence filter */}
+          <div className="flex items-center gap-2 rounded-btn px-3 py-1.5 border" style={{ background: "#F7F7F7", borderColor: "#E5E5E5" }}>
+            <select
+              value={confFilter}
+              onChange={(e) => setConfFilter(e.target.value as typeof confFilter)}
+              className="bg-transparent text-sm outline-none cursor-pointer"
+              style={{ color: "#1A1A1A" }}
+            >
+              <option value="all">Min Confidence: All</option>
+              <option value="90">≥ 90%</option>
+              <option value="80">≥ 80%</option>
+              <option value="70">≥ 70%</option>
+            </select>
+          </div>
+
+          {/* Domain class filter */}
+          <div className="flex items-center gap-2 rounded-btn px-3 py-1.5 border" style={{ background: "#F7F7F7", borderColor: "#E5E5E5" }}>
+            <select
+              value={classFilter}
+              onChange={(e) => setClassFilter(e.target.value as typeof classFilter)}
+              className="bg-transparent text-sm outline-none cursor-pointer"
+              style={{ color: "#1A1A1A" }}
+            >
+              <option value="all">Domain Class: All</option>
+              <option value="Events">Events</option>
+              <option value="Interventions">Interventions</option>
+              <option value="Findings">Findings</option>
+              <option value="Special">Special Purpose</option>
+            </select>
+          </div>
+
+          {/* Export CSV button */}
+          <button
+            onClick={handleExportCsv}
+            className="btn-secondary text-xs flex items-center gap-1.5 ml-auto"
+            title="Export all mappings to CSV"
+            disabled={!detail}
+          >
+            <FileDown className="w-3.5 h-3.5" />
+            Export CSV
+          </button>
         </div>
+
+        {/* Unresolved banner */}
+        {tab === "unresolved" && !detailLoading && (detail?.unresolved_count ?? 0) > 0 && (
+          <div
+            className="mx-6 mt-4 mb-2 rounded-card px-4 py-3 text-sm flex items-center gap-2"
+            style={{ background: "#FFFBEB", border: "1px solid #F5A623", color: "#92400E" }}
+          >
+            <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#F5A623" }} />
+            <span>
+              These <strong>{detail?.unresolved_count}</strong> fields could not be auto-mapped. Click the pencil icon to manually annotate them.
+            </span>
+          </div>
+        )}
 
         {detailLoading ? (
           <div className="flex justify-center py-16">
@@ -289,7 +473,10 @@ export default function JobDetailPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="border-b border-az-border" style={{ background: "#F7F7F7" }}>
+              <thead
+                className="border-b border-az-border"
+                style={{ background: "#F7F7F7", position: "sticky", top: 0, zIndex: 10 }}
+              >
                 <tr>
                   <Th label="Form" k="form_code" />
                   <Th label="Field Label" k="field_label" />
@@ -297,7 +484,7 @@ export default function JobDetailPage() {
                   <Th label="Domain" k="sdtm_domain" />
                   <Th label="Variable" k="sdtm_variable" />
                   <Th label="Confidence" k="confidence" />
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: "#6B6B6B" }}>Edit</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: "#6B6B6B" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -312,6 +499,7 @@ export default function JobDetailPage() {
                     const k = rowKey(row);
                     const isEditing = editingKey === k;
                     const isModified = k in pendingEdits;
+                    const isCopied = copiedKey === k;
                     const displayAnnotation = isModified
                       ? pendingEdits[k].join(", ") || "—"
                       : row.annotation || "—";
@@ -382,15 +570,29 @@ export default function JobDetailPage() {
                           </div>
                         </td>
                         <td className="px-3 py-2.5">
-                          {!isEditing && (
-                            <button
-                              onClick={() => startEdit(row)}
-                              className="p-1.5 rounded hover:bg-purple-100 transition-colors"
-                              title="Edit annotation"
-                            >
-                              <Pencil className="w-3.5 h-3.5" style={{ color: "#6B2D88" }} />
-                            </button>
-                          )}
+                          <div className="flex items-center gap-1">
+                            {!isEditing && (
+                              <button
+                                onClick={() => startEdit(row)}
+                                className="p-1.5 rounded hover:bg-purple-100 transition-colors"
+                                title="Edit annotation"
+                              >
+                                <Pencil className="w-3.5 h-3.5" style={{ color: "#6B2D88" }} />
+                              </button>
+                            )}
+                            {!isEditing && tab === "resolved" && (
+                              <button
+                                onClick={() => handleCopyAnnotation(row)}
+                                className="p-1.5 rounded hover:bg-blue-50 transition-colors"
+                                title="Copy annotation to clipboard"
+                              >
+                                {isCopied
+                                  ? <CheckCheck className="w-3.5 h-3.5" style={{ color: "#00843D" }} />
+                                  : <Copy className="w-3.5 h-3.5" style={{ color: "#6B6B6B" }} />
+                                }
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -401,6 +603,8 @@ export default function JobDetailPage() {
             <div className="px-6 py-3 border-t border-az-border text-xs" style={{ background: "#F7F7F7", color: "#6B6B6B" }}>
               Showing {sorted.length} of {filtered.length} fields
               {formFilter !== "all" && <span className="ml-2 font-medium" style={{ color: "#6B2D88" }}>· Form: {formFilter}</span>}
+              {confFilter !== "all" && <span className="ml-2 font-medium" style={{ color: "#6B2D88" }}>· Conf ≥{confFilter}%</span>}
+              {classFilter !== "all" && <span className="ml-2 font-medium" style={{ color: "#6B2D88" }}>· Class: {classFilter}</span>}
             </div>
           </div>
         )}
@@ -431,6 +635,30 @@ export default function JobDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Toast notifications */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-[100]" style={{ maxWidth: 320 }}>
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className="flex items-center gap-2 px-4 py-3 rounded-card shadow-lg text-sm font-medium"
+            style={{
+              background: toastBg[toast.type],
+              border: `1px solid ${toastBorder[toast.type]}`,
+              color: toastColor[toast.type],
+              animation: "fadeInUp 0.2s ease",
+            }}
+          >
+            <span className="flex-1">{toast.message}</span>
+            <button
+              onClick={() => dismissToast(toast.id)}
+              className="ml-1 rounded hover:opacity-70 transition-opacity flex-shrink-0"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
