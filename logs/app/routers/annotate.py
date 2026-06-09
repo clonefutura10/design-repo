@@ -16,6 +16,9 @@ from typing import List
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 
+
+from fastapi import APIRouter, UploadFile, File, HTTPException, Body
+
 from app.schemas import (
     AnnotationResponse,
     AnnotationDetail,
@@ -23,8 +26,10 @@ from app.schemas import (
     FieldMapping,
     JobStatus,
     JobSummary,
+    EditRequest,
+    EditResponse,
 )
-from app.services import run_pipeline, get_job, list_jobs
+from app.services import run_pipeline, get_job, list_jobs, apply_edits
 
 router = APIRouter()
 
@@ -129,11 +134,29 @@ async def get_details(job_id: str):
             text += f" ({r.codelist_code})"
         return text
 
+    def _extra_annotations(r: object) -> list[str]:
+        """Build annotation strings for additional_mappings."""
+        extras = []
+        for m in getattr(r, "additional_mappings", None) or []:
+            d = (m.get("domain") or m.get("sdtm_domain", "")).upper()
+            v = m.get("variable") or m.get("sdtm_variable", "")
+            if not d or not v:
+                continue
+            is_supp = m.get("is_supp", False) or m.get("is_supplemental", False)
+            prefix = f"SUPP{d}" if is_supp else d
+            text = f"{prefix}.{v}"
+            cl = m.get("codelist_code", "") or m.get("codelist", "")
+            if cl:
+                text += f" ({cl})"
+            extras.append(text)
+        return extras
+
     resolved = [
         FieldMapping(
             form_code=r.form_code,
             field_label=r.field_label,
             annotation=_build_annotation_text(r),
+            additional_annotations=_extra_annotations(r),
             sdtm_domain=r.sdtm_domain or None,
             sdtm_variable=r.sdtm_variable or None,
             codelist_code=r.codelist_code or None,
@@ -168,6 +191,46 @@ async def get_details(job_id: str):
         unresolved_count=len(unresolved),
         resolved=resolved,
         unresolved=unresolved,
+    )
+
+
+@router.post("/annotate/{job_id}/edit", response_model=EditResponse)
+async def edit_annotations(job_id: str, request: EditRequest = Body(...)):
+    """
+    Apply user annotation overrides and regenerate the annotated PDF.
+
+    Each override specifies a field by (form_code, field_label) and provides
+    a new list of annotation strings.  The PDF is re-rendered immediately.
+
+    Annotation string formats accepted:
+      - "VS.VSORRES"          → standard variable
+      - "SUPPVS.QVAL"         → supplemental variable
+      - "VS.VSORRES (C66770)" → with codelist
+      - "NOT SUBMITTED"       → mark field as not collected
+      - [] (empty list)       → remove annotation (mark unresolved)
+    """
+    if not request.overrides:
+        raise HTTPException(400, detail="No overrides provided")
+
+    job = get_job(job_id)
+    if not job:
+        raise HTTPException(404, detail=f"Job '{job_id}' not found")
+    if not job.data_fields:
+        raise HTTPException(409, detail="Job has no stored field data — cannot re-annotate")
+
+    try:
+        updated = apply_edits(job_id, request.overrides)
+    except ValueError as e:
+        raise HTTPException(404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(500, detail=f"Re-annotation failed: {str(e)}")
+
+    changes = len(request.overrides)
+    return EditResponse(
+        job_id=job_id,
+        message=f"Applied {changes} override(s) and regenerated PDF successfully.",
+        changes_applied=changes,
+        stats=AnnotationStats(**updated.stats),
     )
 
 

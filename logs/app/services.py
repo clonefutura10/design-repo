@@ -12,7 +12,10 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Any
 
+import re
+
 from src.pdf_parser.extractor import extract_crf
+from src.pdf_parser.field_identifier import CRFField
 from src.resolution.noise_filter import is_noise_field
 from src.resolution.tier0_rules import Tier0Rules, _reset_usage_tracking, set_study_context
 from src.resolution.tier1_not_submitted import Tier1NotSubmitted
@@ -29,7 +32,10 @@ class PipelineResult:
     job_id: str
     filename: str
     output_pdf_path: Path
+    input_pdf_path: Path                              # kept for re-annotation on edits
     stats: dict[str, Any]
+    all_results: list[ResolutionResult] = field(default_factory=list)   # aligned with data_fields
+    data_fields: list[CRFField] = field(default_factory=list)           # extracted CRF fields
     resolved_results: list[ResolutionResult] = field(default_factory=list)
     unresolved_results: list[ResolutionResult] = field(default_factory=list)
 
@@ -199,7 +205,10 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         job_id=job_id,
         filename=original_filename,
         output_pdf_path=output_pdf_path,
+        input_pdf_path=input_pdf_path,
         stats=stats,
+        all_results=results,
+        data_fields=data_fields,
         resolved_results=resolved_list,
         unresolved_results=unresolved_list,
     )
@@ -214,3 +223,204 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
     )
 
     return pipeline_result
+
+
+# =============================================================================
+# ANNOTATION OVERRIDE HELPERS
+# =============================================================================
+
+_ANN_RE = re.compile(
+    r"^(SUPP)?([A-Z]{2,6})\.([A-Z0-9]+)(?:\s*\(([^)]+)\))?$",
+    re.IGNORECASE,
+)
+
+
+def _parse_annotation_string(
+    ann: str, form_code: str, field_label: str
+) -> ResolutionResult | None:
+    """
+    Parse a user-supplied annotation string into a ResolutionResult.
+
+    Accepts:
+      - "VS.VSORRES"
+      - "SUPPVS.QVAL (C66770)"
+      - "NOT SUBMITTED"
+      - "" (empty → returns None, meaning delete)
+    """
+    s = ann.strip().upper()
+    if not s:
+        return None
+
+    if s == "NOT SUBMITTED":
+        return ResolutionResult(
+            form_code=form_code,
+            field_label=field_label,
+            resolved=True,
+            tier=ResolutionTier.TIER0_EXACT,
+            confidence=1.0,
+            sdtm_domain="",
+            sdtm_variable="",
+            is_not_submitted=True,
+            is_supplemental=False,
+            codelist_code="",
+        )
+
+    m = _ANN_RE.match(s)
+    if not m:
+        return None
+
+    is_supp  = bool(m.group(1))
+    domain   = m.group(2)
+    variable = m.group(3)
+    codelist = m.group(4) or ""
+
+    return ResolutionResult(
+        form_code=form_code,
+        field_label=field_label,
+        resolved=True,
+        tier=ResolutionTier.TIER0_EXACT,
+        confidence=1.0,
+        sdtm_domain=domain,
+        sdtm_variable=variable,
+        is_supplemental=is_supp,
+        is_not_submitted=False,
+        codelist_code=codelist,
+    )
+
+
+def _build_result_from_annotations(
+    annotations: list[str], form_code: str, field_label: str
+) -> ResolutionResult:
+    """
+    Build a ResolutionResult from a list of annotation strings.
+
+    First string is the primary mapping; remainder become additional_mappings.
+    Empty list → unresolved result.
+    """
+    if not annotations:
+        return ResolutionResult(
+            form_code=form_code,
+            field_label=field_label,
+            resolved=False,
+            tier=ResolutionTier.UNRESOLVED,
+            confidence=0.0,
+            sdtm_domain="",
+            sdtm_variable="",
+        )
+
+    primary = _parse_annotation_string(annotations[0], form_code, field_label)
+    if primary is None:
+        return ResolutionResult(
+            form_code=form_code,
+            field_label=field_label,
+            resolved=False,
+            tier=ResolutionTier.UNRESOLVED,
+            confidence=0.0,
+            sdtm_domain="",
+            sdtm_variable="",
+        )
+
+    for ann_str in annotations[1:]:
+        r = _parse_annotation_string(ann_str, form_code, field_label)
+        if r and not r.is_not_submitted and r.sdtm_domain and r.sdtm_variable:
+            primary.additional_mappings.append({
+                "domain": r.sdtm_domain,
+                "variable": r.sdtm_variable,
+                "is_supplemental": r.is_supplemental,
+                "codelist_code": r.codelist_code,
+            })
+
+    return primary
+
+
+# =============================================================================
+# APPLY EDITS — re-annotate with user overrides
+# =============================================================================
+
+def apply_edits(job_id: str, overrides: list) -> PipelineResult:
+    """
+    Apply user annotation overrides to a completed job and regenerate the PDF.
+
+    Steps:
+      1. Retrieve the stored job (data_fields + all_results aligned list)
+      2. For each override, find matching rows by (form_code, field_label)
+         and replace their ResolutionResult
+      3. Re-run annotate_pdf() with the modified results
+      4. Update the job store and return the updated PipelineResult
+    """
+    job = get_job(job_id)
+    if not job:
+        raise ValueError(f"Job '{job_id}' not found")
+
+    # Work on a mutable copy so we don't mutate the stored list
+    updated_results: list[ResolutionResult] = list(job.all_results)
+
+    # Build lookup: (form_code_upper, label_lower) → list of indices in updated_results
+    from collections import defaultdict
+    index: dict[tuple[str, str], list[int]] = defaultdict(list)
+    for i, r in enumerate(updated_results):
+        key = (r.form_code.upper().strip(), r.field_label.lower().strip())
+        index[key].append(i)
+
+    changes_applied = 0
+    for override in overrides:
+        key = (override.form_code.upper().strip(), override.field_label.lower().strip())
+        indices = index.get(key, [])
+        if not indices:
+            continue
+
+        new_result = _build_result_from_annotations(
+            override.annotations, override.form_code, override.field_label
+        )
+        for i in indices:
+            updated_results[i] = new_result
+
+        changes_applied += len(indices)
+
+    # Re-run annotate_pdf with updated results
+    new_output_path = job.output_pdf_path.parent / f"aCRF_annotated_{job_id}_v2.pdf"
+    try:
+        write_stats = annotate_pdf(
+            input_pdf_path=job.input_pdf_path,
+            output_pdf_path=new_output_path,
+            results=updated_results,
+            fields=job.data_fields,
+        )
+    except Exception as e:
+        logger.error("Re-annotation failed", job_id=job_id, error=str(e))
+        raise
+
+    # Recompute stats
+    resolved_list   = [r for r in updated_results if r.resolved or r.is_not_submitted]
+    unresolved_list = [r for r in updated_results if not r.resolved and not r.is_not_submitted]
+    resolved_count  = sum(1 for r in updated_results if r.resolved and not r.is_not_submitted)
+    not_sub_count   = sum(1 for r in updated_results if r.is_not_submitted)
+    total_data      = len(updated_results)
+
+    updated_stats = {
+        **job.stats,
+        "resolved_count":     resolved_count,
+        "unresolved_count":   len(unresolved_list),
+        "not_submitted_count": not_sub_count,
+        "resolution_rate":    round(resolved_count / total_data * 100, 1) if total_data else 0.0,
+        "annotations_written": write_stats.get("total_annotations", 0),
+        "pages_annotated":    write_stats.get("pages_annotated", 0),
+        "duplicates_skipped": write_stats.get("duplicates_skipped", 0),
+        "skipped_no_position": write_stats.get("skipped_no_position", 0),
+    }
+
+    # Update job in store
+    job.output_pdf_path  = new_output_path
+    job.all_results      = updated_results
+    job.resolved_results = resolved_list
+    job.unresolved_results = unresolved_list
+    job.stats            = updated_stats
+
+    logger.info(
+        "Edits applied",
+        job_id=job_id,
+        changes=changes_applied,
+        annotations=write_stats.get("total_annotations", 0),
+    )
+
+    return job

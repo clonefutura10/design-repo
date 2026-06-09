@@ -42,7 +42,7 @@ app.include_router(health.router, tags=["Health"])
 app.include_router(annotate.router, prefix="/api/v1", tags=["Annotation"])
 
 # ── Serve React frontend (production) ──────────────────────────────────────
-_FRONTEND_DIST = Path(__file__).parent.parent / "frontend" / "dist"
+_FRONTEND_DIST = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
 
 if _FRONTEND_DIST.exists():
     app.mount("/assets", StaticFiles(directory=str(_FRONTEND_DIST / "assets")), name="assets")

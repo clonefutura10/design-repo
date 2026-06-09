@@ -104,7 +104,8 @@ if _LEARNED_MAPPINGS_FILE.exists():
 # Value: list of additional mappings with optional form/label conditions
 # ============================================================================
 _MULTI_MAP_TABLE: dict[tuple[str, str], list[dict]] = {
-    # Consent dates → also DM.RFICDTC
+    # ── Disposition dates ────────────────────────────────────────────────────
+    # Informed consent date → DS.DSSTDTC + DM.RFICDTC
     ("DS", "DSSTDTC"): [
         {
             "domain": "DM",
@@ -112,6 +113,87 @@ _MULTI_MAP_TABLE: dict[tuple[str, str], list[dict]] = {
             "label": "Date/Time of Informed Consent",
             "condition_form": r"CONSENT|ICF|DS_ICF",
             "condition_label": r"informed\s*consent",
+        },
+        {
+            "domain": "DM",
+            "variable": "RFSTDTC",
+            "label": "Subject Reference Start Date/Time",
+            "condition_label": r"(first\s*dose|start\s*of\s*treat|date\s*of\s*randomiz)",
+        },
+        {
+            "domain": "DM",
+            "variable": "RFENDTC",
+            "label": "Subject Reference End Date/Time",
+            "condition_label": r"(end\s*of\s*treat|last\s*treat|withdrawal\s*date|study\s*end)",
+        },
+        {
+            "domain": "DM",
+            "variable": "RFPENDTC",
+            "label": "Date/Time of End of Participation",
+            "condition_label": r"(end\s*of\s*(study\s*)?participation|last.*follow.?up)",
+        },
+        {
+            "domain": "DM",
+            "variable": "DTHDTC",
+            "label": "Date/Time of Death",
+            "condition_label": r"(death|died|date\s*of\s*death)",
+        },
+    ],
+
+    # ── Exposure dates ───────────────────────────────────────────────────────
+    # First dose → EX.EXSTDTC + DM.RFXSTDTC
+    ("EX", "EXSTDTC"): [
+        {
+            "domain": "DM",
+            "variable": "RFXSTDTC",
+            "label": "Date/Time of First Study Treatment",
+            "condition_label": r"first\s*(dose|administration|study\s*treat)",
+        },
+    ],
+    # Last dose → EX.EXENDTC + DM.RFXENDTC
+    ("EX", "EXENDTC"): [
+        {
+            "domain": "DM",
+            "variable": "RFXENDTC",
+            "label": "Date/Time of Last Study Treatment",
+            "condition_label": r"last\s*(dose|administration|study\s*treat)",
+        },
+    ],
+
+    # ── Death details ────────────────────────────────────────────────────────
+    # DD.DDDTC → always also DM.DTHDTC (death date is always both)
+    ("DD", "DDDTC"): [
+        {
+            "domain": "DM",
+            "variable": "DTHDTC",
+            "label": "Date/Time of Death",
+        },
+        {
+            "domain": "DS",
+            "variable": "DSSTDTC",
+            "label": "Date/Time of Collection",
+        },
+    ],
+
+    # ── Adverse event dates ──────────────────────────────────────────────────
+    # AE onset date → AE.AESTDTC; if SAE hospitalization, also CE.CESTDTC
+    ("AE", "AESTDTC"): [
+        {
+            "domain": "CE",
+            "variable": "CESTDTC",
+            "label": "Start Date/Time of Clinical Event",
+            "condition_label": r"(hospitaliz|admiss|inpatient)",
+        },
+    ],
+
+    # ── Concomitant medication ───────────────────────────────────────────────
+    # Indication also maps to MH.MHTERM when referencing pre-existing condition
+    ("CM", "CMINDC"): [
+        {
+            "domain": "MH",
+            "variable": "MHTERM",
+            "label": "Medical History Verbatim Term",
+            "condition_label": r"(indication|reason\s*for|underlying\s*condition|prior\s*condition)",
         },
     ],
 }

@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* Smooth transitions on interactive rows */
+.annotation-row {
+  transition: background-color 0.15s ease;
+}
+
+/* Custom scrollbar for the table */
+.table-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.table-scroll::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+.table-scroll::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}

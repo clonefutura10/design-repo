@@ -46,7 +46,11 @@ class FieldMapping(BaseModel):
     """Single CRF field → SDTM mapping."""
     form_code: str
     field_label: str
-    annotation: str = Field(description="What appears on the PDF (e.g. 'VS.VSORRES')")
+    annotation: str = Field(description="Primary annotation string (e.g. 'VS.VSORRES')")
+    additional_annotations: List[str] = Field(
+        default_factory=list,
+        description="Additional annotations for multi-variable fields",
+    )
     sdtm_domain: Optional[str] = None
     sdtm_variable: Optional[str] = None
     codelist_code: Optional[str] = None
@@ -54,6 +58,32 @@ class FieldMapping(BaseModel):
     is_not_submitted: bool = False
     confidence: float = 0.0
     tier: str = "unresolved"
+
+
+class AnnotationOverride(BaseModel):
+    """User-supplied annotation override for a single field."""
+    form_code: str
+    field_label: str
+    annotations: List[str] = Field(
+        description=(
+            "Annotation strings, e.g. ['VS.VSORRES', 'SUPPVS.QVAL']. "
+            "Empty list = delete (mark unresolved). "
+            "['NOT SUBMITTED'] = mark as not submitted."
+        )
+    )
+
+
+class EditRequest(BaseModel):
+    """Batch of annotation overrides to apply."""
+    overrides: List[AnnotationOverride]
+
+
+class EditResponse(BaseModel):
+    """Result after applying annotation overrides and regenerating the PDF."""
+    job_id: str
+    message: str
+    changes_applied: int
+    stats: AnnotationStats
 
 
 class AnnotationDetail(BaseModel):
