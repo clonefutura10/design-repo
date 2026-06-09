@@ -1,0 +1,1345 @@
+{
+  "summary": {
+    "total_crf_pages": 502,
+    "total_forms": 64,
+    "total_fields_analyzed": 4320,
+    "total_resolved": 3878,
+    "total_unresolved": 442,
+    "resolution_rate": 89.8,
+    "domains_covered": 27,
+    "unique_variables_assigned": 291
+  },
+  "domain_breakdown": [
+    {
+      "domain": "FAHO",
+      "fields_mapped": 700,
+      "unique_variables": 2,
+      "forms_covered": 2,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "VS",
+      "fields_mapped": 544,
+      "unique_variables": 6,
+      "forms_covered": 2,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "FA",
+      "fields_mapped": 417,
+      "unique_variables": 15,
+      "forms_covered": 8,
+      "avg_confidence": 91.7,
+      "not_submitted": 0
+    },
+    {
+      "domain": "BE",
+      "fields_mapped": 397,
+      "unique_variables": 16,
+      "forms_covered": 4,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "PR",
+      "fields_mapped": 368,
+      "unique_variables": 21,
+      "forms_covered": 6,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "CE",
+      "fields_mapped": 298,
+      "unique_variables": 22,
+      "forms_covered": 5,
+      "avg_confidence": 95.8,
+      "not_submitted": 0
+    },
+    {
+      "domain": "LB",
+      "fields_mapped": 189,
+      "unique_variables": 7,
+      "forms_covered": 5,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "IS",
+      "fields_mapped": 170,
+      "unique_variables": 17,
+      "forms_covered": 1,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "PC",
+      "fields_mapped": 153,
+      "unique_variables": 17,
+      "forms_covered": 1,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "HO",
+      "fields_mapped": 115,
+      "unique_variables": 4,
+      "forms_covered": 3,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "CM",
+      "fields_mapped": 111,
+      "unique_variables": 39,
+      "forms_covered": 5,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "SV",
+      "fields_mapped": 58,
+      "unique_variables": 5,
+      "forms_covered": 6,
+      "avg_confidence": 97.9,
+      "not_submitted": 0
+    },
+    {
+      "domain": "MH",
+      "fields_mapped": 55,
+      "unique_variables": 19,
+      "forms_covered": 3,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "AE",
+      "fields_mapped": 49,
+      "unique_variables": 42,
+      "forms_covered": 3,
+      "avg_confidence": 96.2,
+      "not_submitted": 0
+    },
+    {
+      "domain": "DS",
+      "fields_mapped": 46,
+      "unique_variables": 4,
+      "forms_covered": 9,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "EG",
+      "fields_mapped": 45,
+      "unique_variables": 5,
+      "forms_covered": 1,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "QS",
+      "fields_mapped": 36,
+      "unique_variables": 6,
+      "forms_covered": 1,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "UNKNOWN",
+      "fields_mapped": 25,
+      "unique_variables": 2,
+      "forms_covered": 10,
+      "avg_confidence": 99.1,
+      "not_submitted": 14
+    },
+    {
+      "domain": "CO",
+      "fields_mapped": 24,
+      "unique_variables": 1,
+      "forms_covered": 1,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "EC",
+      "fields_mapped": 22,
+      "unique_variables": 15,
+      "forms_covered": 2,
+      "avg_confidence": 96.3,
+      "not_submitted": 0
+    },
+    {
+      "domain": "IE",
+      "fields_mapped": 15,
+      "unique_variables": 3,
+      "forms_covered": 2,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "EX",
+      "fields_mapped": 10,
+      "unique_variables": 7,
+      "forms_covered": 2,
+      "avg_confidence": 96.8,
+      "not_submitted": 0
+    },
+    {
+      "domain": "RP",
+      "fields_mapped": 9,
+      "unique_variables": 2,
+      "forms_covered": 1,
+      "avg_confidence": 95.3,
+      "not_submitted": 0
+    },
+    {
+      "domain": "DM",
+      "fields_mapped": 8,
+      "unique_variables": 8,
+      "forms_covered": 2,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "FACE",
+      "fields_mapped": 8,
+      "unique_variables": 2,
+      "forms_covered": 1,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "SU",
+      "fields_mapped": 3,
+      "unique_variables": 3,
+      "forms_covered": 1,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "DD",
+      "fields_mapped": 3,
+      "unique_variables": 2,
+      "forms_covered": 1,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    }
+  ],
+  "top_performing_domains": [
+    {
+      "domain": "FAHO",
+      "fields_mapped": 700,
+      "unique_variables": 2,
+      "forms_covered": 2,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "VS",
+      "fields_mapped": 544,
+      "unique_variables": 6,
+      "forms_covered": 2,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "FA",
+      "fields_mapped": 417,
+      "unique_variables": 15,
+      "forms_covered": 8,
+      "avg_confidence": 91.7,
+      "not_submitted": 0
+    },
+    {
+      "domain": "BE",
+      "fields_mapped": 397,
+      "unique_variables": 16,
+      "forms_covered": 4,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    },
+    {
+      "domain": "PR",
+      "fields_mapped": 368,
+      "unique_variables": 21,
+      "forms_covered": 6,
+      "avg_confidence": 98.0,
+      "not_submitted": 0
+    }
+  ],
+  "domain_coverage_summary": {
+    "fully_automated": [
+      "FAHO",
+      "VS",
+      "BE",
+      "PR",
+      "CE",
+      "LB",
+      "IS",
+      "PC",
+      "HO",
+      "CM",
+      "SV",
+      "MH",
+      "AE",
+      "DS",
+      "EG",
+      "QS",
+      "UNKNOWN",
+      "CO",
+      "EC",
+      "IE",
+      "EX",
+      "RP",
+      "DM",
+      "FACE",
+      "SU",
+      "DD"
+    ],
+    "high_confidence": [
+      "FA"
+    ],
+    "needs_improvement": []
+  },
+  "form_breakdown": [
+    {
+      "form": "VISIT3",
+      "total_fields": 1,
+      "resolved": 1,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "SV"
+      ]
+    },
+    {
+      "form": "CONSENT",
+      "total_fields": 16,
+      "resolved": 16,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DS",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "CONSENT2",
+      "total_fields": 2,
+      "resolved": 2,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DS"
+      ]
+    },
+    {
+      "form": "CM1",
+      "total_fields": 41,
+      "resolved": 41,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "CM",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "VS1",
+      "total_fields": 180,
+      "resolved": 180,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "UNKNOWN",
+        "VS"
+      ]
+    },
+    {
+      "form": "DM",
+      "total_fields": 8,
+      "resolved": 8,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DM",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "ASMPERF",
+      "total_fields": 78,
+      "resolved": 78,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PR"
+      ]
+    },
+    {
+      "form": "PE",
+      "total_fields": 42,
+      "resolved": 42,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PR"
+      ]
+    },
+    {
+      "form": "MH",
+      "total_fields": 18,
+      "resolved": 18,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "MH",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "LB3",
+      "total_fields": 110,
+      "resolved": 110,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "LB"
+      ]
+    },
+    {
+      "form": "IE",
+      "total_fields": 12,
+      "resolved": 12,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "IE"
+      ]
+    },
+    {
+      "form": "ALLERH",
+      "total_fields": 21,
+      "resolved": 21,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "MH"
+      ]
+    },
+    {
+      "form": "HISS",
+      "total_fields": 16,
+      "resolved": 16,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PR"
+      ]
+    },
+    {
+      "form": "EG",
+      "total_fields": 45,
+      "resolved": 45,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "EG"
+      ]
+    },
+    {
+      "form": "SU_NIC",
+      "total_fields": 3,
+      "resolved": 3,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "SU"
+      ]
+    },
+    {
+      "form": "RESHISTE",
+      "total_fields": 28,
+      "resolved": 28,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "FA",
+        "MH"
+      ]
+    },
+    {
+      "form": "VISIT1",
+      "total_fields": 1,
+      "resolved": 1,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "SV"
+      ]
+    },
+    {
+      "form": "CONSENT1",
+      "total_fields": 14,
+      "resolved": 14,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DS",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "VISIT",
+      "total_fields": 42,
+      "resolved": 42,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "SV"
+      ]
+    },
+    {
+      "form": "ASMPERF1",
+      "total_fields": 160,
+      "resolved": 160,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PR"
+      ]
+    },
+    {
+      "form": "ASMPERF2",
+      "total_fields": 60,
+      "resolved": 60,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PR"
+      ]
+    },
+    {
+      "form": "VS",
+      "total_fields": 374,
+      "resolved": 374,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "VS"
+      ]
+    },
+    {
+      "form": "PREG",
+      "total_fields": 54,
+      "resolved": 54,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "LB"
+      ]
+    },
+    {
+      "form": "IE1",
+      "total_fields": 6,
+      "resolved": 6,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DM",
+        "DS",
+        "IE",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "SPCBEDB",
+      "total_fields": 154,
+      "resolved": 154,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "BE"
+      ]
+    },
+    {
+      "form": "CHCSS",
+      "total_fields": 60,
+      "resolved": 60,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "HO"
+      ]
+    },
+    {
+      "form": "SPCGIB1",
+      "total_fields": 117,
+      "resolved": 117,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "BE"
+      ]
+    },
+    {
+      "form": "HEVENT",
+      "total_fields": 72,
+      "resolved": 72,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "CM",
+        "FAHO"
+      ]
+    },
+    {
+      "form": "SPCPKB",
+      "total_fields": 153,
+      "resolved": 153,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PC"
+      ]
+    },
+    {
+      "form": "SPCGIB",
+      "total_fields": 70,
+      "resolved": 70,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "BE"
+      ]
+    },
+    {
+      "form": "SPCBEDB1",
+      "total_fields": 56,
+      "resolved": 56,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "BE"
+      ]
+    },
+    {
+      "form": "SPCPKB1",
+      "total_fields": 170,
+      "resolved": 170,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "IS"
+      ]
+    },
+    {
+      "form": "HEVENT1",
+      "total_fields": 702,
+      "resolved": 702,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "CM",
+        "FAHO",
+        "HO"
+      ]
+    },
+    {
+      "form": "CGIC",
+      "total_fields": 36,
+      "resolved": 36,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "QS"
+      ]
+    },
+    {
+      "form": "CONTACT",
+      "total_fields": 6,
+      "resolved": 6,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "SV"
+      ]
+    },
+    {
+      "form": "PARTOPT",
+      "total_fields": 12,
+      "resolved": 12,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DS"
+      ]
+    },
+    {
+      "form": "VISIT2",
+      "total_fields": 13,
+      "resolved": 13,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PR",
+        "SV"
+      ]
+    },
+    {
+      "form": "EXACD",
+      "total_fields": 2,
+      "resolved": 2,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "CE"
+      ]
+    },
+    {
+      "form": "CONSWD1",
+      "total_fields": 1,
+      "resolved": 1,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DS"
+      ]
+    },
+    {
+      "form": "LB1",
+      "total_fields": 9,
+      "resolved": 9,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "LB"
+      ]
+    },
+    {
+      "form": "INFDI",
+      "total_fields": 21,
+      "resolved": 21,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "FA"
+      ]
+    },
+    {
+      "form": "INFRF",
+      "total_fields": 67,
+      "resolved": 67,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "FA"
+      ]
+    },
+    {
+      "form": "LB2",
+      "total_fields": 8,
+      "resolved": 8,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "LB"
+      ]
+    },
+    {
+      "form": "LIVERRF",
+      "total_fields": 169,
+      "resolved": 169,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "CO",
+        "FA"
+      ]
+    },
+    {
+      "form": "CM",
+      "total_fields": 48,
+      "resolved": 48,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "CM"
+      ]
+    },
+    {
+      "form": "SERAE",
+      "total_fields": 22,
+      "resolved": 22,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "AE",
+        "DD"
+      ]
+    },
+    {
+      "form": "AZAWSAE",
+      "total_fields": 4,
+      "resolved": 4,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "AE",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "DS",
+      "total_fields": 3,
+      "resolved": 3,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DS"
+      ]
+    },
+    {
+      "form": "VISITP",
+      "total_fields": 7,
+      "resolved": 7,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "SV"
+      ]
+    },
+    {
+      "form": "AE",
+      "total_fields": 29,
+      "resolved": 28,
+      "unresolved": 1,
+      "resolution_rate": 96.6,
+      "domains_involved": [
+        "AE",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "HELMINTH",
+      "total_fields": 41,
+      "resolved": 38,
+      "unresolved": 3,
+      "resolution_rate": 92.7,
+      "domains_involved": [
+        "CE",
+        "FA"
+      ]
+    },
+    {
+      "form": "EXP",
+      "total_fields": 10,
+      "resolved": 9,
+      "unresolved": 1,
+      "resolution_rate": 90.0,
+      "domains_involved": [
+        "EC"
+      ]
+    },
+    {
+      "form": "PULMTE",
+      "total_fields": 16,
+      "resolved": 14,
+      "unresolved": 2,
+      "resolution_rate": 87.5,
+      "domains_involved": [
+        "FA"
+      ]
+    },
+    {
+      "form": "OVERDOSE",
+      "total_fields": 15,
+      "resolved": 13,
+      "unresolved": 2,
+      "resolution_rate": 86.7,
+      "domains_involved": [
+        "EC"
+      ]
+    },
+    {
+      "form": "PREGREP",
+      "total_fields": 11,
+      "resolved": 9,
+      "unresolved": 2,
+      "resolution_rate": 81.8,
+      "domains_involved": [
+        "RP"
+      ]
+    },
+    {
+      "form": "LIVERDI",
+      "total_fields": 121,
+      "resolved": 97,
+      "unresolved": 24,
+      "resolution_rate": 80.2,
+      "domains_involved": [
+        "FA"
+      ]
+    },
+    {
+      "form": "DOSDISC",
+      "total_fields": 5,
+      "resolved": 4,
+      "unresolved": 1,
+      "resolution_rate": 80.0,
+      "domains_involved": [
+        "DS",
+        "EX"
+      ]
+    },
+    {
+      "form": "EX",
+      "total_fields": 12,
+      "resolved": 9,
+      "unresolved": 3,
+      "resolution_rate": 75.0,
+      "domains_involved": [
+        "EX"
+      ]
+    },
+    {
+      "form": "LB",
+      "total_fields": 12,
+      "resolved": 9,
+      "unresolved": 3,
+      "resolution_rate": 75.0,
+      "domains_involved": [
+        "LB",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "LIVERSS",
+      "total_fields": 189,
+      "resolved": 138,
+      "unresolved": 51,
+      "resolution_rate": 73.0,
+      "domains_involved": [
+        "CE"
+      ]
+    },
+    {
+      "form": "CONSWD",
+      "total_fields": 3,
+      "resolved": 2,
+      "unresolved": 1,
+      "resolution_rate": 66.7,
+      "domains_involved": [
+        "DS"
+      ]
+    },
+    {
+      "form": "EXACATE",
+      "total_fields": 38,
+      "resolved": 18,
+      "unresolved": 20,
+      "resolution_rate": 47.4,
+      "domains_involved": [
+        "CE",
+        "CM",
+        "FACE",
+        "HO"
+      ]
+    },
+    {
+      "form": "INFSS",
+      "total_fields": 501,
+      "resolved": 176,
+      "unresolved": 325,
+      "resolution_rate": 35.1,
+      "domains_involved": [
+        "CE",
+        "FA"
+      ]
+    },
+    {
+      "form": "SUTRA",
+      "total_fields": 3,
+      "resolved": 0,
+      "unresolved": 3,
+      "resolution_rate": 0.0,
+      "domains_involved": []
+    }
+  ],
+  "top_performing_forms": [
+    {
+      "form": "CONSENT",
+      "total_fields": 16,
+      "resolved": 16,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DS",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "CM1",
+      "total_fields": 41,
+      "resolved": 41,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "CM",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "VS1",
+      "total_fields": 180,
+      "resolved": 180,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "UNKNOWN",
+        "VS"
+      ]
+    },
+    {
+      "form": "DM",
+      "total_fields": 8,
+      "resolved": 8,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "DM",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "ASMPERF",
+      "total_fields": 78,
+      "resolved": 78,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PR"
+      ]
+    },
+    {
+      "form": "PE",
+      "total_fields": 42,
+      "resolved": 42,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "PR"
+      ]
+    },
+    {
+      "form": "MH",
+      "total_fields": 18,
+      "resolved": 18,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "MH",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "LB3",
+      "total_fields": 110,
+      "resolved": 110,
+      "unresolved": 0,
+      "resolution_rate": 100.0,
+      "domains_involved": [
+        "LB"
+      ]
+    }
+  ],
+  "forms_needing_improvement": [
+    {
+      "form": "PREGREP",
+      "total_fields": 11,
+      "resolved": 9,
+      "unresolved": 2,
+      "resolution_rate": 81.8,
+      "domains_involved": [
+        "RP"
+      ]
+    },
+    {
+      "form": "LIVERDI",
+      "total_fields": 121,
+      "resolved": 97,
+      "unresolved": 24,
+      "resolution_rate": 80.2,
+      "domains_involved": [
+        "FA"
+      ]
+    },
+    {
+      "form": "DOSDISC",
+      "total_fields": 5,
+      "resolved": 4,
+      "unresolved": 1,
+      "resolution_rate": 80.0,
+      "domains_involved": [
+        "DS",
+        "EX"
+      ]
+    },
+    {
+      "form": "EX",
+      "total_fields": 12,
+      "resolved": 9,
+      "unresolved": 3,
+      "resolution_rate": 75.0,
+      "domains_involved": [
+        "EX"
+      ]
+    },
+    {
+      "form": "LB",
+      "total_fields": 12,
+      "resolved": 9,
+      "unresolved": 3,
+      "resolution_rate": 75.0,
+      "domains_involved": [
+        "LB",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "form": "LIVERSS",
+      "total_fields": 189,
+      "resolved": 138,
+      "unresolved": 51,
+      "resolution_rate": 73.0,
+      "domains_involved": [
+        "CE"
+      ]
+    },
+    {
+      "form": "CONSWD",
+      "total_fields": 3,
+      "resolved": 2,
+      "unresolved": 1,
+      "resolution_rate": 66.7,
+      "domains_involved": [
+        "DS"
+      ]
+    },
+    {
+      "form": "EXACATE",
+      "total_fields": 38,
+      "resolved": 18,
+      "unresolved": 20,
+      "resolution_rate": 47.4,
+      "domains_involved": [
+        "CE",
+        "CM",
+        "FACE",
+        "HO"
+      ]
+    },
+    {
+      "form": "INFSS",
+      "total_fields": 501,
+      "resolved": 176,
+      "unresolved": 325,
+      "resolution_rate": 35.1,
+      "domains_involved": [
+        "CE",
+        "FA"
+      ]
+    },
+    {
+      "form": "SUTRA",
+      "total_fields": 3,
+      "resolved": 0,
+      "unresolved": 3,
+      "resolution_rate": 0.0,
+      "domains_involved": []
+    }
+  ],
+  "unresolved_analysis": {
+    "total_unresolved": 442,
+    "unique_unresolved_labels": 54,
+    "most_common_unresolved": [
+      {
+        "label": "Coder",
+        "count": 50
+      },
+      {
+        "label": "MedDRA System Organ Class Abbreviation",
+        "count": 27
+      },
+      {
+        "label": "If Yes, specify maximum body temperature",
+        "count": 25
+      },
+      {
+        "label": "MedDRA Lowest Level Term Code",
+        "count": 25
+      },
+      {
+        "label": "MedDRA Lowest Level Term Name",
+        "count": 25
+      },
+      {
+        "label": "MedDRA Preferred Term Code",
+        "count": 25
+      },
+      {
+        "label": "MedDRA Preferred Term Name",
+        "count": 25
+      },
+      {
+        "label": "MedDRA High Level Term Code",
+        "count": 25
+      },
+      {
+        "label": "MedDRA High Level Term Name",
+        "count": 25
+      },
+      {
+        "label": "MedDRA High Level Group Term Code",
+        "count": 25
+      },
+      {
+        "label": "MedDRA High Level Group Term Name",
+        "count": 25
+      },
+      {
+        "label": "MedDRA System Organ Class Code",
+        "count": 25
+      },
+      {
+        "label": "MedDRA System Organ Class Name",
+        "count": 25
+      },
+      {
+        "label": "Sign or symptom",
+        "count": 25
+      },
+      {
+        "label": "Liver diagnostic investigation specification",
+        "count": 24
+      },
+      {
+        "label": "Prior to Visit 1) Available?",
+        "count": 2
+      },
+      {
+        "label": "Number for AE associated with overdose",
+        "count": 2
+      },
+      {
+        "label": "Action taken, study drug",
+        "count": 1
+      },
+      {
+        "label": "Other, Specify",
+        "count": 1
+      },
+      {
+        "label": "fill in AE",
+        "count": 1
+      }
+    ],
+    "unresolved_by_form": {
+      "INFSS": [
+        "If Yes, specify maximum body temperature",
+        "MedDRA Lowest Level Term Code",
+        "MedDRA Lowest Level Term Name",
+        "MedDRA Preferred Term Code",
+        "MedDRA Preferred Term Name"
+      ],
+      "LIVERSS": [
+        "MedDRA System Organ Class Abbreviation",
+        "Sign or symptom",
+        "Coder",
+        "Sign or symptom",
+        "Coder"
+      ],
+      "LIVERDI": [
+        "Liver diagnostic investigation specification",
+        "Liver diagnostic investigation specification",
+        "Liver diagnostic investigation specification",
+        "Liver diagnostic investigation specification",
+        "Liver diagnostic investigation specification"
+      ],
+      "EXACATE": [
+        "Exacerbation Start Date",
+        "Exacerbation End Date",
+        "Shortness of Breath",
+        "Wheezing",
+        "Chest tightness"
+      ],
+      "EX": [
+        "Action taken, study drug",
+        "Other, Specify",
+        "fill in AE"
+      ],
+      "HELMINTH": [
+        "Past medical history of Helminth infection",
+        "Number for AE associated with Helminth",
+        "Treatment outcome follow-up test results 1"
+      ],
+      "LB": [
+        "55101 ALT",
+        "55102 AST",
+        "55110 Bilirubin"
+      ],
+      "SUTRA": [
+        "Subject continues into new study",
+        "New study code",
+        "Reason for not continuing"
+      ],
+      "PULMTE": [
+        "Prior to Visit 1) Available?",
+        "Prior to Visit 1) Available?"
+      ],
+      "PREGREP": [
+        "Last menstrual period",
+        "Overall Number of Previous Pregnancies"
+      ]
+    }
+  },
+  "improvement_suggestions": [
+    {
+      "priority": "HIGH",
+      "area": "Form: PREGREP",
+      "current_rate": "81.8%",
+      "unresolved_fields": 2,
+      "suggestion": "Add study-specific patterns or use LLM context for complex multi-domain forms"
+    },
+    {
+      "priority": "HIGH",
+      "area": "Form: LIVERDI",
+      "current_rate": "80.2%",
+      "unresolved_fields": 24,
+      "suggestion": "Add study-specific patterns or use LLM context for complex multi-domain forms"
+    },
+    {
+      "priority": "HIGH",
+      "area": "Form: DOSDISC",
+      "current_rate": "80.0%",
+      "unresolved_fields": 1,
+      "suggestion": "Add study-specific patterns or use LLM context for complex multi-domain forms"
+    },
+    {
+      "priority": "HIGH",
+      "area": "Form: EX",
+      "current_rate": "75.0%",
+      "unresolved_fields": 3,
+      "suggestion": "Add study-specific patterns or use LLM context for complex multi-domain forms"
+    },
+    {
+      "priority": "HIGH",
+      "area": "Form: LB",
+      "current_rate": "75.0%",
+      "unresolved_fields": 3,
+      "suggestion": "Add study-specific patterns or use LLM context for complex multi-domain forms"
+    }
+  ]
+}

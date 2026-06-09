@@ -1,0 +1,1 @@
+"""PDF parser package — extracts fields, positions, and context from AZ Blank CRFs."""

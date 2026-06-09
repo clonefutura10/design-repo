@@ -1,0 +1,27 @@
+# ── PDF Processing ────────────────────────────────────────────────────────────
+# `import fitz` comes from PyMuPDF — do NOT run `pip install fitz` (wrong pkg)
+PyMuPDF
+
+# ── API Framework ─────────────────────────────────────────────────────────────
+fastapi
+uvicorn[standard]
+python-multipart
+
+# ── Data Validation ───────────────────────────────────────────────────────────
+pydantic
+
+# ── Data / Excel Parsing ──────────────────────────────────────────────────────
+openpyxl
+pandas
+numpy
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+structlog
+orjson
+
+# ── Progress Bar ──────────────────────────────────────────────────────────────
+tqdm
+
+# ── LangChain / LangGraph (resolution pipeline) ───────────────────────────────
+langchain-core
+langgraph

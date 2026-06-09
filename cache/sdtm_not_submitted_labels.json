@@ -1,0 +1,1199 @@
+[
+  {
+    "dataset": "AE",
+    "variable": "AELLT",
+    "label": "Lowest Level Term",
+    "label_normalized": "lowest level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AELLTCD",
+    "label": "Lowest Level Term Code",
+    "label_normalized": "lowest level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AEDECOD",
+    "label": "Dictionary-Derived Term",
+    "label_normalized": "dictionary-derived term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AEPTCD",
+    "label": "Preferred Term Code",
+    "label_normalized": "preferred term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AEHLT",
+    "label": "High Level Term",
+    "label_normalized": "high level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AEHLTCD",
+    "label": "High Level Term Code",
+    "label_normalized": "high level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AEHLGT",
+    "label": "High Level Group Term",
+    "label_normalized": "high level group term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AEHLGTCD",
+    "label": "High Level Group Term Code",
+    "label_normalized": "high level group term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AEBODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AEBDSYCD",
+    "label": "Body System or Organ Class Code",
+    "label_normalized": "body system or organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AESOC",
+    "label": "Primary System Organ Class",
+    "label_normalized": "primary system organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "AESOCCD",
+    "label": "Primary System Organ Class Code",
+    "label_normalized": "primary system organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AE",
+    "variable": "MEDDRAV",
+    "label": "MedDRA Version",
+    "label_normalized": "meddra version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGCD",
+    "label": "Medication Code",
+    "label_normalized": "medication code",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDECOD2",
+    "label": "Preferred Name 2",
+    "label_normalized": "preferred name 2",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDECOD3",
+    "label": "Preferred Name 3",
+    "label_normalized": "preferred name 3",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDECOD4",
+    "label": "Preferred Name 4",
+    "label_normalized": "preferred name 4",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDECOD5",
+    "label": "Preferred Name 5",
+    "label_normalized": "preferred name 5",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDECOD6",
+    "label": "Preferred Name 6",
+    "label_normalized": "preferred name 6",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDECOD7",
+    "label": "Preferred Name 7",
+    "label_normalized": "preferred name 7",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDECOD8",
+    "label": "Preferred Name 8",
+    "label_normalized": "preferred name 8",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDTXT",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDTXT2",
+    "label": "Medication Dictionary Text 2",
+    "label_normalized": "medication dictionary text 2",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDTXT3",
+    "label": "Medication Dictionary Text 3",
+    "label_normalized": "medication dictionary text 3",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDTXT4",
+    "label": "Medication Dictionary Text 4",
+    "label_normalized": "medication dictionary text 4",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDTXT5",
+    "label": "Medication Dictionary Text 5",
+    "label_normalized": "medication dictionary text 5",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDTXT6",
+    "label": "Medication Dictionary Text 6",
+    "label_normalized": "medication dictionary text 6",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDTXT7",
+    "label": "Medication Dictionary Text 7",
+    "label_normalized": "medication dictionary text 7",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGDTXT8",
+    "label": "Medication Dictionary Text 8",
+    "label_normalized": "medication dictionary text 8",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "AGGROUP",
+    "label": "Pref. Grouping Term",
+    "label_normalized": "pref. grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "INGRED1",
+    "label": "Active Ingredient 1",
+    "label_normalized": "active ingredient 1",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "INGRED2",
+    "label": "Active Ingredient 2",
+    "label_normalized": "active ingredient 2",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "AG",
+    "variable": "WHODRGV",
+    "label": "WHO Drug Dictionary Version",
+    "label_normalized": "who drug dictionary version",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "BE",
+    "variable": "BEDECOD",
+    "label": "Dictionary-Derived Term",
+    "label_normalized": "dictionary-derived term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CELLT",
+    "label": "Lowest Level Term",
+    "label_normalized": "lowest level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CELLTCD",
+    "label": "Lowest Level Term Code",
+    "label_normalized": "lowest level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CEDECOD",
+    "label": "Dictionary-Derived Term",
+    "label_normalized": "dictionary-derived term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CEPTCD",
+    "label": "Preferred Term Code",
+    "label_normalized": "preferred term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CEHLT",
+    "label": "High Level Term",
+    "label_normalized": "high level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CEHLTCD",
+    "label": "High Level Term Code",
+    "label_normalized": "high level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CEHLGT",
+    "label": "High Level Group Term",
+    "label_normalized": "high level group term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CEHLGTCD",
+    "label": "High Level Group Term Code",
+    "label_normalized": "high level group term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CEBODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CEBDSYCD",
+    "label": "Body System or Organ Class Code",
+    "label_normalized": "body system or organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CESOC",
+    "label": "Primary System Organ Class",
+    "label_normalized": "primary system organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "CESOCCD",
+    "label": "Primary System Organ Class Code",
+    "label_normalized": "primary system organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CE",
+    "variable": "MEDDRAV",
+    "label": "MedDRA Version",
+    "label_normalized": "meddra version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMCD",
+    "label": "Medication Code",
+    "label_normalized": "medication code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT1",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT2",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT3",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT4",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT5",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT6",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT7",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMDTXT8",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMGROUP",
+    "label": "Preferred Grouping Term",
+    "label_normalized": "preferred grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMGROUP2",
+    "label": "Preferred Grouping Term",
+    "label_normalized": "preferred grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMGROUP3",
+    "label": "Preferred Grouping Term",
+    "label_normalized": "preferred grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMGROUP4",
+    "label": "Preferred Grouping Term",
+    "label_normalized": "preferred grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMGROUP5",
+    "label": "Preferred Grouping Term",
+    "label_normalized": "preferred grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMGROUP6",
+    "label": "Preferred Grouping Term",
+    "label_normalized": "preferred grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMGROUP7",
+    "label": "Preferred Grouping Term",
+    "label_normalized": "preferred grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMGROUP8",
+    "label": "Preferred Grouping Term",
+    "label_normalized": "preferred grouping term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMPREF2",
+    "label": "Preferred Name 2 (Seq2=1)",
+    "label_normalized": "preferred name 2 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMPREF3",
+    "label": "Preferred Name 3 (Seq2=1)",
+    "label_normalized": "preferred name 3 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMPREF4",
+    "label": "Preferred Name 4 (Seq2=1)",
+    "label_normalized": "preferred name 4 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMPREF5",
+    "label": "Preferred Name 5 (Seq2=1)",
+    "label_normalized": "preferred name 5 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMPREF6",
+    "label": "Preferred Name 6 (Seq2=1)",
+    "label_normalized": "preferred name 6 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMPREF7",
+    "label": "Preferred Name 7 (Seq2=1)",
+    "label_normalized": "preferred name 7 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "CMPREF8",
+    "label": "Preferred Name 8 (Seq2=1)",
+    "label_normalized": "preferred name 8 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "CM",
+    "variable": "WHODRGV",
+    "label": "WHO Drug Dictionary Version",
+    "label_normalized": "who drug dictionary version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "HLGTCODE",
+    "label": "MedDRA High Level Group Term Code",
+    "label_normalized": "meddra high level group term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "HLGTNAME",
+    "label": "MedDRA High Level Group Term Name",
+    "label_normalized": "meddra high level group term name",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "HLTCODE",
+    "label": "MedDRA High Level Term Code",
+    "label_normalized": "meddra high level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "HLTNAME",
+    "label": "MedDRA High Level Term Name",
+    "label_normalized": "meddra high level term name",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "LLTCODE",
+    "label": "MedDRA Lowest Level Term Code",
+    "label_normalized": "meddra lowest level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "LLTNAME",
+    "label": "MedDRA Lowest Level Term Name",
+    "label_normalized": "meddra lowest level term name",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "MEDDRAV",
+    "label": "MedDRA Version",
+    "label_normalized": "meddra version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "PTCODE",
+    "label": "MedDRA Preferred Term Code",
+    "label_normalized": "meddra preferred term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "PTNAME",
+    "label": "MedDRA Preferred Term Name",
+    "label_normalized": "meddra preferred term name",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "SOCCODE",
+    "label": "MedDRA System Organ Class Code",
+    "label_normalized": "meddra system organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DD",
+    "variable": "SOCNAME",
+    "label": "MedDRA System Organ Class Name",
+    "label_normalized": "meddra system organ class name",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "DE",
+    "variable": "DEDECOD",
+    "label": "Device Events Dictionary-Derived Term",
+    "label_normalized": "device events dictionary-derived term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRGDTXT2",
+    "label": "Medication Dictionary Text 2",
+    "label_normalized": "medication dictionary text 2",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRGDTXT3",
+    "label": "Medication Dictionary Text 3",
+    "label_normalized": "medication dictionary text 3",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRGDTXT4",
+    "label": "Medication Dictionary Text 4",
+    "label_normalized": "medication dictionary text 4",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRGDTXT5",
+    "label": "Medication Dictionary Text 5",
+    "label_normalized": "medication dictionary text 5",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRGDTXT6",
+    "label": "Medication Dictionary Text 6",
+    "label_normalized": "medication dictionary text 6",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRGDTXT7",
+    "label": "Medication Dictionary Text 7",
+    "label_normalized": "medication dictionary text 7",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRGDTXT8",
+    "label": "Medication Dictionary Text 8",
+    "label_normalized": "medication dictionary text 8",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRUGCD",
+    "label": "Medication Code",
+    "label_normalized": "medication code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "DRUGDTXT",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPREF",
+    "label": "Preferred Name (Seq2=1)",
+    "label_normalized": "preferred name (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPREF2",
+    "label": "Preferred Name 2 (Seq2=1)",
+    "label_normalized": "preferred name 2 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPREF3",
+    "label": "Preferred Name 3 (Seq2=1)",
+    "label_normalized": "preferred name 3 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPREF4",
+    "label": "Preferred Name 4 (Seq2=1)",
+    "label_normalized": "preferred name 4 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPREF5",
+    "label": "Preferred Name 5 (Seq2=1)",
+    "label_normalized": "preferred name 5 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPREF6",
+    "label": "Preferred Name 6 (Seq2=1)",
+    "label_normalized": "preferred name 6 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPREF7",
+    "label": "Preferred Name 7 (Seq2=1)",
+    "label_normalized": "preferred name 7 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPREF8",
+    "label": "Preferred Name 8 (Seq2=1)",
+    "label_normalized": "preferred name 8 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "ECPRFGRP",
+    "label": "Pref. Grouping Term (Seq1=1 and Seq2=1)",
+    "label_normalized": "pref. grouping term (seq1=1 and seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EC",
+    "variable": "WHODRGV",
+    "label": "WHO Drug Dictionary Version",
+    "label_normalized": "who drug dictionary version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRGDTXT2",
+    "label": "Medication Dictionary Text 2",
+    "label_normalized": "medication dictionary text 2",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRGDTXT3",
+    "label": "Medication Dictionary Text 3",
+    "label_normalized": "medication dictionary text 3",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRGDTXT4",
+    "label": "Medication Dictionary Text 4",
+    "label_normalized": "medication dictionary text 4",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRGDTXT5",
+    "label": "Medication Dictionary Text 5",
+    "label_normalized": "medication dictionary text 5",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRGDTXT6",
+    "label": "Medication Dictionary Text 6",
+    "label_normalized": "medication dictionary text 6",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRGDTXT7",
+    "label": "Medication Dictionary Text 7",
+    "label_normalized": "medication dictionary text 7",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRGDTXT8",
+    "label": "Medication Dictionary Text 8",
+    "label_normalized": "medication dictionary text 8",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRUGCD",
+    "label": "Medication Code",
+    "label_normalized": "medication code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "DRUGDTXT",
+    "label": "Medication Dictionary Text",
+    "label_normalized": "medication dictionary text",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "EXPREF",
+    "label": "Preferred Name (Seq2=1)",
+    "label_normalized": "preferred name (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "EXPREF2",
+    "label": "Preferred Name 2 (Seq2=1)",
+    "label_normalized": "preferred name 2 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "EXPREF3",
+    "label": "Preferred Name 3 (Seq2=1)",
+    "label_normalized": "preferred name 3 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "EXPREF4",
+    "label": "Preferred Name 4 (Seq2=1)",
+    "label_normalized": "preferred name 4 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "EXPREF5",
+    "label": "Preferred Name 5 (Seq2=1)",
+    "label_normalized": "preferred name 5 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "EXPREF6",
+    "label": "Preferred Name 6 (Seq2=1)",
+    "label_normalized": "preferred name 6 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "EXPREF7",
+    "label": "Preferred Name 7 (Seq2=1)",
+    "label_normalized": "preferred name 7 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "EXPREF8",
+    "label": "Preferred Name 8 (Seq2=1)",
+    "label_normalized": "preferred name 8 (seq2=1)",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "EX",
+    "variable": "WHODRGV",
+    "label": "WHO Drug Dictionary Version",
+    "label_normalized": "who drug dictionary version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "FA",
+    "variable": "FABODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "FAHO",
+    "variable": "FABODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "FAMH",
+    "variable": "FABODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "FAPR",
+    "variable": "FABODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "FT",
+    "variable": "FTBODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "HO",
+    "variable": "HODECOD",
+    "label": "Dictionary-Derived Term",
+    "label_normalized": "dictionary-derived term",
+    "reason": "dictionary_derived_no_origin"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHLLT",
+    "label": "Lowest Level Term",
+    "label_normalized": "lowest level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHLLTCD",
+    "label": "Lowest Level Term Code",
+    "label_normalized": "lowest level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHDECOD",
+    "label": "Dictionary-Derived Term",
+    "label_normalized": "dictionary-derived term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHPTCD",
+    "label": "Preferred Term Code",
+    "label_normalized": "preferred term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHHLT",
+    "label": "High Level Term",
+    "label_normalized": "high level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHHLTCD",
+    "label": "High Level Term Code",
+    "label_normalized": "high level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHHLGT",
+    "label": "High Level Group Term",
+    "label_normalized": "high level group term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHHLGTCD",
+    "label": "High Level Group Term Code",
+    "label_normalized": "high level group term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHBODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHBDSYCD",
+    "label": "Body System or Organ Class Code",
+    "label_normalized": "body system or organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHSOC",
+    "label": "Primary System Organ Class",
+    "label_normalized": "primary system organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MHSOCCD",
+    "label": "Primary System Organ Class Code",
+    "label_normalized": "primary system organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MH",
+    "variable": "MEDDRAV",
+    "label": "MedDRA Version",
+    "label_normalized": "meddra version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MS",
+    "variable": "AZMVERS",
+    "label": "AZM Dictionary Version",
+    "label_normalized": "azm dictionary version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "MS",
+    "variable": "NICPREF",
+    "label": "NCI Preferred Term",
+    "label_normalized": "nci preferred term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PE",
+    "variable": "PETESTCD",
+    "label": "Body System Examined Short Name",
+    "label_normalized": "body system examined short name",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PE",
+    "variable": "PETEST",
+    "label": "Body System Examined",
+    "label_normalized": "body system examined",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PF",
+    "variable": "DDBODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "MEDDRAV",
+    "label": "MedDRA Version",
+    "label_normalized": "meddra version",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRBDSYCD",
+    "label": "Body System or Organ Class Code",
+    "label_normalized": "body system or organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRBODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRHLGT",
+    "label": "High Level Group Term",
+    "label_normalized": "high level group term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRHLGTCD",
+    "label": "High Level Group Term Code",
+    "label_normalized": "high level group term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRHLT",
+    "label": "High Level Term",
+    "label_normalized": "high level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRHLTCD",
+    "label": "High Level Term Code",
+    "label_normalized": "high level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRLLT",
+    "label": "Lowest Level Term",
+    "label_normalized": "lowest level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRLLTCD",
+    "label": "Lowest Level Term Code",
+    "label_normalized": "lowest level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRPTCD",
+    "label": "Preferred Term Code",
+    "label_normalized": "preferred term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRSOC",
+    "label": "Primary System Organ Class",
+    "label_normalized": "primary system organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "PR",
+    "variable": "PRSOCCD",
+    "label": "Primary System Organ Class Code",
+    "label_normalized": "primary system organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "RP",
+    "variable": "RPBODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMLLT",
+    "label": "Lowest Level Term",
+    "label_normalized": "lowest level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMLLTCD",
+    "label": "Lowest Level Term Code",
+    "label_normalized": "lowest level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMDECOD",
+    "label": "Dictionary-Derived Term",
+    "label_normalized": "dictionary-derived term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMPTCD",
+    "label": "Preferred Term Code",
+    "label_normalized": "preferred term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMHLT",
+    "label": "High Level Term",
+    "label_normalized": "high level term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMHLTCD",
+    "label": "High Level Term Code",
+    "label_normalized": "high level term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMHLGT",
+    "label": "High Level Group Term",
+    "label_normalized": "high level group term",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMHLGTCD",
+    "label": "High Level Group Term Code",
+    "label_normalized": "high level group term code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMBODSYS",
+    "label": "Body System or Organ Class",
+    "label_normalized": "body system or organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMBDSYCD",
+    "label": "Body System or Organ Class Code",
+    "label_normalized": "body system or organ class code",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMSOC",
+    "label": "Primary System Organ Class",
+    "label_normalized": "primary system organ class",
+    "reason": "dictionary_derived"
+  },
+  {
+    "dataset": "YM",
+    "variable": "YMSOCCD",
+    "label": "Primary System Organ Class Code",
+    "label_normalized": "primary system organ class code",
+    "reason": "dictionary_derived"
+  }
+]

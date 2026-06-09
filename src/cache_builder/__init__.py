@@ -1,0 +1,1 @@
+"""Cache builder package — converts Excel specifications to runtime-optimised caches."""
