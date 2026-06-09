@@ -712,15 +712,22 @@ if _STANDARDS_FILE.exists():
 
 
 # ============================================================================
-# LOAD AZ SPEC LOOKUP
+# LOAD AZ SPEC LOOKUP + pre-build fuzzy token index
 # ============================================================================
 _AZ_SPEC_FILE = Path("cache/az_spec_lookup.json")
 _AZ_SPEC_LOOKUP: dict[str, dict[str, list[dict]]] = {}
+# Pre-tokenised sets for Jaccard matching: {module: {norm_label: frozenset}}
+_AZ_SPEC_TOKENS: dict[str, dict[str, frozenset[str]]] = {}
 
 if _AZ_SPEC_FILE.exists():
     try:
         with open(_AZ_SPEC_FILE, "r", encoding="utf-8") as f:
             _AZ_SPEC_LOOKUP = json.load(f)
+        for _mod, _labels in _AZ_SPEC_LOOKUP.items():
+            _AZ_SPEC_TOKENS[_mod] = {
+                _lbl: frozenset(re.findall(r"[a-z0-9]+", _lbl.lower()))
+                for _lbl in _labels
+            }
         total_modules = len(_AZ_SPEC_LOOKUP)
         total_entries = sum(len(v) for v in _AZ_SPEC_LOOKUP.values())
         logger.info(f"Loaded AZ Spec Lookup: {total_entries} labels across {total_modules} modules")
@@ -899,6 +906,45 @@ def _reset_usage_tracking():
 _STRIP_TRAILING_DIGITS = re.compile(r"\s+\d+$")
 _STRIP_PARENS = re.compile(r"\s*\(.*?\)\s*$")
 
+# Noise words removed during fuzzy label cleaning (mirrors former tier2 logic)
+_FUZZY_NOISE_WORDS: frozenset[str] = frozenset({
+    "please", "specify", "select", "enter", "record", "indicate",
+    "the", "a", "an", "of", "for", "is", "was", "were", "are",
+    "this", "that", "if", "or", "and", "to", "in", "on", "at",
+    "yes", "no", "subject", "patient", "participant",
+})
+_FUZZY_NOISE_PREFIXES: tuple[str, ...] = (
+    "was the ", "is the ", "were the ", "did the ", "does the ",
+    "has the ", "have the ", "please specify ", "please enter ",
+    "specify ", "select ", "enter ", "record ", "indicate ",
+)
+
+
+def _fuzzy_clean(label: str) -> str:
+    """Strip CRF preamble and noise words for fuzzy matching."""
+    cleaned = re.sub(r"\s+", " ", label.lower().strip())
+    for prefix in _FUZZY_NOISE_PREFIXES:
+        if cleaned.startswith(prefix):
+            cleaned = cleaned[len(prefix):]
+            break
+    cleaned = cleaned.rstrip("?").strip()
+    tokens = [t for t in cleaned.split() if t not in _FUZZY_NOISE_WORDS and len(t) > 1]
+    return " ".join(tokens) if tokens else cleaned
+
+
+def _jaccard(a: frozenset[str], b: frozenset[str]) -> float:
+    if not a or not b:
+        return 0.0
+    union = len(a | b)
+    return len(a & b) / union if union else 0.0
+
+
+def _directional_overlap(query: frozenset[str], target: frozenset[str]) -> float:
+    """Fraction of query tokens present in target — directional recall metric."""
+    if not query:
+        return 0.0
+    return len(query & target) / len(query)
+
 
 # ============================================================================
 # MAIN CLASS
@@ -1012,9 +1058,19 @@ class Tier0Rules:
                 return self._enrich_with_multi_mappings(result)
 
         # ──────────────────────────────────────────────────────────────────
-        # PASS 4: AZ Spec Lookup (conf 0.90)
+        # PASS 4: AZ Spec Lookup — exact string match (conf 0.90)
         # ──────────────────────────────────────────────────────────────────
         result = self._try_az_spec_lookup(form_code, norm_label, field_label, form_name)
+        if result:
+            result = self._guard_domain(result)
+            if result:
+                return self._enrich_with_multi_mappings(result)
+
+        # ──────────────────────────────────────────────────────────────────
+        # PASS 4.5: AZ Spec Lookup — Jaccard fuzzy match (conf 0.72–0.86)
+        # Catches labels that differ in phrasing but share key tokens.
+        # ──────────────────────────────────────────────────────────────────
+        result = self._try_az_spec_fuzzy(form_code, norm_label, field_label, form_name)
         if result:
             result = self._guard_domain(result)
             if result:
@@ -1196,6 +1252,120 @@ class Tier0Rules:
                 codelist_code=codelist,
             )
         return None
+
+    # ──────────────────────────────────────────────────────────────────────
+    # AZ SPEC FUZZY LOOKUP (pass 4.5)
+    # ──────────────────────────────────────────────────────────────────────
+    def _try_az_spec_fuzzy(
+        self,
+        form_code: str,
+        norm_label: str,
+        field_label: str,
+        form_name: str = "",
+    ) -> ResolutionResult | None:
+        """
+        Fuzzy fallback using Jaccard token similarity against AZ spec labels.
+
+        Only fires when the pre-tokenised index is available and the query
+        has at least 2 tokens (single-word queries are too ambiguous).
+
+        Combined score = Jaccard * 0.6 + directional_recall * 0.4
+        Minimum threshold: combined >= 0.72 (calibrated against tier2 experience).
+        """
+        if not _AZ_SPEC_TOKENS:
+            return None
+
+        # Determine modules to search (same logic as exact lookup)
+        form_upper   = form_code.upper().strip()
+        base_form    = re.sub(r"\d+$", "", form_upper)
+        us_prefix    = form_upper.split("_")[0] if "_" in form_upper else ""
+        modules: list[str] = []
+
+        for candidate in (form_upper, base_form, us_prefix):
+            if candidate and candidate in _AZ_SPEC_TOKENS and candidate not in modules:
+                modules.append(candidate)
+
+        legacy_domain = _get_domain_for_form(form_code)
+        if legacy_domain and legacy_domain not in modules and legacy_domain in _AZ_SPEC_TOKENS:
+            modules.append(legacy_domain)
+
+        inference = infer_domains_cached(form_code, form_name)
+        for d in (inference.domains or []):
+            for key in (d, f"SUPP{d}"):
+                if key not in modules and key in _AZ_SPEC_TOKENS:
+                    modules.append(key)
+
+        if not modules:
+            return None
+
+        # Build query token variants
+        query_tokens = frozenset(re.findall(r"[a-z0-9]+", norm_label.lower()))
+        cleaned      = _fuzzy_clean(field_label)
+        clean_tokens = frozenset(re.findall(r"[a-z0-9]+", cleaned)) if cleaned != norm_label else query_tokens
+
+        best_score   = 0.0
+        best_entries: list[dict] | None = None
+        _MIN_SCORE   = 0.72
+
+        for module in modules:
+            mod_tokens = _AZ_SPEC_TOKENS.get(module, {})
+            mod_data   = _AZ_SPEC_LOOKUP.get(module, {})
+
+            for spec_label, spec_toks in mod_tokens.items():
+                if len(spec_toks) < 2:
+                    continue
+
+                for qtoks in (query_tokens, clean_tokens):
+                    if len(qtoks) < 2:
+                        continue
+                    j    = _jaccard(qtoks, spec_toks)
+                    d_ov = _directional_overlap(qtoks, spec_toks)
+                    score = j * 0.6 + d_ov * 0.4
+
+                    if score > best_score and score >= _MIN_SCORE:
+                        best_score   = score
+                        best_entries = mod_data.get(spec_label)
+
+        if not best_entries:
+            return None
+
+        # Confidence scales linearly from 0.72 (floor) → 0.86 (ceiling at score=1)
+        raw_conf = 0.72 + (best_score - _MIN_SCORE) / (1.0 - _MIN_SCORE) * (0.86 - 0.72)
+        confidence = min(round(raw_conf, 3), 0.86)
+
+        # Pick best entry (primary mapping preferred, then non-supplemental)
+        primary    = [e for e in best_entries if e.get("map_order", "") == "1"]
+        candidates = primary if primary else best_entries
+        non_supp   = [e for e in candidates if not e.get("is_supplemental", False)]
+        chosen     = non_supp[0] if non_supp else candidates[0]
+
+        sdtm_domain   = chosen.get("sdtm_domain", "")
+        sdtm_variable = chosen.get("sdtm_variable", "")
+        if not sdtm_domain or not sdtm_variable:
+            return None
+
+        is_supp = chosen.get("is_supplemental", False)
+        if sdtm_domain.startswith("SUPP"):
+            sdtm_domain = sdtm_domain[4:]
+            is_supp = True
+
+        if not check_usage(form_code, sdtm_domain, sdtm_variable, field_label):
+            return None
+
+        return ResolutionResult(
+            form_code=form_code,
+            field_label=field_label,
+            resolved=True,
+            tier=ResolutionTier.TIER0_EXACT,
+            confidence=confidence,
+            sdtm_domain=sdtm_domain,
+            sdtm_variable=sdtm_variable,
+            sdtm_label=chosen.get("sdtm_label", ""),
+            core=chosen.get("core", ""),
+            is_supplemental=is_supp,
+            is_not_submitted=False,
+            codelist_code=chosen.get("codelist_code", "") or "",
+        )
 
     # ──────────────────────────────────────────────────────────────────────
     # MULTI-MAPPING ENRICHMENT

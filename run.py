@@ -20,7 +20,7 @@ from pathlib import Path
 
 from src.pdf_parser.extractor import extract_crf
 from src.resolution.noise_filter import is_noise_field
-from src.resolution.tier0_rules import Tier0Rules, _reset_usage_tracking
+from src.resolution.tier0_rules import Tier0Rules, _reset_usage_tracking, set_study_context
 from src.resolution.tier1_not_submitted import Tier1NotSubmitted
 from src.annotator.pdf_writer import annotate_pdf
 from src.resolution.models import ResolutionResult, ResolutionTier
@@ -64,13 +64,25 @@ def main():
     # STEP 1: Parse CRF PDF
     # ══════════════════════════════════════════════════════════
     print("[1/4] Parsing CRF PDF...")
-    parse_result = extract_crf(input_path)
+    try:
+        parse_result = extract_crf(input_path)
+    except Exception as e:
+        print(f"ERROR: Failed to parse PDF: {e}")
+        logger.error(f"PDF parsing failed: {e}", exc_info=True)
+        sys.exit(1)
+
     all_fields = parse_result.all_fields
     total_fields = len(all_fields)
     total_pages = parse_result.total_pdf_pages
     unique_forms = len({f.form_code for f in all_fields if f.form_code})
 
     print(f"       → {total_pages} pages, {total_fields} fields, {unique_forms} unique forms")
+
+    # ══════════════════════════════════════════════════════════
+    # STEP 1.5: Set Study Context (therapeutic area detection)
+    # ══════════════════════════════════════════════════════════
+    all_form_codes = {f.form_code for f in all_fields if f.form_code}
+    set_study_context(all_form_codes)
 
     # ══════════════════════════════════════════════════════════
     # STEP 2: Filter Noise
@@ -151,12 +163,17 @@ def main():
     # STEP 4: Write Annotated PDF
     # ══════════════════════════════════════════════════════════
     print("[4/4] Writing annotated PDF...")
-    write_stats = annotate_pdf(
-        input_pdf_path=input_path,
-        output_pdf_path=output_path,
-        results=results,
-        fields=data_fields,
-    )
+    try:
+        write_stats = annotate_pdf(
+            input_pdf_path=input_path,
+            output_pdf_path=output_path,
+            results=results,
+            fields=data_fields,
+        )
+    except Exception as e:
+        print(f"ERROR: Failed to write annotated PDF: {e}")
+        logger.error(f"PDF annotation failed: {e}", exc_info=True)
+        sys.exit(1)
 
     annotations_written = write_stats.get("total_annotations", 0)
     pages_annotated = write_stats.get("pages_annotated", 0)
