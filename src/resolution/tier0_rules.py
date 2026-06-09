@@ -34,6 +34,7 @@ from src.utils.text_normalizer import normalize_label_for_lookup
 from src.utils.logging_config import get_logger
 from src.resolution.domain_inferencer import infer_domains_cached
 from src.resolution.usage_guard import check_usage, reset_usage_tracking
+import threading
 from src.resolution.rule_loader import match_domain_rules
 
 logger = get_logger(__name__)
@@ -55,7 +56,11 @@ _CONF_AZ_SPEC = 0.90              # AZ spec lookup match
 # TR/TU/RS are oncology-only. Block in non-oncology studies.
 # ============================================================================
 _ONCOLOGY_ONLY_DOMAINS = {"TR", "TU", "RS"}
-_study_is_oncology: bool = False
+_thread_local = threading.local()
+
+
+def _is_oncology_study() -> bool:
+    return getattr(_thread_local, 'is_oncology', False)
 
 
 def _detect_oncology_study(form_codes: set[str]) -> bool:
@@ -75,9 +80,8 @@ def _detect_oncology_study(form_codes: set[str]) -> bool:
 
 def set_study_context(form_codes: set[str]):
     """Call once at pipeline start with all form codes in the study."""
-    global _study_is_oncology
-    _study_is_oncology = _detect_oncology_study(form_codes)
-    logger.info(f"Study context: oncology={_study_is_oncology}, forms={len(form_codes)}")
+    _thread_local.is_oncology = _detect_oncology_study(form_codes)
+    logger.info(f"Study context: oncology={_thread_local.is_oncology}, forms={len(form_codes)}")
 
 
 # ============================================================================
@@ -1167,7 +1171,7 @@ class Tier0Rules:
         """Block oncology-only domains in non-oncology studies."""
         if not result or result.is_not_submitted:
             return result
-        if result.sdtm_domain in _ONCOLOGY_ONLY_DOMAINS and not _study_is_oncology:
+        if result.sdtm_domain in _ONCOLOGY_ONLY_DOMAINS and not _is_oncology_study():
             # Remap known oncology variables to PR equivalents
             var_map = {
                 "TUDTC": "PRSTDTC",

@@ -13,9 +13,24 @@ This does NOT catch dictionary-derived fields (MedDRA, ATC, etc.)
 
 from __future__ import annotations
 import re
+import json
+from pathlib import Path
 
 from src.resolution.models import ResolutionResult, ResolutionTier
 from src.utils.text_normalizer import normalize_label_for_lookup
+
+
+# Load dictionary-derived NOT SUBMITTED labels from cache
+_NOT_SUBMITTED_LABELS: set[str] = set()
+_NOT_SUBMITTED_CACHE = Path("cache/sdtm_not_submitted_labels.json")
+if _NOT_SUBMITTED_CACHE.exists():
+    try:
+        with open(_NOT_SUBMITTED_CACHE, "r", encoding="utf-8") as _f:
+            for entry in json.load(_f):
+                if "label_normalized" in entry:
+                    _NOT_SUBMITTED_LABELS.add(entry["label_normalized"])
+    except Exception:
+        pass
 
 
 # Substring patterns (matched against normalized lowercase label)
@@ -52,6 +67,10 @@ class Tier1NotSubmitted:
         norm_label = normalize_label_for_lookup(field_label)
         if not norm_label:
             return None
+
+        # Check dictionary-derived NOT SUBMITTED labels (exact normalized match)
+        if norm_label in _NOT_SUBMITTED_LABELS:
+            return self._build_result(form_code, field_label, "dictionary_derived")
 
         # Check substring patterns against normalized label
         for pattern in _CONTAINS_PATTERNS:

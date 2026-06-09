@@ -2,7 +2,6 @@ import axios from "axios";
 import type {
   AnnotationResponse,
   AnnotationDetail,
-  FieldMapping,
   JobSummary,
   AnnotationOverride,
   EditResponse,
@@ -34,26 +33,22 @@ export const applyEdits = (jobId: string, overrides: AnnotationOverride[]) =>
 export const downloadUrl = (jobId: string) =>
   `/api/v1/annotate/${jobId}/download`;
 
-export const exportCsv = (jobId: string, rows: FieldMapping[]): void => {
-  const headers = ['Form Code', 'Field Label', 'Annotation', 'Domain', 'Variable', 'Codelist', 'Is Supplemental', 'Is Not Submitted', 'Confidence %', 'Tier'];
-  const csvRows = rows.map(r => [
-    r.form_code,
-    `"${r.field_label.replace(/"/g, '""')}"`,
-    r.annotation || '',
-    r.sdtm_domain || '',
-    r.sdtm_variable || '',
-    r.codelist_code || '',
-    r.is_supplemental ? 'Yes' : 'No',
-    r.is_not_submitted ? 'Yes' : 'No',
-    Math.round(r.confidence * 100).toString(),
-    r.tier,
-  ].join(','));
-  const csv = [headers.join(','), ...csvRows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+export const exportCsv = (jobId: string, rows: import("./types").FieldMapping[]) => {
+  const header = ["form_code", "field_label", "annotation", "sdtm_domain", "sdtm_variable", "confidence", "tier", "is_not_submitted"];
+  const lines = [
+    header.join(","),
+    ...rows.map((r) =>
+      header.map((h) => {
+        const v = String((r as any)[h] ?? "");
+        return v.includes(",") || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v;
+      }).join(",")
+    ),
+  ];
+  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
-  a.download = `aCRF_mappings_${jobId}.csv`;
+  a.download = `acrf_mappings_${jobId}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 };

@@ -11,6 +11,7 @@ import tempfile
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Any
+from collections import OrderedDict
 
 import re
 
@@ -40,8 +41,9 @@ class PipelineResult:
     unresolved_results: list[ResolutionResult] = field(default_factory=list)
 
 
-# ── In-memory job store (swap for Redis/DB in production) ──
-_JOB_STORE: dict[str, PipelineResult] = {}
+# ── Bounded LRU in-memory job store (max 50 jobs) ──
+_MAX_JOBS = 50
+_JOB_STORE: OrderedDict[str, PipelineResult] = OrderedDict()
 
 
 def get_job(job_id: str) -> PipelineResult | None:
@@ -214,6 +216,8 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
     )
 
     _JOB_STORE[job_id] = pipeline_result
+    while len(_JOB_STORE) > _MAX_JOBS:
+        _JOB_STORE.popitem(last=False)
 
     logger.info(
         "Pipeline complete",

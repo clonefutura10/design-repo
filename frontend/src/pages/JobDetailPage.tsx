@@ -13,32 +13,38 @@ import { DomainBadge } from "../components/Badges";
 
 const PIE_COLORS = ["#6B2D88", "#E5E5E5"];
 
-// Key used to track edits: "FORMCODE::field label"
-const rowKey = (r: FieldMapping) => `${r.form_code}::${r.field_label}`;
-
-interface Toast {
-  id: number;
-  message: string;
-  type: "success" | "error" | "info" | "neutral";
-}
-
-const DOMAIN_CLASS_MAP: Record<string, string[]> = {
-  Events:        ["AE", "CE", "DD", "HO", "MH"],
-  Interventions: ["CM", "EC", "EX", "PR", "SU"],
-  Findings:      ["BE", "EG", "FA", "FACE", "FAHO", "IS", "LB", "MB", "PC", "PE", "QS", "RE", "RP", "VS"],
-  Special:       ["CO", "DM", "DS", "IE", "SC", "SV", "TI"],
+const DOMAIN_CLASS_MAP: Record<string, string> = {
+  DM: "Special Purpose", SE: "Special Purpose", SM: "Special Purpose", SV: "Special Purpose",
+  AE: "Events", CE: "Events", DS: "Events", DV: "Events", HO: "Events", MH: "Events",
+  CM: "Interventions", EC: "Interventions", EX: "Interventions", PR: "Interventions", SU: "Interventions",
+  DD: "Findings", EG: "Findings", IE: "Findings", IS: "Findings", LB: "Findings", MB: "Findings",
+  MI: "Findings", MK: "Findings", MS: "Findings", NV: "Findings", OE: "Findings", PC: "Findings",
+  PE: "Findings", PP: "Findings", QS: "Findings", RE: "Findings", RP: "Findings", RS: "Findings",
+  SC: "Findings", SS: "Findings", TU: "Findings", TR: "Findings", UR: "Findings", VS: "Findings",
+  FA: "Findings About", SR: "Findings About",
+  AG: "Relationship", RELREC: "Relationship",
 };
 
-function getDomainClass(domain: string | null): string {
-  if (!domain) return "";
-  const d = domain.toUpperCase();
-  for (const [cls, members] of Object.entries(DOMAIN_CLASS_MAP)) {
-    if (members.includes(d)) return cls;
-  }
-  return "";
-}
+const CLASS_COLORS: Record<string, string> = {
+  "Events": "#D32F2F",
+  "Interventions": "#00843D",
+  "Findings": "#0052CC",
+  "Findings About": "#0052CC",
+  "Special Purpose": "#6B2D88",
+  "Relationship": "#6B6B6B",
+};
 
-let _toastCounter = 0;
+const TIER_LABELS: Record<string, string> = {
+  TIER0_EXACT: "Exact Rule",
+  TIER0_STANDARDS: "SDTM Standards",
+  TIER0_AZ_SPEC: "AZ Spec",
+  TIER1_NOT_SUBMITTED: "Not Submitted",
+  UNRESOLVED: "Unresolved",
+};
+
+const rowKey = (r: FieldMapping) => `${r.form_code}::${r.field_label}`;
+
+interface Toast { id: number; msg: string; type: "success" | "error"; }
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -53,8 +59,8 @@ export default function JobDetailPage() {
   const [tab, setTab] = useState<"resolved" | "unresolved">("resolved");
   const [search, setSearch] = useState("");
   const [formFilter, setFormFilter] = useState<string>("all");
-  const [confFilter, setConfFilter] = useState<"all" | "90" | "80" | "70">("all");
-  const [classFilter, setClassFilter] = useState<"all" | "Events" | "Interventions" | "Findings" | "Special">("all");
+  const [confFilter, setConfFilter] = useState<number>(0);
+  const [classFilter, setClassFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<keyof FieldMapping>("form_code");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
@@ -66,29 +72,17 @@ export default function JobDetailPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Toast state
+  // Toast
   const [toasts, setToasts] = useState<Toast[]>([]);
-
-  // Copied row state (for visual feedback)
+  const [nextToastId, setNextToastId] = useState(0);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  const addToast = useCallback((message: string, type: Toast["type"]) => {
-    const id = ++_toastCounter;
-    setToasts((prev) => [...prev, { id, message, type }]);
-  }, []);
-
-  const dismissToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
-
-  // Auto-dismiss toasts after 3s
-  useEffect(() => {
-    if (toasts.length === 0) return;
-    const timer = setTimeout(() => {
-      setToasts((prev) => prev.slice(1));
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [toasts]);
+  const addToast = useCallback((msg: string, type: Toast["type"] = "success") => {
+    const id = nextToastId;
+    setNextToastId((n) => n + 1);
+    setToasts((prev) => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000);
+  }, [nextToastId]);
 
   useEffect(() => {
     if (!id) return;
@@ -106,24 +100,22 @@ export default function JobDetailPage() {
     [allRows],
   );
 
+  const domainClasses = useMemo(() => {
+    const classes = new Set(allRows.map((r) => DOMAIN_CLASS_MAP[r.sdtm_domain ?? ""] ?? "").filter(Boolean));
+    return Array.from(classes).sort();
+  }, [allRows]);
+
   const filtered = useMemo(() => {
     return allRows
       .filter((r) => formFilter === "all" || r.form_code === formFilter)
+      .filter((r) => classFilter === "all" || (DOMAIN_CLASS_MAP[r.sdtm_domain ?? ""] ?? "") === classFilter)
+      .filter((r) => r.confidence >= confFilter)
       .filter((r) =>
         r.field_label.toLowerCase().includes(search.toLowerCase()) ||
         r.form_code.toLowerCase().includes(search.toLowerCase()) ||
         (r.annotation ?? "").toLowerCase().includes(search.toLowerCase())
-      )
-      .filter((r) => {
-        if (confFilter === "all") return true;
-        const threshold = parseInt(confFilter) / 100;
-        return r.confidence >= threshold;
-      })
-      .filter((r) => {
-        if (classFilter === "all") return true;
-        return getDomainClass(r.sdtm_domain) === classFilter;
-      });
-  }, [allRows, search, formFilter, confFilter, classFilter]);
+      );
+  }, [allRows, search, formFilter, classFilter, confFilter]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -151,11 +143,7 @@ export default function JobDetailPage() {
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    if (parsed.length === 0) {
-      setPendingEdits((prev) => ({ ...prev, [k]: [] }));
-    } else {
-      setPendingEdits((prev) => ({ ...prev, [k]: parsed }));
-    }
+    setPendingEdits((prev) => ({ ...prev, [k]: parsed }));
     setEditingKey(null);
   };
 
@@ -185,30 +173,26 @@ export default function JobDetailPage() {
       setDetail(detail2.data);
       setPendingEdits({});
       setSaveSuccess(true);
-      addToast("PDF regenerated successfully with your edits.", "success");
+      addToast("PDF regenerated with your edits.", "success");
     } catch (e: any) {
       const msg = e?.response?.data?.detail ?? e.message ?? "Save failed";
       setSaveError(msg);
-      addToast(`Save failed: ${msg}`, "error");
+      addToast(msg, "error");
     } finally {
       setSaving(false);
     }
   };
 
   const handleExportCsv = () => {
-    if (!job || !detail) return;
-    const allMappings = [...detail.resolved, ...detail.unresolved];
-    exportCsv(job.job_id, allMappings);
-    addToast("CSV exported successfully.", "info");
+    if (!detail || !id) return;
+    const allRows = [...detail.resolved, ...detail.unresolved];
+    exportCsv(id, allRows);
+    addToast("CSV exported.", "success");
   };
 
-  const handleCopyAnnotation = (row: FieldMapping) => {
-    const k = rowKey(row);
-    const text = pendingEdits[k]?.join(", ") ?? row.annotation ?? "";
-    if (!text) return;
+  const copyAnnotation = (text: string, k: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedKey(k);
-      addToast("Annotation copied to clipboard.", "neutral");
       setTimeout(() => setCopiedKey(null), 1500);
     });
   };
@@ -241,27 +225,33 @@ export default function JobDetailPage() {
     { name: "Unresolved", value: stats.unresolved_count },
   ];
 
-  const toastBg: Record<Toast["type"], string> = {
-    success: "#E6F6EC",
-    error:   "#FDECEA",
-    info:    "#E3F0FC",
-    neutral: "#F5F5F5",
-  };
-  const toastBorder: Record<Toast["type"], string> = {
-    success: "#00843D",
-    error:   "#D32F2F",
-    info:    "#0077CC",
-    neutral: "#AAAAAA",
-  };
-  const toastColor: Record<Toast["type"], string> = {
-    success: "#00843D",
-    error:   "#D32F2F",
-    info:    "#0077CC",
-    neutral: "#555555",
-  };
+  const tierBreakdown = [
+    { label: "High Conf (≥98%)", value: stats.tier0_regex ?? 0, color: "#6B2D88" },
+    { label: "Standards (≥92%)", value: stats.tier0_standards ?? 0, color: "#00A0DF" },
+    { label: "AZ Spec (≥90%)", value: stats.tier0_az_spec ?? 0, color: "#00843D" },
+    { label: "Not Submitted", value: stats.not_submitted_count ?? 0, color: "#F5A623" },
+    { label: "Unresolved", value: stats.unresolved_count ?? 0, color: "#E5E5E5" },
+  ];
 
   return (
     <div className="space-y-6 pb-24">
+      {/* Toast stack */}
+      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className="px-4 py-2.5 rounded-card text-sm font-medium shadow-az pointer-events-auto"
+            style={{
+              background: t.type === "success" ? "#E6F6EC" : "#FDECEA",
+              border: `1px solid ${t.type === "success" ? "#00843D" : "#D32F2F"}`,
+              color: t.type === "success" ? "#00843D" : "#D32F2F",
+            }}
+          >
+            {t.msg}
+          </div>
+        ))}
+      </div>
+
       {/* Back + header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
@@ -273,9 +263,14 @@ export default function JobDetailPage() {
             Job ID: <code className="text-xs px-1.5 py-0.5 rounded" style={{ background: "#F7F7F7" }}>{job.job_id}</code>
           </p>
         </div>
-        <a href={downloadUrl(job.job_id)} download className="btn-accent">
-          <Download className="w-4 h-4" />Download Annotated PDF
-        </a>
+        <div className="flex items-center gap-2">
+          <button onClick={handleExportCsv} className="btn-secondary text-xs">
+            <FileDown className="w-4 h-4" /> Export CSV
+          </button>
+          <a href={downloadUrl(job.job_id)} download className="btn-accent">
+            <Download className="w-4 h-4" /> Download PDF
+          </a>
+        </div>
       </div>
 
       {/* Message banner */}
@@ -299,56 +294,52 @@ export default function JobDetailPage() {
         <StatCard label="Unique Forms" value={stats.unique_forms} sub="CRF form types" />
       </div>
 
-      {/* Tier breakdown mini-stats */}
-      <div className="flex flex-wrap gap-2">
-        <span
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
-          style={{ background: "#E6F6EC", color: "#00843D", border: "1px solid #A8DCBB" }}
-        >
-          Tier 0 Regex: {stats.tier0_regex ?? 0}
-        </span>
-        <span
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
-          style={{ background: "#E3F0FC", color: "#0077CC", border: "1px solid #A8CCEC" }}
-        >
-          Tier 0 Standards: {stats.tier0_standards ?? 0}
-        </span>
-        <span
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
-          style={{ background: "#FFF3E0", color: "#E65100", border: "1px solid #FFCCAA" }}
-        >
-          Tier 0 AZ Spec: {stats.tier0_az_spec ?? 0}
-        </span>
-        <span
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
-          style={{ background: "#F5F5F5", color: "#777777", border: "1px solid #DDDDDD" }}
-        >
-          Not Submitted: {stats.not_submitted_count ?? 0}
-        </span>
-      </div>
-
-      {/* Resolution pie chart */}
-      <div className="card" style={{ maxWidth: 380 }}>
-        <p className="text-sm font-semibold mb-4" style={{ color: "#1A1A1A" }}>Resolution Overview</p>
-        <ResponsiveContainer width="100%" height={200}>
-          <PieChart>
-            <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
-              {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+      {/* Resolution overview + tier breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="card" >
+          <p className="text-sm font-semibold mb-4" style={{ color: "#1A1A1A" }}>Resolution Overview</p>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
+                {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="card">
+          <p className="text-sm font-semibold mb-4" style={{ color: "#1A1A1A" }}>Resolution Tier Breakdown</p>
+          <div className="space-y-2.5">
+            {tierBreakdown.map((t) => (
+              <div key={t.label} className="flex items-center gap-3">
+                <span className="text-xs w-36 shrink-0" style={{ color: "#6B6B6B" }}>{t.label}</span>
+                <div className="flex-1 rounded-full h-2" style={{ background: "#E5E5E5" }}>
+                  <div
+                    className="h-2 rounded-full transition-all"
+                    style={{
+                      width: stats.fields_after_noise_filter > 0
+                        ? `${Math.round(t.value / stats.fields_after_noise_filter * 100)}%`
+                        : "0%",
+                      background: t.color,
+                    }}
+                  />
+                </div>
+                <span className="text-xs font-medium w-8 text-right" style={{ color: "#1A1A1A" }}>{t.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Mappings table */}
       <div className="card p-0 overflow-hidden">
         {/* Table toolbar */}
-        <div className="px-6 py-4 border-b border-az-border flex flex-wrap items-center gap-4">
+        <div className="px-6 py-4 border-b border-az-border flex flex-wrap items-center gap-3">
           <div>
             <p className="font-semibold" style={{ color: "#1A1A1A" }}>Field Mappings</p>
             <p className="text-xs" style={{ color: "#6B6B6B" }}>
-              {detail?.total_mappings ?? "…"} total fields
+              {detail?.total_mappings ?? "…"} total
               {pendingCount > 0 && (
                 <span className="ml-2 font-semibold" style={{ color: "#E65100" }}>· {pendingCount} unsaved edit{pendingCount > 1 ? "s" : ""}</span>
               )}
@@ -360,23 +351,14 @@ export default function JobDetailPage() {
             {(["resolved", "unresolved"] as const).map((t) => (
               <button
                 key={t}
-                onClick={() => { setTab(t); setFormFilter("all"); setSearch(""); setConfFilter("all"); setClassFilter("all"); }}
-                className="px-3 py-1.5 rounded-btn font-medium transition-colors flex items-center gap-1.5"
+                onClick={() => { setTab(t); setFormFilter("all"); setSearch(""); setClassFilter("all"); setConfFilter(0); }}
+                className="px-3 py-1.5 rounded-btn font-medium transition-colors"
                 style={tab === t
                   ? { background: "#FFFFFF", color: "#6B2D88", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }
                   : { color: "#6B6B6B" }
                 }
               >
-                {t === "resolved" ? "Resolved" : "Unresolved"}
-                <span
-                  className="inline-flex items-center justify-center rounded-full text-xs px-1.5 py-0.5 min-w-[20px]"
-                  style={tab === t
-                    ? { background: "#EDE0F5", color: "#6B2D88" }
-                    : { background: "#E5E5E5", color: "#6B6B6B" }
-                  }
-                >
-                  {t === "resolved" ? (detail?.resolved_count ?? "…") : (detail?.unresolved_count ?? "…")}
-                </span>
+                {t === "resolved" ? `Resolved (${detail?.resolved_count ?? "…"})` : `Unresolved (${detail?.unresolved_count ?? "…"})`}
               </button>
             ))}
           </div>
@@ -389,7 +371,7 @@ export default function JobDetailPage() {
               placeholder="Search fields…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-transparent text-sm outline-none w-44"
+              className="bg-transparent text-sm outline-none w-36"
               style={{ color: "#1A1A1A" }}
             />
           </div>
@@ -410,61 +392,38 @@ export default function JobDetailPage() {
             </select>
           </div>
 
+          {/* Domain class filter */}
+          {domainClasses.length > 0 && (
+            <div className="flex items-center gap-2 rounded-btn px-3 py-1.5 border" style={{ background: "#F7F7F7", borderColor: "#E5E5E5" }}>
+              <select
+                value={classFilter}
+                onChange={(e) => setClassFilter(e.target.value)}
+                className="bg-transparent text-sm outline-none cursor-pointer"
+                style={{ color: "#1A1A1A" }}
+              >
+                <option value="all">All Classes</option>
+                {domainClasses.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Confidence filter */}
           <div className="flex items-center gap-2 rounded-btn px-3 py-1.5 border" style={{ background: "#F7F7F7", borderColor: "#E5E5E5" }}>
             <select
               value={confFilter}
-              onChange={(e) => setConfFilter(e.target.value as typeof confFilter)}
+              onChange={(e) => setConfFilter(Number(e.target.value))}
               className="bg-transparent text-sm outline-none cursor-pointer"
               style={{ color: "#1A1A1A" }}
             >
-              <option value="all">Min Confidence: All</option>
-              <option value="90">≥ 90%</option>
-              <option value="80">≥ 80%</option>
-              <option value="70">≥ 70%</option>
+              <option value={0}>All Confidence</option>
+              <option value={0.9}>≥ 90%</option>
+              <option value={0.95}>≥ 95%</option>
+              <option value={0.98}>≥ 98%</option>
             </select>
           </div>
-
-          {/* Domain class filter */}
-          <div className="flex items-center gap-2 rounded-btn px-3 py-1.5 border" style={{ background: "#F7F7F7", borderColor: "#E5E5E5" }}>
-            <select
-              value={classFilter}
-              onChange={(e) => setClassFilter(e.target.value as typeof classFilter)}
-              className="bg-transparent text-sm outline-none cursor-pointer"
-              style={{ color: "#1A1A1A" }}
-            >
-              <option value="all">Domain Class: All</option>
-              <option value="Events">Events</option>
-              <option value="Interventions">Interventions</option>
-              <option value="Findings">Findings</option>
-              <option value="Special">Special Purpose</option>
-            </select>
-          </div>
-
-          {/* Export CSV button */}
-          <button
-            onClick={handleExportCsv}
-            className="btn-secondary text-xs flex items-center gap-1.5 ml-auto"
-            title="Export all mappings to CSV"
-            disabled={!detail}
-          >
-            <FileDown className="w-3.5 h-3.5" />
-            Export CSV
-          </button>
         </div>
-
-        {/* Unresolved banner */}
-        {tab === "unresolved" && !detailLoading && (detail?.unresolved_count ?? 0) > 0 && (
-          <div
-            className="mx-6 mt-4 mb-2 rounded-card px-4 py-3 text-sm flex items-center gap-2"
-            style={{ background: "#FFFBEB", border: "1px solid #F5A623", color: "#92400E" }}
-          >
-            <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#F5A623" }} />
-            <span>
-              These <strong>{detail?.unresolved_count}</strong> fields could not be auto-mapped. Click the pencil icon to manually annotate them.
-            </span>
-          </div>
-        )}
 
         {detailLoading ? (
           <div className="flex justify-center py-16">
@@ -473,10 +432,7 @@ export default function JobDetailPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead
-                className="border-b border-az-border"
-                style={{ background: "#F7F7F7", position: "sticky", top: 0, zIndex: 10 }}
-              >
+              <thead className="border-b border-az-border" style={{ background: "#F7F7F7" }}>
                 <tr>
                   <Th label="Form" k="form_code" />
                   <Th label="Field Label" k="field_label" />
@@ -499,10 +455,12 @@ export default function JobDetailPage() {
                     const k = rowKey(row);
                     const isEditing = editingKey === k;
                     const isModified = k in pendingEdits;
-                    const isCopied = copiedKey === k;
                     const displayAnnotation = isModified
                       ? pendingEdits[k].join(", ") || "—"
                       : row.annotation || "—";
+                    const domClass = DOMAIN_CLASS_MAP[row.sdtm_domain ?? ""];
+                    const classColor = domClass ? CLASS_COLORS[domClass] : undefined;
+                    const tierLabel = TIER_LABELS[row.tier ?? ""] ?? row.tier;
 
                     return (
                       <tr
@@ -527,9 +485,14 @@ export default function JobDetailPage() {
                         </td>
                         <td className="px-3 py-2.5 max-w-xs">
                           <p className="truncate" style={{ color: "#1A1A1A" }}>{row.field_label}</p>
-                          {row.is_not_submitted && (
-                            <span className="badge text-xs mt-0.5" style={{ background: "#FFF3E0", color: "#E65100" }}>NOT SUBMITTED</span>
-                          )}
+                          <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                            {row.is_not_submitted && (
+                              <span className="badge text-xs" style={{ background: "#FFF3E0", color: "#E65100" }}>NOT SUBMITTED</span>
+                            )}
+                            {tierLabel && (
+                              <span className="badge text-xs" style={{ background: "#F0F0F0", color: "#6B6B6B" }}>{tierLabel}</span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-3 py-2.5 min-w-[180px]">
                           {isEditing ? (
@@ -542,8 +505,8 @@ export default function JobDetailPage() {
                                   if (e.key === "Enter") confirmEdit(row);
                                   if (e.key === "Escape") cancelEdit();
                                 }}
-                                placeholder="e.g. VS.VSORRES or NOT SUBMITTED"
-                                className="border rounded px-2 py-1 text-xs w-48 outline-none"
+                                placeholder="e.g. VS.VSORRES"
+                                className="border rounded px-2 py-1 text-xs w-44 outline-none"
                                 style={{ borderColor: "#6B2D88", color: "#1A1A1A" }}
                               />
                               <button onClick={() => confirmEdit(row)} className="p-1 rounded hover:bg-green-100" title="Confirm">
@@ -559,12 +522,22 @@ export default function JobDetailPage() {
                             </code>
                           )}
                         </td>
-                        <td className="px-3 py-2.5"><DomainBadge domain={row.sdtm_domain} /></td>
+                        <td className="px-3 py-2.5">
+                          <div className="flex flex-col gap-0.5">
+                            <DomainBadge domain={row.sdtm_domain} />
+                            {domClass && (
+                              <span className="text-xs" style={{ color: classColor ?? "#6B6B6B" }}>{domClass}</span>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-3 py-2.5 font-mono text-xs" style={{ color: "#1A1A1A" }}>{row.sdtm_variable ?? "—"}</td>
                         <td className="px-3 py-2.5">
                           <div className="flex items-center gap-1.5">
                             <div className="w-16 rounded-full h-1.5" style={{ background: "#E5E5E5" }}>
-                              <div className="h-1.5 rounded-full" style={{ width: `${Math.round(row.confidence * 100)}%`, background: "#6B2D88" }} />
+                              <div className="h-1.5 rounded-full" style={{
+                                width: `${Math.round(row.confidence * 100)}%`,
+                                background: row.confidence >= 0.95 ? "#00843D" : row.confidence >= 0.9 ? "#6B2D88" : "#F5A623",
+                              }} />
                             </div>
                             <span className="text-xs" style={{ color: "#6B6B6B" }}>{Math.round(row.confidence * 100)}%</span>
                           </div>
@@ -580,13 +553,13 @@ export default function JobDetailPage() {
                                 <Pencil className="w-3.5 h-3.5" style={{ color: "#6B2D88" }} />
                               </button>
                             )}
-                            {!isEditing && tab === "resolved" && (
+                            {displayAnnotation !== "—" && !isEditing && (
                               <button
-                                onClick={() => handleCopyAnnotation(row)}
-                                className="p-1.5 rounded hover:bg-blue-50 transition-colors"
-                                title="Copy annotation to clipboard"
+                                onClick={() => copyAnnotation(displayAnnotation, k)}
+                                className="p-1.5 rounded hover:bg-blue-100 transition-colors"
+                                title="Copy annotation"
                               >
-                                {isCopied
+                                {copiedKey === k
                                   ? <CheckCheck className="w-3.5 h-3.5" style={{ color: "#00843D" }} />
                                   : <Copy className="w-3.5 h-3.5" style={{ color: "#6B6B6B" }} />
                                 }
@@ -603,8 +576,8 @@ export default function JobDetailPage() {
             <div className="px-6 py-3 border-t border-az-border text-xs" style={{ background: "#F7F7F7", color: "#6B6B6B" }}>
               Showing {sorted.length} of {filtered.length} fields
               {formFilter !== "all" && <span className="ml-2 font-medium" style={{ color: "#6B2D88" }}>· Form: {formFilter}</span>}
-              {confFilter !== "all" && <span className="ml-2 font-medium" style={{ color: "#6B2D88" }}>· Conf ≥{confFilter}%</span>}
               {classFilter !== "all" && <span className="ml-2 font-medium" style={{ color: "#6B2D88" }}>· Class: {classFilter}</span>}
+              {confFilter > 0 && <span className="ml-2 font-medium" style={{ color: "#6B2D88" }}>· Conf ≥ {confFilter * 100}%</span>}
             </div>
           </div>
         )}
@@ -635,30 +608,6 @@ export default function JobDetailPage() {
           </div>
         </div>
       )}
-
-      {/* Toast notifications */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-[100]" style={{ maxWidth: 320 }}>
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className="flex items-center gap-2 px-4 py-3 rounded-card shadow-lg text-sm font-medium"
-            style={{
-              background: toastBg[toast.type],
-              border: `1px solid ${toastBorder[toast.type]}`,
-              color: toastColor[toast.type],
-              animation: "fadeInUp 0.2s ease",
-            }}
-          >
-            <span className="flex-1">{toast.message}</span>
-            <button
-              onClick={() => dismissToast(toast.id)}
-              className="ml-1 rounded hover:opacity-70 transition-opacity flex-shrink-0"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
