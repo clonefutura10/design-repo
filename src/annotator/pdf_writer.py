@@ -748,8 +748,8 @@ def annotate_pdf(
                 header_bottom = _draw_dataset_headers(page, page_doms, ann_x + _TICK_LENGTH, pw)
                 tracker.reserve_top(page_idx, header_bottom)
 
-        # ── Separator line (once per page) ──
-        if page_idx not in pages_with_separator:
+        # ── Separator line: only draw on pages with enough annotations ──
+        if page_idx not in pages_with_separator and page_ann_count.get(page_idx, 0) >= 3:
             pages_with_separator.add(page_idx)
             _draw_separator_line(page, sep_x, _PAGE_TOP_MARGIN - 10, ph - _PAGE_BOTTOM_MARGIN)
 
