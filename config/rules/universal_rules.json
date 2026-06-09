@@ -1,0 +1,2073 @@
+{
+  "_meta": {
+    "description": "Universal CDISC-standard field label patterns. Domain-scoped (no form_code matching). Loaded by rule_loader.py at startup.",
+    "version": "2.0.0",
+    "last_updated": "2026-05-29"
+  },
+  "rules": [
+    {
+      "domain": "AE",
+      "label_pattern": "^start\\s*date$",
+      "variable": "AESTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE start date"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "^end\\s*date$",
+      "variable": "AEENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE end date"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "were\\s*any\\s*adverse\\s*events?\\s*(experienced|reported)",
+      "variable": "AEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE occurrence"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "ae\\s*required\\s*treatment",
+      "variable": "AECONTRT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Treatment required for AE"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "date\\s*ae\\s*met\\s*criteria\\s*for\\s*sae",
+      "variable": "AESDT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Date AE became serious"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "date\\s*investigator\\s*became\\s*aware",
+      "variable": "AEAWDT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Date investigator aware of SAE"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "immediately\\s*life.?threaten",
+      "variable": "AESLIFE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SAE criterion: life threatening"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "requires?\\s*in.?patient\\s*hospitali",
+      "variable": "AESHOSP",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SAE criterion: hospitalization"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "results?\\s*in\\s*persistent.*disab",
+      "variable": "AESDISAB",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SAE criterion: disability"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "congenital\\s*anomaly|birth\\s*defect",
+      "variable": "AESCONG",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SAE criterion: congenital anomaly"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "other.*important\\s*medical\\s*event",
+      "variable": "AESMIE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SAE criterion: important medical event"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "results?\\s*in\\s*death",
+      "variable": "AESDTH",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SAE criterion: death"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "related\\s*to\\s*(?:bronchoscopy|ct\\s*scan|study\\s*procedure|other)",
+      "variable": "AERELSP",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE relationship to procedure"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "sae\\s*description",
+      "variable": "SAECOMM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SAE description/comment"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "injection\\s*site\\s*reaction\\s*or\\s*severe\\s*infection",
+      "variable": "AECAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "ISR or severe infection category"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "^ae\\s*category$",
+      "variable": "AECAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE category"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "time\\s*ae\\s*started.*injection\\s*site",
+      "variable": "AESTTM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Time AE started for ISR"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "meddra\\s*system\\s*organ\\s*class\\s*abbreviation",
+      "variable": "AEBODSYS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "MedDRA SOC abbreviation"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "^death$",
+      "variable": "AESDTH",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Death SAE criterion"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "primary\\s*cause\\s*of\\s*death",
+      "variable": "AECOD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Primary cause of death"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "secondary\\s*cause\\s*of\\s*death",
+      "variable": "AECOD2",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Secondary cause of death"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "inpatient\\s*hospitalization",
+      "variable": "AESHOSP",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Inpatient hospitalization"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "life\\s*threatening",
+      "variable": "AESLIFE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Life threatening"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "persistent.*disability",
+      "variable": "AESDISAB",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Persistent disability"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "important\\s*medical\\s*event",
+      "variable": "AESMIE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Important medical event"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "sae\\s*caused\\s*by\\s*other\\s*medication",
+      "variable": "AERELOTH",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SAE caused by other medication"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "additional\\s*information\\s*relevant",
+      "variable": "SAECOMM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Additional SAE information"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "additional\\s*ae\\s*follow.?up",
+      "variable": "SAECOMM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE follow-up information"
+    },
+    {
+      "domain": "AE",
+      "label_pattern": "date\\s*az\\s*aware",
+      "variable": "AEAWDT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Date AZ became aware of SAE"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "was\\s*there\\s*any\\s*new.*exacerbation",
+      "variable": "CEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE occurrence"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "exacerbation.*start\\s*date",
+      "variable": "CESTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Exacerbation start"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "exacerbation.*end\\s*date",
+      "variable": "CEENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Exacerbation end"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "ongoing\\s*at\\s*study\\s*end",
+      "variable": "CEONGO",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE ongoing flag"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "did\\s*the\\s*exacerbation\\s*visit\\s*occur",
+      "variable": "CEEXVST",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Exacerbation visit occurrence"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "sputum\\s*purulence",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE symptom term"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "sputum\\s*volume\\s*increase",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE symptom term"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "dyspnea.*exercise\\s*intolerance",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE symptom term"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "fatigue.*malaise",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE symptom term"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "other\\s*symptoms?/findings?$",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE other symptom"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "other\\s*symptoms?/findings?,?\\s*specify",
+      "variable": "CEMODIFY",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE symptom specify"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "infection\\s*sign\\s*/?\\s*symptom$",
+      "variable": "CECAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Infection sign/symptom category"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "infection\\s*sign/?symptom\\s*occurred",
+      "variable": "CEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Infection sign/symptom occurred"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "infection\\s*sign/?symptom\\s*text",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Infection sign/symptom text"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "^sign\\s*or\\s*symptom$",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Sign or symptom"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "signs\\s*and\\s*symptoms\\s*present",
+      "variable": "CEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Signs and symptoms present"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "^stop\\s*date$",
+      "variable": "CEENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE stop date"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "^coder$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Coder field - not submitted"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "exacerbation\\s*ongoing",
+      "variable": "CEONGO",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Exacerbation ongoing"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "shortness\\s*of\\s*breath",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SOB symptom"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "^wheezing$",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Wheezing symptom"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "chest\\s*tightness",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Chest tightness symptom"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "^cough$",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Cough symptom"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "^sputum$",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Sputum symptom"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "night\\s*time\\s*awakening",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Night time awakening"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "pre-?specified\\s*ediary\\s*alert",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "eDiary alert"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "decreased\\s*pef",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Decreased PEF"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "decreased\\s*fev1",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Decreased FEV1"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "decreased\\s*lung\\s*function.*details",
+      "variable": "CEMODIFY",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Decreased lung function details"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "abnormal\\s*physical\\s*exam",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Abnormal PE finding"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "specify\\s*physical\\s*finding",
+      "variable": "CEMODIFY",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Specify PE finding"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "other\\s*finding\\s*linked\\s*to\\s*asthma",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Other asthma-linked finding"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "specify\\s*finding\\s*linked",
+      "variable": "CEMODIFY",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Specify asthma-linked finding"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "triggering\\s*factor\\s*for\\s*exacerbation",
+      "variable": "CESCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Triggering factor"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "triggering\\s*factor.*other",
+      "variable": "CEMODIFY",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Triggering factor other"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "any\\s*exacerbation\\s*during",
+      "variable": "CEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Any exacerbation during study"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "er\\s*visit\\s*due\\s*to\\s*exacerbation",
+      "variable": "CEHOSP",
+      "codelist": "",
+      "is_supp": true,
+      "note": "ER visit due to exacerbation"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "hospitalization\\s*due\\s*to\\s*exacerbation",
+      "variable": "CEHOSP",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Hospitalization due to exacerbation"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "hospitalization\\s*start\\s*date",
+      "variable": "CESTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Hospitalization start"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "hospitalization\\s*end\\s*date",
+      "variable": "CEENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Hospitalization end"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "nebulized\\s*beta",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Nebulized beta-agonist"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "increased\\s*use\\s*of\\s*rescue",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Increased rescue medication"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "systemic\\s*corticosteroids\\s*treatment",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Systemic corticosteroid treatment"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "systemic\\s*corticosteroids\\s*start\\s*date",
+      "variable": "CESTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Corticosteroid start date"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "systemic\\s*corticosteroids\\s*end\\s*date",
+      "variable": "CEENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Corticosteroid end date"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "depot\\s*injection\\s*of\\s*glucocorticosteroid",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Depot glucocorticosteroid"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "depot\\s*glucocorticosteroid\\s*date",
+      "variable": "CESTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Depot glucocorticosteroid date"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "medication\\s*number",
+      "variable": "CESPID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Medication number reference"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "emergency\\s*room\\s*visit",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "ER visit"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "^hospitalization$",
+      "variable": "CETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Hospitalization"
+    },
+    {
+      "domain": "CE",
+      "label_pattern": "sae\\s*number",
+      "variable": "CESPID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SAE number reference"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "^medication\\s*name$",
+      "variable": "CMTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Medication name (universal)"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "^start\\s*date$",
+      "variable": "CMSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM start date"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "^end\\s*date$",
+      "variable": "CMENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM end date"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "action\\s*taken.*end\\s*of\\s*medication",
+      "variable": "CMACTTK",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Action taken at end"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "(?:therapy|medication)\\s*reason|reason\\s*for\\s*(?:therapy|use)",
+      "variable": "CMINDC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Indication/reason"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "(?:other|if\\s*other)\\s*(?:therapy\\s*)?reason,?\\s*specify",
+      "variable": "CMINDC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Other therapy reason specify"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "(?:other|if\\s*other)\\s*frequency,?\\s*specify",
+      "variable": "CMDOSFRQ",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Other frequency specify"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "(?:other|if\\s*other)\\s*route,?\\s*specify",
+      "variable": "CMROUTE",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Other route specify"
+    },
+    {
+      "domain": "CM",
+      "label_pattern": "(?:other|if\\s*other)\\s*unit,?\\s*specify",
+      "variable": "CMDOSU",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Other unit specify"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "informed\\s*consent\\s*withdrawal\\s*date",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Consent withdrawal date"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "what\\s*was\\s*the\\s*protocol\\s*milestone",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Protocol milestone"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "consent\\s*withdrawal\\s*category",
+      "variable": "DSDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Withdrawal category"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "other\\s*status,?\\s*specify",
+      "variable": "DSMODIFY",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Other status specify"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "date\\s*of\\s*main\\s*consent.*withdrawal",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Main consent withdrawal date"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "date\\s*of\\s*optional\\s*consent\\s*withdrawal",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Optional consent withdrawal date"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "date\\s*of\\s*domiciliary.*consent\\s*withdrawal",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Domiciliary consent withdrawal date"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "investigational\\s*product\\s*been\\s*prematurely",
+      "variable": "DSOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IP permanently discontinued"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "date\\s*of\\s*last\\s*dose",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Date of last dose"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "main\\s*reason\\s*for\\s*investigational\\s*product\\s*discontinuation",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Reason for IP discontinuation"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "development\\s*of\\s*study\\s*specific\\s*discontinuation",
+      "variable": "DSSCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Study specific discontinuation criteria"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "study\\s*participation\\s*option\\s*type",
+      "variable": "DSCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Participation option type"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "description\\s*of\\s*study\\s*participation",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Participation option description"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "study\\s*participation\\s*option\\s*selected",
+      "variable": "DSDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Participation option selected"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "date\\s*of\\s*decision\\s*for\\s*study",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Decision date"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "subject\\s*continues\\s*into\\s*new\\s*study",
+      "variable": "DSOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Subject continues"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "new\\s*study\\s*code",
+      "variable": "DSSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "New study code"
+    },
+    {
+      "domain": "DS",
+      "label_pattern": "reason\\s*for\\s*not\\s*continuing",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Reason for not continuing"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "study\\s*drug\\s*administered",
+      "variable": "EXOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Study drug administered"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "action\\s*taken.*study\\s*drug",
+      "variable": "EXACN",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Action taken with study drug"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "reason\\s*dose\\s*interrupted",
+      "variable": "EXREAS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Reason dose interrupted"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "start\\s*date\\s*of\\s*study\\s*drug",
+      "variable": "EXSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Study drug start date"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "start\\s*time\\s*of\\s*study\\s*drug",
+      "variable": "EXSTTM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Study drug start time"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "location\\s*of\\s*administration",
+      "variable": "EXLOC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Location of administration"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "side\\s*of\\s*administration",
+      "variable": "EXLAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Side of administration"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "changes\\s*in\\s*administration.*adverse\\s*event",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Instruction text - not submitted"
+    },
+    {
+      "domain": "EX",
+      "label_pattern": "^fill\\s*in\\s*ae$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Instruction text - not submitted"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "exposure\\s*impacted\\s*by\\s*pandemic",
+      "variable": "ECOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Exposure impacted by pandemic"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "^study\\s*drug$",
+      "variable": "ECTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Study drug name"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "start\\s*date\\s*of\\s*study\\s*drug",
+      "variable": "ECSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC start date"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "action\\s*taken.*related\\s*to\\s*pandemic",
+      "variable": "ECACN",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Action taken related to pandemic"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "study\\s*drug\\s*administration\\s*according\\s*to\\s*protocol",
+      "variable": "ECADJ",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Administration per protocol"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "study\\s*drug\\s*location\\s*status",
+      "variable": "ECLOC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Study drug location status"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "trade\\s*name|generic\\s*name|randomized\\s*treatment",
+      "variable": "ECTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Overdose drug name"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "^route$",
+      "variable": "ECROUTE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Route of administration"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "total\\s*dose\\s*unit",
+      "variable": "ECDOSU",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Dose unit"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "date\\s*overdose\\s*started",
+      "variable": "ECSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Overdose start date"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "time\\s*overdose\\s*started",
+      "variable": "ECSTTM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Overdose start time"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "date\\s*overdose\\s*stopped",
+      "variable": "ECENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Overdose stop date"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "time\\s*overdose\\s*stopped",
+      "variable": "ECENDTM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Overdose stop time"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "number\\s*for\\s*ae\\s*associated",
+      "variable": "ECSENUM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE number associated with overdose"
+    },
+    {
+      "domain": "EC",
+      "label_pattern": "crf\\s*text\\s*for\\s*ae",
+      "variable": "ECTERM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CRF text for AE"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "assessment.*performed",
+      "variable": "FASTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA assessment performed"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "liver\\s*diagnostic\\s*investigation\\s*specification",
+      "variable": "FATEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Liver diagnostic specification"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "^investigation$",
+      "variable": "FATEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Investigation type"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "other\\s*\\(specify\\)",
+      "variable": "FAMODIFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Other investigation specify"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "^results$",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA results"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "clinical\\s*suspicion\\s*of\\s*helminth",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Helminth clinical suspicion"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "past\\s*medical\\s*history\\s*of\\s*helminth",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Helminth past history"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "residence\\s*in\\s*an\\s*endemic",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Endemic area residence"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "close\\s*contact\\s*with\\s*a\\s*person",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Close contact with infected person"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "number\\s*for\\s*ae\\s*associated",
+      "variable": "FASENUM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE number associated"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "crf\\s*text\\s*for\\s*ae",
+      "variable": "FATERM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CRF text for associated AE"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "treatment\\s*outcome.*follow.?up\\s*testing\\s*performed",
+      "variable": "FATEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Follow-up testing performed"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "treatment\\s*outcome\\s*follow.?up\\s*test\\s*results",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Follow-up test results"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "result\\s*comments",
+      "variable": "FACOMM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Result comments"
+    },
+    {
+      "domain": "FA",
+      "label_pattern": "prior\\s*to\\s*visit\\s*1.*available",
+      "variable": "FASTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Historical data available"
+    },
+    {
+      "domain": "CO",
+      "label_pattern": "liver\\s*risk\\s*factor\\s*comment",
+      "variable": "COVAL",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Liver risk factor comment"
+    },
+    {
+      "domain": "QS",
+      "label_pattern": "^questionnaire\\s*name$",
+      "variable": "QSCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Questionnaire name/category"
+    },
+    {
+      "domain": "QS",
+      "label_pattern": "^assessment\\s*date$",
+      "variable": "QSDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "QS assessment date"
+    },
+    {
+      "domain": "QS",
+      "label_pattern": "gic\\s*rated\\s*by",
+      "variable": "QSEVAL",
+      "codelist": "",
+      "is_supp": false,
+      "note": "GIC evaluator"
+    },
+    {
+      "domain": "QS",
+      "label_pattern": "overall\\s*status\\s*of\\s*subject",
+      "variable": "QSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "GIC result"
+    },
+    {
+      "domain": "QS",
+      "label_pattern": "rater.*initials",
+      "variable": "QSEVAL",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Rater initials"
+    },
+    {
+      "domain": "QS",
+      "label_pattern": "performance\\s*status",
+      "variable": "QSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "ECOG performance status"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "^collection\\s*date$",
+      "variable": "LBDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Lab collection date"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "^collection\\s*time",
+      "variable": "LBTM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Lab collection time"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "if.*abnormal.*clinically\\s*significant,?\\s*specify",
+      "variable": "LBCLSIG",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Clinical significance specify"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "if\\s*no,?\\s*(?:please\\s*)?specify\\s*(?:the\\s*)?reason",
+      "variable": "LBREASND",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Reason not done"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "^hb$|^h[ae]moglobin$",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Hemoglobin result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "leukocyte\\s*count",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "WBC result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "eosinophils?\\s*(?:differential|\\(|count|%)",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Eosinophil result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "neutrophils?\\s*(?:differential|\\(|count|%)",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Neutrophil result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "basophils?\\s*(?:differential|\\(|count|%)",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Basophil result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "platelet\\s*count",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Platelet count result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "h[ae]matocrit",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Hematocrit result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "^rbc$|^red\\s*blood\\s*cell",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RBC result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "creatinine",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Creatinine result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "bilirubin.*total",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Total bilirubin result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "\\d+\\s*bilirubin",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Numbered bilirubin field"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "alanine\\s*aminotransferase|\\balt\\b",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "ALT result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "aspartate\\s*aminotransferase|\\bast\\b",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AST result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "alkaline\\s*phosphatase|\\balp\\b",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "ALP result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "gamma.?glutamyl\\s*transferase|\\bggt\\b",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "GGT result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "^albumin$",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Albumin result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "potassium\\s*\\(?k\\)?",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Potassium result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "sodium\\s*\\(?na\\)?",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Sodium result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "blood\\s*urea\\s*nitrogen|\\bbun\\b",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BUN result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "cholesterol.*total",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Total cholesterol result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "activated\\s*partial\\s*thromboplastin|\\baptt\\b",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "APTT result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "international\\s*normalized\\s*ratio|\\binr\\b",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "INR result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "^appearance\\s*and\\s*colo",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Urine appearance"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "microscopic\\s*(?:red|white)\\s*blood",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Microscopic blood cells"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "occult\\s*blood",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Occult blood result"
+    },
+    {
+      "domain": "LB",
+      "label_pattern": "pregnancy\\s*result",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Pregnancy test result"
+    },
+    {
+      "domain": "RE",
+      "label_pattern": "was\\s*(?:the\\s*)?spirometry\\s*performed",
+      "variable": "REOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Spirometry performed"
+    },
+    {
+      "domain": "RE",
+      "label_pattern": "was\\s*feno\\s*performed",
+      "variable": "REOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FeNO performed"
+    },
+    {
+      "domain": "RE",
+      "label_pattern": "^examination\\s*date$",
+      "variable": "REDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Respiratory exam date"
+    },
+    {
+      "domain": "RE",
+      "label_pattern": "fev1\\s*%\\s*predicted",
+      "variable": "REORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FEV1% predicted"
+    },
+    {
+      "domain": "RE",
+      "label_pattern": "fvc\\s*%\\s*predicted",
+      "variable": "REORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FVC% predicted"
+    },
+    {
+      "domain": "RE",
+      "label_pattern": "fef\\s*25.?75\\s*%?\\s*predicted",
+      "variable": "REORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FEF25-75% predicted"
+    },
+    {
+      "domain": "RE",
+      "label_pattern": "fractional\\s*exhaled\\s*nitric\\s*oxide",
+      "variable": "REORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FeNO result"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "was\\s*(?:the\\s*)?(?:external\\s*data\\s*)?sample\\s*collected",
+      "variable": "BEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Sample collected"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "whether\\s*collect\\s*the\\s*sample",
+      "variable": "BEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Sample collected (alt)"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "^collection\\s*date$",
+      "variable": "BEDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE collection date"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "^collection\\s*time",
+      "variable": "BETM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE collection time"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "^accession\\s*number",
+      "variable": "BEREFID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Accession number"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "(?:blood|sputum|urine)\\s*sample\\s*for",
+      "variable": "BESPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Sample type"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "bronchoalveolar\\s*lavage",
+      "variable": "BESPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BAL specimen"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "endobronchial\\s*(?:biopsy|brushing)",
+      "variable": "BESPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Endobronchial specimen"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "nasal\\s*(?:brushing|lining\\s*fluid)",
+      "variable": "BESPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Nasal specimen"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "sample\\s*collection\\s*method",
+      "variable": "BEMETHOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Sample collection method"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "sample\\s*format",
+      "variable": "SMPFMT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Sample format"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "sample\\s*condition,?\\s*other",
+      "variable": "SMPCDOT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Sample condition other"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "sample\\s*condition$",
+      "variable": "SMPCOND",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Sample condition"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "laboratory\\s*id",
+      "variable": "LABID",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Laboratory ID"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "main\\s*consent\\s*category",
+      "variable": "CNSTCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Main consent category"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "optional\\s*consent.*category",
+      "variable": "OCNSTCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Optional consent category"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "destination\\s*system",
+      "variable": "DESTSYS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Destination system"
+    },
+    {
+      "domain": "BE",
+      "label_pattern": "analysis\\s*method",
+      "variable": "BETEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Analysis method"
+    },
+    {
+      "domain": "PC",
+      "label_pattern": "main\\s*consent\\s*category",
+      "variable": "CNSTCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PK main consent category"
+    },
+    {
+      "domain": "PC",
+      "label_pattern": "optional\\s*consent.*category",
+      "variable": "OCNSTCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PK optional consent category"
+    },
+    {
+      "domain": "PC",
+      "label_pattern": "destination\\s*system",
+      "variable": "DESTSYS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PK destination system"
+    },
+    {
+      "domain": "IS",
+      "label_pattern": "analysis\\s*method",
+      "variable": "ISTEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IS analysis method"
+    },
+    {
+      "domain": "IS",
+      "label_pattern": "number\\s*of\\s*aliquots",
+      "variable": "ALIQCNT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Number of aliquots"
+    },
+    {
+      "domain": "IS",
+      "label_pattern": "sample\\s*condition,?\\s*other",
+      "variable": "SMPCDOT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IS sample condition other"
+    },
+    {
+      "domain": "IS",
+      "label_pattern": "sample\\s*condition$",
+      "variable": "SMPCOND",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IS sample condition"
+    },
+    {
+      "domain": "IS",
+      "label_pattern": "laboratory\\s*id",
+      "variable": "LABID",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IS laboratory ID"
+    },
+    {
+      "domain": "IS",
+      "label_pattern": "main\\s*consent\\s*category",
+      "variable": "CNSTCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IS main consent category"
+    },
+    {
+      "domain": "IS",
+      "label_pattern": "optional\\s*consent.*category",
+      "variable": "OCNSTCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IS optional consent category"
+    },
+    {
+      "domain": "IS",
+      "label_pattern": "destination\\s*system",
+      "variable": "DESTSYS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IS destination system"
+    },
+    {
+      "domain": "PR",
+      "label_pattern": "was\\s*(?:the\\s*)?ct\\s*scan\\s*performed",
+      "variable": "PROCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CT scan performed"
+    },
+    {
+      "domain": "PR",
+      "label_pattern": "^scan\\s*date$",
+      "variable": "PRSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Scan date"
+    },
+    {
+      "domain": "PR",
+      "label_pattern": "^start\\s*date$",
+      "variable": "PRSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Procedure start date"
+    },
+    {
+      "domain": "PR",
+      "label_pattern": "^end\\s*date$",
+      "variable": "PRENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Procedure end date"
+    },
+    {
+      "domain": "DD",
+      "label_pattern": "^death\\s*date$",
+      "variable": "DTHDT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Date of death"
+    },
+    {
+      "domain": "DD",
+      "label_pattern": "(?:primary\\s*)?cause\\s*of\\s*death",
+      "variable": "DTHCAUS",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Cause of death"
+    },
+    {
+      "domain": "DD",
+      "label_pattern": "related\\s*to\\s*disease\\s*under",
+      "variable": "DTHREL",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Related to disease under study"
+    },
+    {
+      "domain": "SC",
+      "label_pattern": "what\\s*(?:is|was)\\s*the\\s*enrol",
+      "variable": "SCORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Enrolment code"
+    },
+    {
+      "domain": "SC",
+      "label_pattern": "what\\s*(?:is|was)\\s*the\\s*study\\s*code",
+      "variable": "SCORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Study code"
+    },
+    {
+      "domain": "SC",
+      "label_pattern": "what\\s*was\\s*the\\s*group\\s*allocation",
+      "variable": "SCORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Group allocation"
+    },
+    {
+      "domain": "DM",
+      "label_pattern": "other\\s*race,?\\s*specify",
+      "variable": "RACEOTH",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Other race specify"
+    },
+    {
+      "domain": "RP",
+      "label_pattern": "was\\s*(?:the\\s*)?child\\s*bearing\\s*potential",
+      "variable": "RPOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Childbearing potential"
+    },
+    {
+      "domain": "RP",
+      "label_pattern": "was\\s*(?:the\\s*)?pregnancy\\s*test\\s*performed",
+      "variable": "RPOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Pregnancy test performed"
+    },
+    {
+      "domain": "RP",
+      "label_pattern": "last\\s*menstrual\\s*period",
+      "variable": "RPDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Last menstrual period date"
+    },
+    {
+      "domain": "RP",
+      "label_pattern": "expected\\s*delivery",
+      "variable": "RPENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Expected delivery date"
+    },
+    {
+      "domain": "RP",
+      "label_pattern": "hormonal\\s*contraception.*iud",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Contraception at conception"
+    },
+    {
+      "domain": "RP",
+      "label_pattern": "overall\\s*number\\s*of\\s*previous\\s*pregnancies",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Number of previous pregnancies"
+    },
+    {
+      "domain": "RP",
+      "label_pattern": "number\\s*of\\s*spontaneous\\s*miscarriages",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Number of miscarriages"
+    },
+    {
+      "domain": "VS",
+      "label_pattern": "^examination\\s*date$",
+      "variable": "VSDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS exam date"
+    },
+    {
+      "domain": "PE",
+      "label_pattern": "^examination\\s*date$",
+      "variable": "PEDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PE exam date"
+    },
+    {
+      "domain": "HO",
+      "label_pattern": "any\\s*emergency\\s*room\\s*visit",
+      "variable": "HOOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "ER visit occurrence"
+    },
+    {
+      "domain": "HO",
+      "label_pattern": "any\\s*unscheduled\\s*physician\\s*visit",
+      "variable": "HOOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Unscheduled physician visit"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "contact\\s*made",
+      "variable": "SVOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Contact made"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "contact\\s*date",
+      "variable": "SVSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Contact date"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "visit\\s*impacted\\s*by\\s*pandemic",
+      "variable": "SVUPDES",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Visit impacted by pandemic"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^visit\\s*status$",
+      "variable": "SVSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit status"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "reason\\s*for\\s*visit\\s*impacted",
+      "variable": "SVREAS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "Reason visit impacted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^spirometry$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^physical\\s*examination$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^vital\\s*signs$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^clab\\s*blood\\s*collection$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^ada\\s*and\\s*nab",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^biomarker\\s*sample$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^rna\\s*transcriptome",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^clab\\s*urine\\s*collection$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^pregnancy\\s*test$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^ecg\\s*test\\s*results$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^dna\\s*sample$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    },
+    {
+      "domain": "SV",
+      "label_pattern": "^pk\\s*sample$",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "Visit checklist - not submitted"
+    }
+  ]
+}
