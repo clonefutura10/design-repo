@@ -112,13 +112,29 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
     noise_removed = total_fields - fields_after_filter
 
     # ══════════════════════════════════════════════════════════
-    # STEP 3: Resolve SDTM Mappings
+    # STEP 2.5: Deduplicate for resolution
+    # The same form may appear across many visit pages; resolve each
+    # unique (form_code, label) only once to avoid inflated counts.
+    # We keep ALL data_fields for PDF annotation (every visit page).
+    # ══════════════════════════════════════════════════════════
+    _seen_keys: dict[str, ResolutionResult] = {}  # (form+label) → result
+    _unique_fields: list = []
+    _unique_indices: list[int] = []
+    for i, fld in enumerate(data_fields):
+        key = f"{(fld.form_code or '').upper().strip()}||{fld.field_label.strip().lower()}"
+        if key not in _seen_keys:
+            _seen_keys[key] = None  # placeholder
+            _unique_fields.append(fld)
+            _unique_indices.append(i)
+
+    # ══════════════════════════════════════════════════════════
+    # STEP 3: Resolve SDTM Mappings (unique fields only)
     # ══════════════════════════════════════════════════════════
     tier0 = Tier0Rules()
     tier1 = Tier1NotSubmitted()
     _reset_usage_tracking()
 
-    results: list[ResolutionResult] = []
+    _unique_results: list[ResolutionResult] = []
     counters = {
         "tier0_regex": 0,
         "tier0_standards": 0,
@@ -127,22 +143,20 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         "unresolved": 0,
     }
 
-    for fld in data_fields:
-        # Try Tier 1 (NOT SUBMITTED) first — same order as run.py
+    for fld in _unique_fields:
         t1 = tier1.resolve(field_label=fld.field_label, form_code=fld.form_code)
         if t1:
-            results.append(t1)
+            _unique_results.append(t1)
             counters["tier1"] += 1
             continue
 
-        # Try Tier 0 (deterministic mapping) — with form_name for inference
         t0 = tier0.resolve(
             form_code=fld.form_code,
             field_label=fld.field_label,
             form_name=getattr(fld, 'form_name', ''),
         )
         if t0:
-            results.append(t0)
+            _unique_results.append(t0)
             if t0.confidence >= 0.98:
                 counters["tier0_regex"] += 1
             elif t0.confidence >= 0.92:
@@ -151,8 +165,7 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
                 counters["tier0_az_spec"] += 1
             continue
 
-        # Unresolved
-        results.append(ResolutionResult(
+        _unique_results.append(ResolutionResult(
             form_code=fld.form_code,
             field_label=fld.field_label,
             resolved=False,
@@ -163,10 +176,32 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         ))
         counters["unresolved"] += 1
 
-    resolved_count = fields_after_filter - counters["unresolved"]
+    # Build lookup from unique results
+    _result_lookup: dict[str, ResolutionResult] = {}
+    for fld, res in zip(_unique_fields, _unique_results):
+        key = f"{(fld.form_code or '').upper().strip()}||{fld.field_label.strip().lower()}"
+        _result_lookup[key] = res
+
+    # Expand back to ALL data_fields so the PDF writer can annotate every page
+    results: list[ResolutionResult] = []
+    for fld in data_fields:
+        key = f"{(fld.form_code or '').upper().strip()}||{fld.field_label.strip().lower()}"
+        results.append(_result_lookup.get(key, ResolutionResult(
+            form_code=fld.form_code,
+            field_label=fld.field_label,
+            resolved=False,
+            tier=ResolutionTier.UNRESOLVED,
+            confidence=0.0,
+            sdtm_domain="",
+            sdtm_variable="",
+        )))
+
+    # Stats are based on unique fields only
+    unique_field_count = len(_unique_fields)
+    resolved_count = unique_field_count - counters["unresolved"]
     resolution_rate = round(
-        resolved_count / fields_after_filter * 100, 1
-    ) if fields_after_filter else 0.0
+        resolved_count / unique_field_count * 100, 1
+    ) if unique_field_count else 0.0
 
     # ══════════════════════════════════════════════════════════
     # STEP 4: Write Annotated PDF
@@ -185,7 +220,7 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         "total_pages": total_pages,
         "total_fields_extracted": total_fields,
         "unique_forms": unique_forms,
-        "fields_after_noise_filter": fields_after_filter,
+        "fields_after_noise_filter": unique_field_count,  # unique fields only
         "noise_removed": noise_removed,
         "resolved_count": resolved_count,
         "unresolved_count": counters["unresolved"],
@@ -200,8 +235,9 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         "tier0_az_spec": counters["tier0_az_spec"],
     }
 
-    resolved_list = [r for r in results if r.resolved]
-    unresolved_list = [r for r in results if not r.resolved]
+    # UI display uses unique results only
+    resolved_list = [r for r in _unique_results if r.resolved]
+    unresolved_list = [r for r in _unique_results if not r.resolved]
 
     pipeline_result = PipelineResult(
         job_id=job_id,
@@ -209,8 +245,8 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         output_pdf_path=output_pdf_path,
         input_pdf_path=input_pdf_path,
         stats=stats,
-        all_results=results,
-        data_fields=data_fields,
+        all_results=_unique_results,   # unique results for edits/display
+        data_fields=_unique_fields,    # unique fields aligned with unique_results
         resolved_results=resolved_list,
         unresolved_results=unresolved_list,
     )

@@ -38,18 +38,18 @@ logger = get_logger(__name__)
 _FONT_NAME          = "helv"
 _FONT_NAME_BOLD     = "hebo"        # Helvetica Bold (built-in PDF font)
 
-_FONT_SIZE          = 7.0           # Normal pages
-_FONT_SIZE_DENSE    = 6.0           # Dense pages (> threshold annotations)
-_HEADER_FONT_SIZE   = 7.5
+_FONT_SIZE          = 7.5           # Normal pages
+_FONT_SIZE_DENSE    = 6.5           # Dense pages (> threshold annotations)
+_HEADER_FONT_SIZE   = 8.0
 _LEGEND_FONT_SIZE   = 8.0
 
-_BORDER_WIDTH       = 0.6
-_BOX_PADDING_X      = 3.0
-_BOX_PADDING_Y      = 2.0
-_MULTI_BOX_SPACING  = 2.5          # Vertical gap between stacked domain boxes
+_BORDER_WIDTH       = 1.0
+_BOX_PADDING_X      = 4.0
+_BOX_PADDING_Y      = 2.5
+_MULTI_BOX_SPACING  = 3.0          # Vertical gap between stacked domain boxes
 
 _SEPARATOR_X_RATIO  = 0.555        # Thin vertical rule separating content / annotations
-_ANNOTATION_X_RATIO = 0.565        # Left edge of annotation boxes (just right of separator)
+_ANNOTATION_X_RATIO = 0.567        # Left edge of annotation boxes (just right of separator)
 
 _TICK_LENGTH        = 6.0          # Length of horizontal tick from separator to box
 _TICK_COLOUR        = (0.65, 0.65, 0.65)
@@ -161,48 +161,48 @@ def _get_domain_full_name(domain: str) -> str:
 
 _DOMAIN_COLOURS: dict[str, tuple[tuple[float,float,float], tuple[float,float,float]]] = {
     # Events — warm red
-    "AE":   ((0.72, 0.08, 0.08), (1.00, 0.92, 0.92)),
-    "CE":   ((0.72, 0.08, 0.08), (1.00, 0.92, 0.92)),
-    "DD":   ((0.72, 0.08, 0.08), (1.00, 0.92, 0.92)),
-    "HO":   ((0.72, 0.08, 0.08), (1.00, 0.92, 0.92)),
-    "MH":   ((0.72, 0.08, 0.08), (1.00, 0.92, 0.92)),
+    "AE":   ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
+    "CE":   ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
+    "DD":   ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
+    "HO":   ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
+    "MH":   ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
 
     # Interventions — forest green
-    "CM":   ((0.06, 0.45, 0.06), (0.90, 1.00, 0.90)),
-    "EC":   ((0.06, 0.45, 0.06), (0.90, 1.00, 0.90)),
-    "EX":   ((0.06, 0.45, 0.06), (0.90, 1.00, 0.90)),
-    "PR":   ((0.06, 0.45, 0.06), (0.90, 1.00, 0.90)),
-    "SU":   ((0.06, 0.45, 0.06), (0.90, 1.00, 0.90)),
+    "CM":   ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
+    "EC":   ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
+    "EX":   ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
+    "PR":   ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
+    "SU":   ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
 
     # Findings — royal blue
-    "BE":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "EG":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "FA":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "FACE": ((0.00, 0.44, 0.52), (0.88, 0.98, 1.00)),
-    "FAHO": ((0.00, 0.44, 0.52), (0.88, 0.98, 1.00)),
-    "IS":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "LB":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "MB":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "PC":   ((0.00, 0.40, 0.40), (0.88, 0.98, 0.98)),
-    "PE":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "QS":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "RE":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "RP":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
-    "VS":   ((0.06, 0.12, 0.68), (0.91, 0.93, 1.00)),
+    "BE":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "EG":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "FA":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "FACE": ((0.00, 0.44, 0.52), (0.78, 0.95, 1.00)),
+    "FAHO": ((0.00, 0.44, 0.52), (0.78, 0.95, 1.00)),
+    "IS":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "LB":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "MB":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "PC":   ((0.00, 0.40, 0.40), (0.78, 0.96, 0.96)),
+    "PE":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "QS":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "RE":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "RP":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
+    "VS":   ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
 
     # Special Purpose — medium purple
-    "CO":   ((0.42, 0.06, 0.58), (0.95, 0.91, 1.00)),
-    "DM":   ((0.42, 0.06, 0.58), (0.95, 0.91, 1.00)),
-    "DS":   ((0.42, 0.06, 0.58), (0.95, 0.91, 1.00)),
-    "IE":   ((0.42, 0.06, 0.58), (0.95, 0.91, 1.00)),
-    "SC":   ((0.42, 0.06, 0.58), (0.95, 0.91, 1.00)),
-    "SV":   ((0.42, 0.06, 0.58), (0.95, 0.91, 1.00)),
-    "TI":   ((0.42, 0.06, 0.58), (0.95, 0.91, 1.00)),
+    "CO":   ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
+    "DM":   ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
+    "DS":   ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
+    "IE":   ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
+    "SC":   ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
+    "SV":   ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
+    "TI":   ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
 
     # Oncology — dark maroon
-    "RS":   ((0.52, 0.00, 0.18), (1.00, 0.90, 0.93)),
-    "TR":   ((0.52, 0.00, 0.18), (1.00, 0.90, 0.93)),
-    "TU":   ((0.52, 0.00, 0.18), (1.00, 0.90, 0.93)),
+    "RS":   ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
+    "TR":   ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
+    "TU":   ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
 }
 
 _DEFAULT_BORDER = (0.35, 0.35, 0.35)
@@ -345,51 +345,46 @@ def _draw_dataset_headers(
     page_width: float,
 ) -> float:
     """
-    Draw compact domain label boxes in the top-right corner of the page.
-    Returns the Y coordinate just below the last label box.
+    Draw stacked colour-coded dataset-name bars at the top-right margin.
+    Returns the Y coordinate just below the last header bar.
     """
     if not domains:
         return _PAGE_TOP_MARGIN
 
-    _LABEL_FONT_SIZE = 6.5
-    _LABEL_BOX_H     = _LABEL_FONT_SIZE + 4.0
-    _LABEL_MAX_W     = 160.0
-    _LABEL_PAD_X     = 3.0
-    right_edge       = page_width - 4.0
-
-    y = 20.0
+    y = 38.0
+    right_edge = page_width - 4.0
 
     for domain in domains:
-        full_name   = _get_domain_full_name(domain)
-        label_text  = f"{domain} — {full_name}"
+        full_name    = _get_domain_full_name(domain)
+        header_text  = f"{domain}  —  {full_name}"
         border_c, fill_c = _get_domain_colours(domain)
 
-        # Very light tint fill (95% white + 5% color tint)
-        light_fill = (
-            min(1.0, 0.95 + fill_c[0] * 0.05),
-            min(1.0, 0.95 + fill_c[1] * 0.05),
-            min(1.0, 0.95 + fill_c[2] * 0.05),
+        # Slightly darker fill for the header bar
+        bar_fill = (
+            max(0.0, fill_c[0] - 0.10),
+            max(0.0, fill_c[1] - 0.10),
+            max(0.0, fill_c[2] - 0.10),
         )
 
-        # Measure text and clamp to max width
-        tw = fitz.get_text_length(label_text, fontname=_FONT_NAME_BOLD, fontsize=_LABEL_FONT_SIZE)
-        box_w = min(tw + 2 * _LABEL_PAD_X, _LABEL_MAX_W)
-        box_left = right_edge - box_w
+        bar_left = ann_x - 2
+        bar_rect = fitz.Rect(bar_left, y, right_edge, y + _HEADER_BAR_HEIGHT)
+        page.draw_rect(bar_rect, color=border_c, fill=bar_fill, width=1.0, overlay=True)
 
-        box_rect = fitz.Rect(box_left, y, right_edge, y + _LABEL_BOX_H)
-        page.draw_rect(box_rect, color=border_c, fill=light_fill, width=0.5, overlay=True)
-
+        # Center text in the bar
+        tw = fitz.get_text_length(header_text, fontname=_FONT_NAME_BOLD, fontsize=_HEADER_FONT_SIZE)
+        bar_width = right_edge - bar_left
+        text_x = bar_left + max(2.0, (bar_width - tw) / 2)
         page.insert_text(
-            fitz.Point(right_edge - _LABEL_PAD_X - tw, y + _LABEL_BOX_H - 2.0),
-            label_text,
-            fontsize=_LABEL_FONT_SIZE,
+            fitz.Point(text_x, y + _HEADER_BAR_HEIGHT - 2.5),
+            header_text,
+            fontsize=_HEADER_FONT_SIZE,
             fontname=_FONT_NAME_BOLD,
             color=border_c,
         )
 
-        y += _LABEL_BOX_H + 2.0
+        y += _HEADER_BAR_HEIGHT + 2.0
 
-    return y + 2.0  # return bottom edge of last label box
+    return y + 2.0  # return bottom edge of last header
 
 
 # =============================================================================
@@ -718,6 +713,9 @@ def annotate_pdf(
             d = result.sdtm_domain.upper()
             form_primary_domain[fc] = d[4:] if d.startswith("SUPP") else d
 
+    # ── Track which pages need a separator line ──
+    pages_with_separator: set[int] = set()
+
     # ── Write annotations ──
     for field, result in zip(fields, results):
 
@@ -753,6 +751,11 @@ def annotate_pdf(
             if page_doms:
                 header_bottom = _draw_dataset_headers(page, page_doms, ann_x + _TICK_LENGTH, pw)
                 tracker.reserve_top(page_idx, header_bottom)
+
+        # ── Separator line: only draw on pages with enough annotations ──
+        if page_idx not in pages_with_separator and page_ann_count.get(page_idx, 0) >= 3:
+            pages_with_separator.add(page_idx)
+            _draw_separator_line(page, sep_x, _PAGE_TOP_MARGIN - 10, ph - _PAGE_BOTTOM_MARGIN)
 
         # ── Build annotation entries ──
         ann_entries = _build_annotations_list(result)
@@ -791,13 +794,7 @@ def annotate_pdf(
                 font_n   = _FONT_NAME
                 stats["not_submitted"] += 1
             else:
-                border_c, raw_fill = _get_domain_colours(entry["domain"])
-                # Very light fill: 97% white + 3% color tint
-                fill_c = (
-                    min(1.0, 0.97 + raw_fill[0] * 0.03),
-                    min(1.0, 0.97 + raw_fill[1] * 0.03),
-                    min(1.0, 0.97 + raw_fill[2] * 0.03),
-                )
+                border_c, fill_c = _get_domain_colours(entry["domain"])
                 text_c   = _TEXT_COLOUR
                 font_n   = _FONT_NAME_BOLD
 
@@ -838,6 +835,10 @@ def annotate_pdf(
                 fontname=font_n,
                 color=text_c,
             )
+
+            # Tick line from separator to box
+            tick_y = text_y - eff_fs / 2
+            _draw_tick(page, sep_x, ann_x, tick_y)
 
             y_off     += box_h + _MULTI_BOX_SPACING
             any_drawn  = True
