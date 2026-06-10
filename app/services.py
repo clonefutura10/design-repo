@@ -35,8 +35,9 @@ class PipelineResult:
     output_pdf_path: Path
     input_pdf_path: Path                              # kept for re-annotation on edits
     stats: dict[str, Any]
-    all_results: list[ResolutionResult] = field(default_factory=list)   # aligned with data_fields
-    data_fields: list[CRFField] = field(default_factory=list)           # extracted CRF fields
+    all_results: list[ResolutionResult] = field(default_factory=list)   # unique results (display/edit)
+    data_fields: list[CRFField] = field(default_factory=list)           # unique fields (display/edit)
+    all_data_fields: list[CRFField] = field(default_factory=list)       # ALL occurrences (PDF annotation)
     resolved_results: list[ResolutionResult] = field(default_factory=list)
     unresolved_results: list[ResolutionResult] = field(default_factory=list)
 
@@ -245,8 +246,9 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         output_pdf_path=output_pdf_path,
         input_pdf_path=input_pdf_path,
         stats=stats,
-        all_results=_unique_results,   # unique results for edits/display
-        data_fields=_unique_fields,    # unique fields aligned with unique_results
+        all_results=_unique_results,      # unique results for edits/display
+        data_fields=_unique_fields,      # unique fields aligned with unique_results
+        all_data_fields=data_fields,     # ALL field occurrences for PDF annotation
         resolved_results=resolved_list,
         unresolved_results=unresolved_list,
     )
@@ -417,14 +419,28 @@ def apply_edits(job_id: str, overrides: list) -> PipelineResult:
 
         changes_applied += len(indices)
 
-    # Re-run annotate_pdf with updated results
+    # Re-run annotate_pdf with updated results expanded to all field occurrences
     new_output_path = job.output_pdf_path.parent / f"aCRF_annotated_{job_id}_v2.pdf"
+    all_fields_for_pdf = job.all_data_fields or job.data_fields
+    result_lookup = {
+        f"{(r.form_code or '').upper().strip()}||{r.field_label.strip().lower()}": r
+        for r in updated_results
+    }
+    expanded_results = [
+        result_lookup.get(
+            f"{(f.form_code or '').upper().strip()}||{f.field_label.strip().lower()}",
+            ResolutionResult(form_code=f.form_code, field_label=f.field_label,
+                             resolved=False, tier=ResolutionTier.UNRESOLVED,
+                             confidence=0.0, sdtm_domain="", sdtm_variable="")
+        )
+        for f in all_fields_for_pdf
+    ]
     try:
         write_stats = annotate_pdf(
             input_pdf_path=job.input_pdf_path,
             output_pdf_path=new_output_path,
-            results=updated_results,
-            fields=job.data_fields,
+            results=expanded_results,
+            fields=all_fields_for_pdf,
         )
     except Exception as e:
         logger.error("Re-annotation failed", job_id=job_id, error=str(e))

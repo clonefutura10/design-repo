@@ -165,75 +165,116 @@ def extract_crf(filepath: Path | None = None) -> CRFParseResult:
 
 def _enrich_with_positions(page: fitz.Page, fields: list[CRFField]) -> None:
     """
-    Add position coordinates to fields by matching text against page blocks.
+    Add position coordinates to fields by matching text against page content.
 
-    Uses PyMuPDF's text blocks which provide (x0, y0, x1, y1) bounding boxes.
-    Matches each field's label text to its corresponding block position.
+    Strategy (in order of reliability):
+    1. PyMuPDF page.search_for() on the label text — handles multi-line, fonts
+    2. search_for on the first meaningful clause of the label (first 40 chars)
+    3. search_for on the field number (numeric anchor in AZ CRF)
+    4. Block-text similarity matching with word-overlap scoring
+    5. Proportional Y fallback so no field is left with y=0.0
     """
-    blocks = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)["blocks"]
+    ph = page.rect.height
+    pw = page.rect.width
 
-    # Build a text → position lookup from blocks
+    # ── Build block-text lookup (for fallback) ──
     text_positions: list[tuple[str, float, float, float, float]] = []
-    for block in blocks:
-        if block.get("type") != 0:  # Text blocks only
+    for block in page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)["blocks"]:
+        if block.get("type") != 0:
             continue
         for line in block.get("lines", []):
-            line_text_parts = []
-            x0 = float("inf")
-            y0 = float("inf")
-            x1 = 0
-            y1 = 0
+            parts, x0, y0, x1, y1 = [], float("inf"), float("inf"), 0.0, 0.0
             for span in line.get("spans", []):
-                line_text_parts.append(span.get("text", ""))
-                bbox = span.get("bbox", (0, 0, 0, 0))
-                x0 = min(x0, bbox[0])
-                y0 = min(y0, bbox[1])
-                x1 = max(x1, bbox[2])
-                y1 = max(y1, bbox[3])
-            full_text = "".join(line_text_parts).strip()
-            if full_text:
-                text_positions.append((full_text, x0, y0, x1, y1))
+                parts.append(span.get("text", ""))
+                bb = span.get("bbox", (0, 0, 0, 0))
+                x0 = min(x0, bb[0]); y0 = min(y0, bb[1])
+                x1 = max(x1, bb[2]); y1 = max(y1, bb[3])
+            full = "".join(parts).strip()
+            if full and x0 != float("inf"):
+                text_positions.append((full, x0, y0, x1, y1))
 
-    # Match fields to positions
-    for crf_field in fields:
-        if not crf_field.field_label:
+    # ── Build field-number → y lookup ──
+    num_y: dict[str, float] = {}
+    for text, x0, y0, x1, y1 in text_positions:
+        t = text.strip()
+        if t.isdigit() and 1 <= int(t) <= 999:
+            num_y[t] = y1
+
+    # ── Word-overlap scorer ──
+    def _word_overlap(a: str, b: str) -> float:
+        wa = set(a.lower().split())
+        wb = set(b.lower().split())
+        if not wa or not wb:
+            return 0.0
+        return len(wa & wb) / max(len(wa), len(wb))
+
+    # ── Assign positions ──
+    for i, crf_field in enumerate(fields):
+        label = crf_field.field_label.strip()
+        if not label:
             continue
 
-        label_lower = crf_field.field_label.lower().strip()
+        placed = False
 
-        # Find best matching position
-        best_match = None
-        best_ratio = 0.0
+        # 1. Direct search_for on full label (up to 50 chars)
+        search_str = label[:50]
+        hits = page.search_for(search_str, quads=False)
+        if hits:
+            r = hits[0]
+            crf_field.x = r.x0; crf_field.y = r.y1
+            crf_field.width = r.width; crf_field.height = r.height
+            placed = True
 
-        for text, x0, y0, x1, y1 in text_positions:
-            text_lower = text.lower().strip()
+        # 2. search_for on meaningful first clause
+        if not placed and len(label) > 10:
+            # Use first sentence/clause up to a comma or question mark
+            clause = label.split("?")[0].split(",")[0].strip()
+            if len(clause) >= 8:
+                hits2 = page.search_for(clause[:40], quads=False)
+                if hits2:
+                    r = hits2[0]
+                    crf_field.x = r.x0; crf_field.y = r.y1
+                    crf_field.width = r.width; crf_field.height = r.height
+                    placed = True
 
-            # Exact match
-            if text_lower == label_lower:
-                best_match = (x0, y0, x1, y1)
-                break
+        # 3. search_for on field number
+        if not placed and crf_field.field_number:
+            fn = str(crf_field.field_number).strip()
+            hits3 = page.search_for(fn, quads=False)
+            # Filter hits to left-side / right-side (field numbers are at right margin in AZ CRF)
+            right_hits = [h for h in hits3 if h.x0 > pw * 0.55]
+            target = right_hits[0] if right_hits else (hits3[0] if hits3 else None)
+            if target:
+                crf_field.x = 0.0; crf_field.y = target.y1
+                crf_field.width = pw * 0.55; crf_field.height = target.height
+                placed = True
+            elif fn in num_y:
+                crf_field.y = num_y[fn]
+                placed = True
 
-            # Starts-with match (for multi-line labels)
-            if text_lower.startswith(label_lower[:20]) or label_lower.startswith(text_lower[:20]):
-                # Compute rough similarity
-                min_len = min(len(text_lower), len(label_lower))
-                if min_len > 0:
-                    match_len = 0
-                    for a, b in zip(text_lower, label_lower):
-                        if a == b:
-                            match_len += 1
-                        else:
-                            break
-                    ratio = match_len / min_len
-                    if ratio > best_ratio:
-                        best_ratio = ratio
-                        best_match = (x0, y0, x1, y1)
+        # 4. Block-text word-overlap fallback
+        if not placed:
+            best_score = 0.0
+            best_pos = None
+            for text, x0, y0, x1, y1 in text_positions:
+                score = _word_overlap(label, text)
+                if score > best_score:
+                    best_score = score
+                    best_pos = (x0, y0, x1, y1)
+            if best_pos and best_score >= 0.5:
+                crf_field.x = best_pos[0]; crf_field.y = best_pos[3]
+                crf_field.width = best_pos[2] - best_pos[0]
+                crf_field.height = best_pos[3] - best_pos[1]
+                placed = True
 
-        if best_match:
-            crf_field.x = best_match[0]
-            crf_field.y = best_match[3]
-            crf_field.width = best_match[2] - best_match[0]
-            crf_field.height = best_match[3] - best_match[1]
+        # 5. Proportional Y fallback — never leave y=0.0
+        if not placed or crf_field.y <= 0.0:
+            top = 60.0
+            bottom = ph - 30.0
+            step = (bottom - top) / max(len(fields), 1)
+            crf_field.y = top + i * step + step * 0.5
+            if crf_field.x == 0.0:
+                crf_field.x = 10.0
 
 
 def _build_unique_form_fields(all_fields: list[CRFField]) -> dict[str, list[CRFField]]:

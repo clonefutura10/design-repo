@@ -725,7 +725,7 @@ def annotate_pdf(
         page_idx = field.page_index
         y        = field.y
 
-        if page_idx is None or y is None or y == 0.0:
+        if page_idx is None or y is None or y <= 0.0:
             stats["skipped_no_position"] += 1
             continue
 
