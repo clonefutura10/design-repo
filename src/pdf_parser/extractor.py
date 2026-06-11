@@ -179,132 +179,68 @@ def _norm(text: str) -> str:
 
 def _enrich_with_positions(page: fitz.Page, fields: list[CRFField]) -> None:
     """
-    Add position coordinates to fields by matching their labels to page text.
+    Add position coordinates to fields by matching text against page spans.
 
-    Approach:
-    - Build two text-position tables from the page: per-line (spans joined) and
-      per-block (all lines in a block joined).  The per-block table catches labels
-      that were assembled by the field parser from multiple consecutive PDF lines.
-    - For each field try (in order):
-        1. Exact match on per-line text
-        2. Exact match on per-block text
-        3. Starts-with / prefix match on per-line text (original behaviour)
-        4. Word-overlap match on per-block text (catches partial matches)
-        5. Field-number anchor: the standalone 1-3 digit number at the right
-           margin is the structural anchor; look it up in a number→y dict built
-           from per-line entries that are pure integers in the right-margin band.
-    - If nothing matches, leave y=0.0 (annotation is skipped by pdf_writer).
-      We do NOT use a proportional fallback — that places annotations at random
-      positions unrelated to the actual field location.
+    Uses PyMuPDF dict mode to get per-line text with bounding boxes.
+    Applies Unicode normalization so \xa0 (non-breaking space) and other
+    whitespace variants match normally-spaced field labels.
     """
-    pw = page.rect.width
+    blocks = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)["blocks"]
 
-    # ── Build per-line and per-block text positions ──
-    line_positions:  list[tuple[str, float, float, float, float]] = []
-    block_positions: list[tuple[str, float, float, float, float]] = []
-
-    for block in page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)["blocks"]:
+    # Build per-line text → position table
+    text_positions: list[tuple[str, float, float, float, float]] = []
+    for block in blocks:
         if block.get("type") != 0:
             continue
-        block_parts = []
-        bx0, by0, bx1, by1 = float("inf"), float("inf"), 0.0, 0.0
-
         for line in block.get("lines", []):
-            parts, lx0, ly0, lx1, ly1 = [], float("inf"), float("inf"), 0.0, 0.0
+            parts: list[str] = []
+            x0, y0, x1, y1 = float("inf"), float("inf"), 0.0, 0.0
             for span in line.get("spans", []):
                 parts.append(span.get("text", ""))
                 bb = span.get("bbox", (0, 0, 0, 0))
-                lx0 = min(lx0, bb[0]); ly0 = min(ly0, bb[1])
-                lx1 = max(lx1, bb[2]); ly1 = max(ly1, bb[3])
+                x0 = min(x0, bb[0]); y0 = min(y0, bb[1])
+                x1 = max(x1, bb[2]); y1 = max(y1, bb[3])
             full = "".join(parts).strip()
-            if full and lx0 != float("inf"):
-                line_positions.append((full, lx0, ly0, lx1, ly1))
-                block_parts.append(full)
-                bx0 = min(bx0, lx0); by0 = min(by0, ly0)
-                bx1 = max(bx1, lx1); by1 = max(by1, ly1)
+            if full and x0 != float("inf"):
+                text_positions.append((full, x0, y0, x1, y1))
 
-        if block_parts and bx0 != float("inf"):
-            block_text = " ".join(block_parts)
-            block_positions.append((block_text, bx0, by0, bx1, by1))
-
-    # ── Field-number → y (right-margin standalone integers only) ──
-    num_y: dict[str, float] = {}
-    for text, x0, y0, x1, y1 in line_positions:
-        t = text.strip()
-        if t.isdigit() and 1 <= int(t) <= 999 and x0 > pw * 0.55:
-            num_y[t] = y1
-
-    # ── Word-overlap scorer ──
-    def _word_overlap(a: str, b: str) -> float:
-        wa = set(a.lower().split())
-        wb = set(b.lower().split())
-        return len(wa & wb) / max(len(wa), len(wb)) if wa and wb else 0.0
-
-    # ── Assign positions ──
     for crf_field in fields:
-        label = crf_field.field_label.strip()
-        if not label:
+        if not crf_field.field_label:
             continue
 
-        label_norm = _norm(label)
-        best_ratio  = 0.0
-        best_line   = None  # (x0,y0,x1,y1)
+        label_norm = _norm(crf_field.field_label)
+        best_match = None
+        best_ratio = 0.0
 
-        # 1 + 3: scan per-line positions (exact, then prefix) with Unicode normalization
-        for text, x0, y0, x1, y1 in line_positions:
+        for text, x0, y0, x1, y1 in text_positions:
             tn = _norm(text)
+
             if tn == label_norm:
-                best_line = (x0, y0, x1, y1)
-                best_ratio = 1.0
+                best_match = (x0, y0, x1, y1)
                 break
-            prefix_len = min(20, len(label_norm), len(tn))
-            if prefix_len >= 4 and (
-                tn.startswith(label_norm[:prefix_len]) or label_norm.startswith(tn[:prefix_len])
+
+            prefix = min(20, len(label_norm), len(tn))
+            if prefix >= 4 and (
+                tn.startswith(label_norm[:prefix]) or label_norm.startswith(tn[:prefix])
             ):
                 min_len = min(len(tn), len(label_norm))
                 if min_len > 0:
-                    run = sum(1 for a, b in zip(tn, label_norm) if a == b)
-                    r = run / min_len
-                    if r > best_ratio:
-                        best_ratio = r
-                        best_line = (x0, y0, x1, y1)
+                    match_len = 0
+                    for a, b in zip(tn, label_norm):
+                        if a == b:
+                            match_len += 1
+                        else:
+                            break
+                    ratio = match_len / min_len
+                    if ratio > best_ratio:
+                        best_ratio = ratio
+                        best_match = (x0, y0, x1, y1)
 
-        if best_line:
-            crf_field.x = best_line[0]; crf_field.y = best_line[3]
-            crf_field.width = best_line[2] - best_line[0]
-            crf_field.height = best_line[3] - best_line[1]
-            continue
-
-        # 2: per-block exact / containment match (catches multi-line assembled labels)
-        for text, x0, y0, x1, y1 in block_positions:
-            tn = _norm(text)
-            if tn == label_norm or label_norm in tn:
-                crf_field.x = x0; crf_field.y = y1
-                crf_field.width = x1 - x0; crf_field.height = y1 - y0
-                break
-
-        if crf_field.y > 0.0:
-            continue
-
-        # 4: word-overlap on block text
-        best_score = 0.0
-        best_block  = None
-        for text, x0, y0, x1, y1 in block_positions:
-            score = _word_overlap(label, text)
-            if score > best_score:
-                best_score = score
-                best_block = (x0, y0, x1, y1)
-        if best_block and best_score >= 0.55:
-            crf_field.x = best_block[0]; crf_field.y = best_block[3]
-            crf_field.width = best_block[2] - best_block[0]
-            crf_field.height = best_block[3] - best_block[1]
-            continue
-
-        # 5: field-number anchor
-        if crf_field.field_number:
-            fn = str(crf_field.field_number).strip()
-            if fn in num_y:
-                crf_field.y = num_y[fn]
+        if best_match:
+            crf_field.x      = best_match[0]
+            crf_field.y      = best_match[3]
+            crf_field.width  = best_match[2] - best_match[0]
+            crf_field.height = best_match[3] - best_match[1]
 
 
 def _build_unique_form_fields(all_fields: list[CRFField]) -> dict[str, list[CRFField]]:

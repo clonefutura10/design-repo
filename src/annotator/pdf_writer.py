@@ -360,18 +360,32 @@ def _draw_domain_name_top_left(
     domains: list[str],
 ) -> None:
     """
-    Write the dataset name(s) at the top-left of the page, matching the
-    reference aCRF convention: 'VS = Vital Signs' at the left margin.
-    One domain per line, in the domain's border colour, bold.
+    Draw coloured domain-name boxes at the top-left of the page.
+    Matches the reference aCRF: 'VS = Vital Signs' with a colour box at left margin.
     """
     if not domains:
         return
 
     y = _DOMAIN_HEADER_Y
     for domain in domains:
-        full_name  = _get_domain_full_name(domain)
-        label_text = f"{domain} = {full_name}"
-        border_c, _ = _get_domain_colours(domain)
+        full_name   = _get_domain_full_name(domain)
+        label_text  = f"{domain} = {full_name}"
+        border_c, fill_c = _get_domain_colours(domain)
+
+        bar_fill = (
+            max(0.0, fill_c[0] - 0.06),
+            max(0.0, fill_c[1] - 0.06),
+            max(0.0, fill_c[2] - 0.06),
+        )
+
+        tw = fitz.get_text_length(label_text, fontname=_FONT_NAME_BOLD, fontsize=_HEADER_FONT_SIZE)
+        box_rect = fitz.Rect(
+            _DOMAIN_HEADER_LEFT_X - 2,
+            y - _HEADER_BAR_HEIGHT + 1,
+            _DOMAIN_HEADER_LEFT_X + tw + 6,
+            y + 2,
+        )
+        page.draw_rect(box_rect, color=border_c, fill=bar_fill, width=0.9, overlay=True)
         page.insert_text(
             fitz.Point(_DOMAIN_HEADER_LEFT_X, y),
             label_text,
@@ -379,7 +393,7 @@ def _draw_domain_name_top_left(
             fontname=_FONT_NAME_BOLD,
             color=border_c,
         )
-        y += _HEADER_BAR_HEIGHT + 1.0
+        y += _HEADER_BAR_HEIGHT + 2.0
 
 
 def _draw_see_page_reference(
@@ -875,10 +889,11 @@ def annotate_pdf(
                 font_n   = _FONT_NAME_BOLD
                 use_dash = is_derived
 
-            # Measure text width (use the wider of main text or where_clause)
+            # Measure text width — include "where " prefix in where_clause measurement
             tw = fitz.get_text_length(ann_text, fontname=font_n, fontsize=eff_fs)
             if where_clause:
-                tw_wc = fitz.get_text_length(where_clause, fontname=_FONT_NAME, fontsize=_wc_fs)
+                wc_rendered = f"where {where_clause}"
+                tw_wc = fitz.get_text_length(wc_rendered, fontname=_FONT_NAME, fontsize=_wc_fs)
                 tw = max(tw, tw_wc)
 
             box_rect = fitz.Rect(
@@ -925,10 +940,10 @@ def annotate_pdf(
                     border_c[2] * 0.7,
                 )
                 page.insert_text(
-                    fitz.Point(ann_x + _BOX_PADDING_X + 2, wc_y),
-                    f"where {where_clause}",
+                    fitz.Point(ann_x + _BOX_PADDING_X, wc_y),
+                    wc_rendered,
                     fontsize=_wc_fs,
-                    fontname=_FONT_NAME,
+                    fontname=_FONT_NAME_BOLD,
                     color=wc_text_c,
                 )
 
