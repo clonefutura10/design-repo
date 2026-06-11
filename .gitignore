@@ -46,3 +46,4 @@ output/
 # Temp / uploads
 tmp/
 temp/
+.claude/
