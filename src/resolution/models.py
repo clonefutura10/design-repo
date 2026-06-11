@@ -50,6 +50,12 @@ class ResolutionResult:
     # Each dict has keys: sdtm_domain, sdtm_variable, sdtm_label, is_supplemental
     additional_mappings: list[dict] = field(default_factory=list)
 
+    # Findings domain TESTCD qualifier (e.g. 'VSTESTCD = "WEIGHT"')
+    where_clause: str = ""
+
+    # True if this variable is derived/assigned (not directly collected) — gets dashed border
+    is_derived: bool = False
+
     @property
     def annotation_text(self) -> str:
         """

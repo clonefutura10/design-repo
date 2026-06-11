@@ -15,6 +15,8 @@ Output: Complete list of CRFField objects ready for the resolution pipeline.
 from __future__ import annotations
 from pathlib import Path
 from dataclasses import dataclass, field
+import re
+import unicodedata
 
 import fitz  # PyMuPDF
 
@@ -163,6 +165,18 @@ def extract_crf(filepath: Path | None = None) -> CRFParseResult:
     return result
 
 
+def _norm(text: str) -> str:
+    """Normalize Unicode whitespace and casing for reliable text matching."""
+    text = unicodedata.normalize("NFC", text)
+    # Replace non-breaking spaces and other Unicode whitespace variants with regular space
+    text = re.sub(r"[\xa0 -​ 　\t]+", " ", text)
+    # Normalize typographic quotes
+    text = text.replace("‘", "'").replace("’", "'")
+    text = text.replace("“", '"').replace("”", '"')
+    text = re.sub(r"\s+", " ", text).strip().lower()
+    return text
+
+
 def _enrich_with_positions(page: fitz.Page, fields: list[CRFField]) -> None:
     """
     Add position coordinates to fields by matching their labels to page text.
@@ -232,22 +246,25 @@ def _enrich_with_positions(page: fitz.Page, fields: list[CRFField]) -> None:
         if not label:
             continue
 
-        label_lower = label.lower()
+        label_norm = _norm(label)
         best_ratio  = 0.0
         best_line   = None  # (x0,y0,x1,y1)
 
-        # 1 + 3: scan per-line positions (exact, then prefix)
+        # 1 + 3: scan per-line positions (exact, then prefix) with Unicode normalization
         for text, x0, y0, x1, y1 in line_positions:
-            tl = text.lower()
-            if tl == label_lower:
+            tn = _norm(text)
+            if tn == label_norm:
                 best_line = (x0, y0, x1, y1)
                 best_ratio = 1.0
                 break
-            if tl.startswith(label_lower[:20]) or label_lower.startswith(tl[:20]):
-                min_len = min(len(tl), len(label_lower))
+            prefix_len = min(20, len(label_norm), len(tn))
+            if prefix_len >= 4 and (
+                tn.startswith(label_norm[:prefix_len]) or label_norm.startswith(tn[:prefix_len])
+            ):
+                min_len = min(len(tn), len(label_norm))
                 if min_len > 0:
-                    match_len = sum(1 for a, b in zip(tl, label_lower) if a == b)
-                    r = match_len / min_len
+                    run = sum(1 for a, b in zip(tn, label_norm) if a == b)
+                    r = run / min_len
                     if r > best_ratio:
                         best_ratio = r
                         best_line = (x0, y0, x1, y1)
@@ -258,10 +275,10 @@ def _enrich_with_positions(page: fitz.Page, fields: list[CRFField]) -> None:
             crf_field.height = best_line[3] - best_line[1]
             continue
 
-        # 2: per-block exact match (catches multi-line assembled labels)
+        # 2: per-block exact / containment match (catches multi-line assembled labels)
         for text, x0, y0, x1, y1 in block_positions:
-            tl = text.lower()
-            if tl == label_lower or label_lower in tl:
+            tn = _norm(text)
+            if tn == label_norm or label_norm in tn:
                 crf_field.x = x0; crf_field.y = y1
                 crf_field.width = x1 - x0; crf_field.height = y1 - y0
                 break

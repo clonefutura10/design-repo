@@ -22,6 +22,7 @@ from src.resolution.tier0_rules import Tier0Rules, _reset_usage_tracking, set_st
 from src.resolution.tier1_not_submitted import Tier1NotSubmitted
 from src.annotator.pdf_writer import annotate_pdf
 from src.resolution.models import ResolutionResult, ResolutionTier
+from src.resolution.findings_qualifier import FindingsQualifierResolver
 from src.utils.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -203,6 +204,20 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
     resolution_rate = round(
         resolved_count / unique_field_count * 100, 1
     ) if unique_field_count else 0.0
+
+    # ── Post-process: add Findings domain TESTCD qualifiers ──
+    _findings_resolver = FindingsQualifierResolver()
+    for fld, res in zip(data_fields, results):
+        if not res.resolved or res.is_not_submitted:
+            continue
+        wc = _findings_resolver.resolve_qualifier(
+            result=res,
+            field_label=fld.field_label,
+            context_labels_before=getattr(fld, 'context_labels_before', []),
+            value_options=getattr(fld, 'value_options', []),
+        )
+        if wc:
+            res.where_clause = wc
 
     # ══════════════════════════════════════════════════════════
     # STEP 4: Write Annotated PDF

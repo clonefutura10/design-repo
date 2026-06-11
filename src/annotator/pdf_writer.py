@@ -228,9 +228,12 @@ def _get_domain_colours(
 
 def _build_annotations_list(result: ResolutionResult) -> list[dict]:
     """
-    Return a list of annotation dicts (one per SDTM variable) for a field.
+    Return a list of annotation dicts for a field.
 
-    Each dict: {text, domain, is_not_submitted, is_supp}
+    Same-domain variables are combined on one line with ' / ' separator
+    (CDISC aCRF convention). Different domains stay as separate stacked boxes.
+
+    Each dict: {text, domain, is_not_submitted, is_supp, where_clause, is_derived}
     """
     annotations: list[dict] = []
 
@@ -240,34 +243,33 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
             "domain": "",
             "is_not_submitted": True,
             "is_supp": False,
+            "where_clause": "",
+            "is_derived": getattr(result, "is_derived", False),
         })
         return annotations
 
     if not result.sdtm_domain or not result.sdtm_variable:
         return annotations
 
-    # Primary mapping
     domain = result.sdtm_domain.upper()
     is_supp = result.is_supplemental
     if is_supp:
         prefix = domain if domain.startswith("SUPP") else f"SUPP{domain}"
-        text = f"{prefix}.{result.sdtm_variable}"
+        primary_text = f"{prefix}.{result.sdtm_variable}"
     else:
-        text = f"{domain}.{result.sdtm_variable}"
+        primary_text = f"{domain}.{result.sdtm_variable}"
 
     if result.codelist_code:
-        text += f" ({result.codelist_code})"
+        primary_text += f" ({result.codelist_code})"
 
     base_domain = domain[4:] if domain.startswith("SUPP") else domain
 
-    annotations.append({
-        "text": text,
-        "domain": base_domain,
-        "is_not_submitted": False,
-        "is_supp": is_supp,
-    })
+    # Collect all entries grouped by (base_domain, is_supp)
+    # so same-domain variables can be joined with ' / '
+    from collections import OrderedDict
+    groups: OrderedDict[tuple[str, bool], list[str]] = OrderedDict()
+    groups[(base_domain, is_supp)] = [primary_text]
 
-    # Additional mappings
     for mapping in getattr(result, "additional_mappings", None) or []:
         add_domain   = (mapping.get("domain") or mapping.get("sdtm_domain", "")).upper()
         add_variable = mapping.get("variable") or mapping.get("sdtm_variable", "")
@@ -278,21 +280,33 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
             continue
 
         if add_is_supp:
-            prefix = add_domain if add_domain.startswith("SUPP") else f"SUPP{add_domain}"
-            add_text = f"{prefix}.{add_variable}"
+            pfx = add_domain if add_domain.startswith("SUPP") else f"SUPP{add_domain}"
+            add_text = f"{pfx}.{add_variable}"
         else:
             add_text = f"{add_domain}.{add_variable}"
 
         if add_codelist:
             add_text += f" ({add_codelist})"
 
-        ann_domain = add_domain[4:] if add_domain.startswith("SUPP") else add_domain
+        ann_base = add_domain[4:] if add_domain.startswith("SUPP") else add_domain
+        key = (ann_base, add_is_supp)
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(add_text)
 
+    where_clause = getattr(result, "where_clause", "") or ""
+    is_derived   = getattr(result, "is_derived", False)
+
+    for (grp_domain, grp_is_supp), texts in groups.items():
+        # Join same-domain variables on one line with ' / '
+        combined_text = " / ".join(texts)
         annotations.append({
-            "text": add_text,
-            "domain": ann_domain,
+            "text":          combined_text,
+            "domain":        grp_domain,
             "is_not_submitted": False,
-            "is_supp": add_is_supp,
+            "is_supp":       grp_is_supp,
+            "where_clause":  where_clause if grp_domain == base_domain else "",
+            "is_derived":    is_derived,
         })
 
     return annotations
@@ -766,8 +780,13 @@ def annotate_pdf(
             stats["multi_domain_fields"] += 1
 
         # ── Calculate total stack height ──
-        box_h        = eff_fs + 2 * _BOX_PADDING_Y
-        stack_h      = (box_h + _MULTI_BOX_SPACING) * len(ann_entries) - _MULTI_BOX_SPACING
+        _wc_fs   = eff_fs * 0.75      # where_clause secondary text font size
+        box_h    = eff_fs + 2 * _BOX_PADDING_Y
+
+        def _entry_box_h(entry: dict) -> float:
+            return box_h + (_wc_fs + 1.5 if entry.get("where_clause") else 0)
+
+        stack_h = sum(_entry_box_h(e) + _MULTI_BOX_SPACING for e in ann_entries) - _MULTI_BOX_SPACING
 
         # ── Find non-overlapping Y slot ──
         slot_y = tracker.find_slot(page_idx, y, stack_h, ph)
@@ -777,7 +796,10 @@ def annotate_pdf(
         any_drawn = False
 
         for entry in ann_entries:
-            ann_text = entry["text"]
+            ann_text    = entry["text"]
+            where_clause = entry.get("where_clause", "") or ""
+            is_derived   = entry.get("is_derived", False)
+
             if not ann_text:
                 continue
 
@@ -786,30 +808,36 @@ def annotate_pdf(
                 continue
 
             text_y = slot_y + y_off
+            this_box_h = _entry_box_h(entry)
 
             if entry["is_not_submitted"]:
                 border_c = _NOT_SUB_BORDER
                 fill_c   = _NOT_SUB_FILL
                 text_c   = _NOT_SUB_TEXT
                 font_n   = _FONT_NAME
+                use_dash = True
                 stats["not_submitted"] += 1
             else:
                 border_c, fill_c = _get_domain_colours(entry["domain"])
                 text_c   = _TEXT_COLOUR
                 font_n   = _FONT_NAME_BOLD
+                use_dash = is_derived
 
-            # Measure text width
+            # Measure text width (use the wider of main text or where_clause)
             tw = fitz.get_text_length(ann_text, fontname=font_n, fontsize=eff_fs)
+            if where_clause:
+                tw_wc = fitz.get_text_length(where_clause, fontname=_FONT_NAME, fontsize=_wc_fs)
+                tw = max(tw, tw_wc)
 
             box_rect = fitz.Rect(
                 ann_x,
                 text_y - eff_fs - _BOX_PADDING_Y,
                 ann_x + tw + 2 * _BOX_PADDING_X,
-                text_y + _BOX_PADDING_Y,
+                text_y + _BOX_PADDING_Y + ((_wc_fs + 1.5) if where_clause else 0),
             )
 
-            # Draw box
-            if entry["is_not_submitted"]:
+            # Draw box (dashed for NOT SUBMITTED or derived)
+            if use_dash:
                 page.draw_rect(
                     box_rect,
                     color=border_c,
@@ -827,7 +855,7 @@ def annotate_pdf(
                     overlay=True,
                 )
 
-            # Text inside box
+            # Primary annotation text
             page.insert_text(
                 fitz.Point(ann_x + _BOX_PADDING_X, text_y),
                 ann_text,
@@ -836,11 +864,27 @@ def annotate_pdf(
                 color=text_c,
             )
 
+            # Where-clause secondary line (smaller, italic-style colour)
+            if where_clause:
+                wc_y = text_y + _wc_fs + 1.0
+                wc_text_c = (
+                    border_c[0] * 0.7,
+                    border_c[1] * 0.7,
+                    border_c[2] * 0.7,
+                )
+                page.insert_text(
+                    fitz.Point(ann_x + _BOX_PADDING_X + 2, wc_y),
+                    f"where {where_clause}",
+                    fontsize=_wc_fs,
+                    fontname=_FONT_NAME,
+                    color=wc_text_c,
+                )
+
             # Tick line from separator to box
             tick_y = text_y - eff_fs / 2
             _draw_tick(page, sep_x, ann_x, tick_y)
 
-            y_off     += box_h + _MULTI_BOX_SPACING
+            y_off     += this_box_h + _MULTI_BOX_SPACING
             any_drawn  = True
             stats["total_annotations"] += 1
 
