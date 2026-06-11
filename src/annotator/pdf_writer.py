@@ -349,56 +349,66 @@ def _get_all_domains_for_page(
 
 
 # =============================================================================
-# Dataset Header  (top-right of form page)
+# Dataset Header  (top-LEFT of page, matching field-label margin)
 # =============================================================================
 
-def _draw_dataset_headers(
+_DOMAIN_HEADER_LEFT_X = 36.0   # Same left margin as field labels in CRF
+_DOMAIN_HEADER_Y      = 62.0   # Just below the form title header row
+
+def _draw_domain_name_top_left(
     page: fitz.Page,
     domains: list[str],
-    ann_x: float,
-    page_width: float,
-) -> float:
+) -> None:
     """
-    Draw stacked colour-coded dataset-name bars at the top-right margin.
-    Returns the Y coordinate just below the last header bar.
+    Write the dataset name(s) at the top-left of the page, matching the
+    reference aCRF convention: 'VS = Vital Signs' at the left margin.
+    One domain per line, in the domain's border colour, bold.
     """
     if not domains:
-        return _PAGE_TOP_MARGIN
+        return
 
-    y = 38.0
-    right_edge = page_width - 4.0
-
+    y = _DOMAIN_HEADER_Y
     for domain in domains:
-        full_name    = _get_domain_full_name(domain)
-        header_text  = f"{domain}  —  {full_name}"
-        border_c, fill_c = _get_domain_colours(domain)
-
-        # Slightly darker fill for the header bar
-        bar_fill = (
-            max(0.0, fill_c[0] - 0.10),
-            max(0.0, fill_c[1] - 0.10),
-            max(0.0, fill_c[2] - 0.10),
-        )
-
-        bar_left = ann_x - 2
-        bar_rect = fitz.Rect(bar_left, y, right_edge, y + _HEADER_BAR_HEIGHT)
-        page.draw_rect(bar_rect, color=border_c, fill=bar_fill, width=1.0, overlay=True)
-
-        # Center text in the bar
-        tw = fitz.get_text_length(header_text, fontname=_FONT_NAME_BOLD, fontsize=_HEADER_FONT_SIZE)
-        bar_width = right_edge - bar_left
-        text_x = bar_left + max(2.0, (bar_width - tw) / 2)
+        full_name  = _get_domain_full_name(domain)
+        label_text = f"{domain} = {full_name}"
+        border_c, _ = _get_domain_colours(domain)
         page.insert_text(
-            fitz.Point(text_x, y + _HEADER_BAR_HEIGHT - 2.5),
-            header_text,
+            fitz.Point(_DOMAIN_HEADER_LEFT_X, y),
+            label_text,
             fontsize=_HEADER_FONT_SIZE,
             fontname=_FONT_NAME_BOLD,
             color=border_c,
         )
+        y += _HEADER_BAR_HEIGHT + 1.0
 
-        y += _HEADER_BAR_HEIGHT + 2.0
 
-    return y + 2.0  # return bottom edge of last header
+def _draw_see_page_reference(
+    page: fitz.Page,
+    first_pages: list[int],
+    page_height: float,
+    sep_x: float,
+    ann_x: float,
+) -> None:
+    """
+    Write 'For Annotations see page X' at the bottom of the annotation column.
+    Matches the reference aCRF convention for repeated form pages.
+    """
+    if not first_pages:
+        return
+
+    if len(first_pages) == 1:
+        ref_text = f"For Annotations see page {first_pages[0] + 1}"
+    else:
+        ref_text = f"For Annotations see page {first_pages[0] + 1} – {first_pages[-1] + 1}"
+
+    y = page_height - _PAGE_BOTTOM_MARGIN - 4.0
+    page.insert_text(
+        fitz.Point(ann_x, y),
+        ref_text,
+        fontsize=7.0,
+        fontname=_FONT_NAME,
+        color=(0.35, 0.35, 0.35),
+    )
 
 
 # =============================================================================
@@ -703,21 +713,54 @@ def annotate_pdf(
 
     # ── Pre-group by page ──
     page_results:     dict[int, list[ResolutionResult]] = defaultdict(list)
-    page_ann_count:   dict[int, int]                    = defaultdict(int)
     page_form_codes:  dict[int, set[str]]               = defaultdict(set)
+    form_all_pages:   dict[str, list[int]]              = defaultdict(list)
 
     for field, result in zip(fields, results):
-        if field.page_index is not None:
-            page_results[field.page_index].append(result)
+        pi = field.page_index
+        if pi is not None:
+            page_results[pi].append(result)
             if field.form_code:
-                page_form_codes[field.page_index].add(field.form_code)
-            if result.resolved or result.is_not_submitted:
-                page_ann_count[field.page_index] += 1
+                page_form_codes[pi].add(field.form_code)
+                if pi not in form_all_pages[field.form_code]:
+                    form_all_pages[field.form_code].append(pi)
 
-    # ── Track form metadata ──
-    form_header_written: set[str]                          = set()
-    form_first_page:     dict[str, tuple[int, str]]        = {}
-    form_primary_domain: dict[str, str]                    = {}
+    # ── Identify first instance pages per form_code ──
+    # First "instance" = first contiguous group of pages (gap ≤ 3 = same visit block).
+    # Subsequent groups (different visit) → "For Annotations see page X".
+    _INSTANCE_GAP = 3
+    form_first_instance_pages: dict[str, set[int]] = {}
+    for fc, pages in form_all_pages.items():
+        pages_sorted = sorted(set(pages))
+        first: list[int] = []
+        for p in pages_sorted:
+            if not first or p - first[-1] <= _INSTANCE_GAP:
+                first.append(p)
+            else:
+                break
+        form_first_instance_pages[fc] = set(first)
+
+    # Pages per form_code that are NOT in the first instance → draw "see page" reference
+    form_see_pages: dict[str, set[int]] = {
+        fc: set(ps for ps in pages if ps not in form_first_instance_pages[fc])
+        for fc, pages in form_all_pages.items()
+    }
+
+    # Pre-count real (new) annotations per page (exclude see-page pages)
+    page_ann_count: dict[int, int] = defaultdict(int)
+    for field, result in zip(fields, results):
+        pi = field.page_index
+        if pi is None:
+            continue
+        fc = field.form_code or ""
+        if fc and pi in form_see_pages.get(fc, set()):
+            continue  # skip-count for "see page" pages
+        if result.resolved or result.is_not_submitted:
+            page_ann_count[pi] += 1
+
+    # ── Track form metadata for bookmarks ──
+    form_first_page:     dict[str, tuple[int, str]] = {}
+    form_primary_domain: dict[str, str]             = {}
 
     for field, result in zip(fields, results):
         fc = field.form_code
@@ -727,8 +770,10 @@ def annotate_pdf(
             d = result.sdtm_domain.upper()
             form_primary_domain[fc] = d[4:] if d.startswith("SUPP") else d
 
-    # ── Track which pages need a separator line ──
-    pages_with_separator: set[int] = set()
+    # ── Drawn-once guards ──
+    pages_with_separator: set[int]  = set()
+    domain_header_written: set[int] = set()   # per page_idx (top-left domain name)
+    see_page_written: set[str]      = set()   # "fc_pageidx"
 
     # ── Write annotations ──
     for field, result in zip(fields, results):
@@ -738,35 +783,42 @@ def annotate_pdf(
 
         page_idx = field.page_index
         y        = field.y
+        fc       = field.form_code or ""
 
         if page_idx is None or y is None or y == 0.0:
             stats["skipped_no_position"] += 1
             continue
 
-        page       = doc[page_idx]
-        pw         = page.rect.width
-        ph         = page.rect.height
-        sep_x      = pw * _SEPARATOR_X_RATIO
-        ann_x      = pw * _ANNOTATION_X_RATIO
+        page  = doc[page_idx]
+        pw    = page.rect.width
+        ph    = page.rect.height
+        sep_x = pw * _SEPARATOR_X_RATIO
+        ann_x = pw * _ANNOTATION_X_RATIO
 
-        # Adaptive font size
-        eff_fs = _FONT_SIZE_DENSE if page_ann_count.get(page_idx, 0) > _DENSE_THRESHOLD else font_size
-
-        # ── Dataset header (once per form per page) ──
-        form_page_key = f"{field.form_code}_{page_idx}"
-        if field.form_code and form_page_key not in form_header_written:
-            form_header_written.add(form_page_key)
-
+        # ── Domain name at top-LEFT (once per page) ──
+        if page_idx not in domain_header_written:
+            domain_header_written.add(page_idx)
             fc_set    = page_form_codes.get(page_idx, set())
-            page_fc   = next(iter(fc_set)) if len(fc_set) == 1 else field.form_code
+            page_fc   = next(iter(fc_set)) if len(fc_set) == 1 else fc
             page_doms = _get_all_domains_for_page(
                 page_results.get(page_idx, []), form_code=page_fc
             )
             if page_doms:
-                header_bottom = _draw_dataset_headers(page, page_doms, ann_x + _TICK_LENGTH, pw)
-                tracker.reserve_top(page_idx, header_bottom)
+                _draw_domain_name_top_left(page, page_doms)
 
-        # ── Separator line: only draw on pages with enough annotations ──
+        # ── "For Annotations see page X" for repeat-visit pages ──
+        if fc and page_idx in form_see_pages.get(fc, set()):
+            see_key = f"{fc}_{page_idx}"
+            if see_key not in see_page_written:
+                see_page_written.add(see_key)
+                first_inst = sorted(form_first_instance_pages.get(fc, []))
+                _draw_see_page_reference(page, first_inst, ph, sep_x, ann_x)
+            continue  # skip individual annotations on this page
+
+        # Adaptive font size
+        eff_fs = _FONT_SIZE_DENSE if page_ann_count.get(page_idx, 0) > _DENSE_THRESHOLD else font_size
+
+        # ── Separator line: only on pages with real annotations ──
         if page_idx not in pages_with_separator and page_ann_count.get(page_idx, 0) >= 3:
             pages_with_separator.add(page_idx)
             _draw_separator_line(page, sep_x, _PAGE_TOP_MARGIN - 10, ph - _PAGE_BOTTOM_MARGIN)
