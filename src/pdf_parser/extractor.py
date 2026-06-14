@@ -55,7 +55,7 @@ class CRFParseResult:
     total_fields: int = 0
     unique_field_count: int = 0
     unique_forms: int = 0
-    forms_detected: dict[str, int] = field(default_factory=dict)  # form_code → page count
+    forms_detected: dict[str, int] = field(default_factory=dict)
 
 
 def extract_crf(filepath: Path | None = None) -> CRFParseResult:
@@ -166,28 +166,114 @@ def extract_crf(filepath: Path | None = None) -> CRFParseResult:
 
 
 def _norm(text: str) -> str:
-    """Normalize Unicode whitespace and casing for reliable text matching."""
+    """
+    Normalize Unicode whitespace for reliable text matching.
+
+    CRITICAL: Only replaces actual whitespace-type characters.
+    Does NOT use character ranges that could accidentally match
+    digits, letters, or punctuation.
+    """
     text = unicodedata.normalize("NFC", text)
-    # Replace non-breaking spaces and other Unicode whitespace variants with regular space
-    text = re.sub(r"[\xa0 -​ 　\t]+", " ", text)
+    # Replace specific Unicode whitespace characters with regular space
+    text = text.replace('\xa0', ' ')       # non-breaking space
+    text = text.replace('\u2000', ' ')     # en quad
+    text = text.replace('\u2001', ' ')     # em quad
+    text = text.replace('\u2002', ' ')     # en space
+    text = text.replace('\u2003', ' ')     # em space
+    text = text.replace('\u2004', ' ')     # three-per-em space
+    text = text.replace('\u2005', ' ')     # four-per-em space
+    text = text.replace('\u2006', ' ')     # six-per-em space
+    text = text.replace('\u2007', ' ')     # figure space
+    text = text.replace('\u2008', ' ')     # punctuation space
+    text = text.replace('\u2009', ' ')     # thin space
+    text = text.replace('\u200a', ' ')     # hair space
+    text = text.replace('\u200b', '')      # zero-width space (remove entirely)
+    text = text.replace('\u202f', ' ')     # narrow no-break space
+    text = text.replace('\u205f', ' ')     # medium mathematical space
+    text = text.replace('\u3000', ' ')     # ideographic space
+    text = text.replace('\t', ' ')         # tab
     # Normalize typographic quotes
-    text = text.replace("‘", "'").replace("’", "'")
-    text = text.replace("“", '"').replace("”", '"')
-    text = re.sub(r"\s+", " ", text).strip().lower()
+    text = text.replace('\u2018', "'").replace('\u2019', "'")
+    text = text.replace('\u201c', '"').replace('\u201d', '"')
+    # Collapse multiple spaces and lowercase
+    text = re.sub(r'\s+', ' ', text).strip().lower()
     return text
+
+
+def _word_jaccard(a: str, b: str) -> float:
+    """Compute Jaccard similarity between word sets of two strings."""
+    wa = set(a.split())
+    wb = set(b.split())
+    if not wa or not wb:
+        return 0.0
+    intersection = wa & wb
+    union = wa | wb
+    return len(intersection) / len(union)
+
+
+def _match_score(label_norm: str, text_norm: str) -> float:
+    """
+    Compute a match score between a field label and a PDF text line.
+
+    Returns:
+        Score from 0.0 (no match) to 1.0 (exact match).
+        Scores >= 0.5 are considered viable matches.
+    """
+    if not label_norm or not text_norm:
+        return 0.0
+
+    # Exact match
+    if label_norm == text_norm:
+        return 1.0
+
+    # One contains the other fully
+    if label_norm in text_norm:
+        return 0.9 * (len(label_norm) / len(text_norm))
+    if text_norm in label_norm:
+        return 0.9 * (len(text_norm) / len(label_norm))
+
+    # Prefix match (first N chars)
+    prefix_len = min(25, len(label_norm), len(text_norm))
+    if prefix_len >= 4:
+        if label_norm[:prefix_len] == text_norm[:prefix_len]:
+            # How much of the shorter string matches?
+            match_len = 0
+            for a, b in zip(label_norm, text_norm):
+                if a == b:
+                    match_len += 1
+                else:
+                    break
+            ratio = match_len / max(len(label_norm), len(text_norm))
+            if ratio > 0.5:
+                return 0.7 + 0.2 * ratio
+
+    # Word-level Jaccard similarity
+    jaccard = _word_jaccard(label_norm, text_norm)
+    if jaccard >= 0.5:
+        return 0.5 + 0.3 * jaccard
+
+    return 0.0
 
 
 def _enrich_with_positions(page: fitz.Page, fields: list[CRFField]) -> None:
     """
-    Add position coordinates to fields by matching text against page spans.
+    Add position coordinates to fields using SEQUENTIAL CONSUMPTION.
 
-    Uses PyMuPDF dict mode to get per-line text with bounding boxes.
-    Applies Unicode normalization so \xa0 (non-breaking space) and other
-    whitespace variants match normally-spaced field labels.
+    Key design:
+    - PDF text positions are extracted in reading order (top → bottom)
+    - Fields are also in reading order (from raw text line extraction)
+    - Each PDF position can only be consumed ONCE
+    - This ensures repeated labels (e.g., "Result" x8) each get a UNIQUE Y
+
+    Matching strategies (in priority order):
+    1. Exact match after normalization (score = 1.0)
+    2. Containment match (one string inside the other)
+    3. Prefix match (first 25 chars)
+    4. Word-overlap Jaccard similarity (≥ 0.5)
     """
-    blocks = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)["blocks"]
+    blocks = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE, sort=True)["blocks"]
 
-    # Build per-line text → position table
+    # Build ordered list of text positions (top-to-bottom reading order)
     text_positions: list[tuple[str, float, float, float, float]] = []
     for block in blocks:
         if block.get("type") != 0:
@@ -198,49 +284,55 @@ def _enrich_with_positions(page: fitz.Page, fields: list[CRFField]) -> None:
             for span in line.get("spans", []):
                 parts.append(span.get("text", ""))
                 bb = span.get("bbox", (0, 0, 0, 0))
-                x0 = min(x0, bb[0]); y0 = min(y0, bb[1])
-                x1 = max(x1, bb[2]); y1 = max(y1, bb[3])
+                x0 = min(x0, bb[0])
+                y0 = min(y0, bb[1])
+                x1 = max(x1, bb[2])
+                y1 = max(y1, bb[3])
             full = "".join(parts).strip()
             if full and x0 != float("inf"):
-                text_positions.append((full, x0, y0, x1, y1))
+                text_positions.append((_norm(full), x0, y0, x1, y1))
+
+    # Track which positions have been consumed
+    consumed: set[int] = set()
 
     for crf_field in fields:
         if not crf_field.field_label:
             continue
 
         label_norm = _norm(crf_field.field_label)
-        best_match = None
-        best_ratio = 0.0
+        if not label_norm:
+            continue
 
-        for text, x0, y0, x1, y1 in text_positions:
-            tn = _norm(text)
+        best_idx = -1
+        best_score = 0.0
 
-            if tn == label_norm:
-                best_match = (x0, y0, x1, y1)
+        for idx, (tn, x0, y0, x1, y1) in enumerate(text_positions):
+            if idx in consumed:
+                continue
+            if not tn:
+                continue
+
+            score = _match_score(label_norm, tn)
+
+            # Exact match — take immediately (greedy for performance)
+            if score == 1.0:
+                best_idx = idx
+                best_score = 1.0
                 break
 
-            prefix = min(20, len(label_norm), len(tn))
-            if prefix >= 4 and (
-                tn.startswith(label_norm[:prefix]) or label_norm.startswith(tn[:prefix])
-            ):
-                min_len = min(len(tn), len(label_norm))
-                if min_len > 0:
-                    match_len = 0
-                    for a, b in zip(tn, label_norm):
-                        if a == b:
-                            match_len += 1
-                        else:
-                            break
-                    ratio = match_len / min_len
-                    if ratio > best_ratio:
-                        best_ratio = ratio
-                        best_match = (x0, y0, x1, y1)
+            # Track best non-exact match
+            if score > best_score:
+                best_score = score
+                best_idx = idx
 
-        if best_match:
-            crf_field.x      = best_match[0]
-            crf_field.y      = best_match[3]
-            crf_field.width  = best_match[2] - best_match[0]
-            crf_field.height = best_match[3] - best_match[1]
+        # Accept match if score is good enough
+        if best_idx >= 0 and best_score >= 0.5:
+            consumed.add(best_idx)
+            _, x0, y0, x1, y1 = text_positions[best_idx]
+            crf_field.x = x0
+            crf_field.y = y1      # bottom of text line = annotation baseline
+            crf_field.width = x1 - x0
+            crf_field.height = y1 - y0
 
 
 def _build_unique_form_fields(all_fields: list[CRFField]) -> dict[str, list[CRFField]]:
@@ -253,8 +345,8 @@ def _build_unique_form_fields(all_fields: list[CRFField]) -> dict[str, list[CRFF
     Returns:
         Dict keyed by form_code → list of unique CRFField objects (first occurrence).
     """
-    seen: dict[str, set[str]] = {}  # form_code → set of normalized labels
-    unique: dict[str, list[CRFField]] = {}  # form_code → list of unique fields
+    seen: dict[str, set[str]] = {}
+    unique: dict[str, list[CRFField]] = {}
 
     for fld in all_fields:
         if not fld.form_code or not fld.field_label.strip():
