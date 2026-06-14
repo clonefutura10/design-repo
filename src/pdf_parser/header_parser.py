@@ -107,6 +107,63 @@ _RE_STUDY_ID_FALLBACK = re.compile(
     r"^(D\d{3,}[A-Z]\d{3,}[A-Z0-9]*)",
     re.MULTILINE
 )
+# "Project Name: D9186R00001" — used by UAT/EDC exports where the top line is
+# a build label (e.g. "UAT_0.2: All") rather than the study identifier.
+_RE_PROJECT_NAME = re.compile(r"^Project Name:\s*(.+)$", re.MULTILINE)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FORM-NAME → FORM-CODE INFERENCE
+# Many EDC exports (notably UAT/preview builds) omit the "(CODE)" suffix on the
+# Form: line — e.g. "Form: Visit Date" or "Form: Enrolment". Without a form_code
+# every form-scoped rule in tier0_rules misses. We infer a canonical form code
+# from the form NAME so the curated rules still fire. Order matters — the most
+# specific keywords are checked first (first match wins).
+# ─────────────────────────────────────────────────────────────────────────────
+_FORM_NAME_TO_CODE: list[tuple[re.Pattern, str]] = [
+    (re.compile(p, re.IGNORECASE), code) for p, code in [
+        (r"serious\s*adverse", "SERAE"),
+        (r"adverse\s*event", "AE"),
+        (r"concomitant|con\.?\s*med|prior.*medication|medication.*therap", "CM"),
+        (r"medical\s*history", "MH"),
+        (r"surgical\s*history", "HISS"),
+        (r"vital\s*sign", "VS"),
+        (r"\becg\b|electrocardiogram", "EG"),
+        (r"physical\s*exam", "PE"),
+        (r"demograph", "DM"),
+        (r"enrol", "DM"),
+        (r"randomi[sz]", "IE"),
+        (r"inclusion|exclusion|eligibilit", "IE"),
+        (r"informed\s*consent|assent", "CONSENT"),
+        (r"consent\s*withdraw", "CONSWD"),
+        (r"disposition|discontinuation|completion", "DS"),
+        (r"end\s*of\s*(study|treatment)", "DS"),
+        (r"death\s*detail|death\s*report", "DD"),
+        (r"pregnancy\s*test", "PREG"),
+        (r"pregnancy\s*report|pregnancy\s*outcome", "PREGREP"),
+        (r"reproductive", "RP"),
+        (r"urinalysis|urine", "LB3"),
+        (r"h(a)?ematology|biochemistry|chemistry|coagulation|laborator|lab\s", "LB"),
+        (r"substance\s*use|smoking|nicotine|tobacco", "SU_NIC"),
+        (r"alcohol", "SU_ALC"),
+        (r"allerg", "ALLERH"),
+        (r"clinical\s*event|exacerbation", "CE"),
+        (r"healthcare\s*(encounter|resource)|hospitali", "HO"),
+        (r"visit\s*date|visit\s*information|subject\s*visit", "VISIT"),
+        (r"exposure|study\s*drug|dosing|administration", "EX"),
+        (r"device", "DEVMALFN"),
+    ]
+]
+
+
+def infer_form_code_from_name(form_name: str) -> str:
+    """Infer a canonical form code from a form name when no (CODE) was present."""
+    if not form_name:
+        return ""
+    for pattern, code in _FORM_NAME_TO_CODE:
+        if pattern.search(form_name):
+            return code
+    return ""
 
 
 def parse_page_header(page_text: str, pdf_page_index: int = 0) -> PageHeader:
@@ -130,6 +187,12 @@ def parse_page_header(page_text: str, pdf_page_index: int = 0) -> PageHeader:
         match = _RE_STUDY_ID_FALLBACK.search(page_text)
     if match:
         header.study_id = match.group(1).strip()
+    else:
+        # UAT / preview builds: top line is a build label, real study is on
+        # the "Project Name:" line.
+        pn = _RE_PROJECT_NAME.search(page_text)
+        if pn:
+            header.study_id = pn.group(1).strip()
 
     # Folder (visit)
     match = _RE_FOLDER.search(page_text)
@@ -148,6 +211,10 @@ def parse_page_header(page_text: str, pdf_page_index: int = 0) -> PageHeader:
             header.form_code = code_match.group(1).upper()
             # Clean form name (remove the code part)
             header.form_name = full_form[:code_match.start()].strip()
+        else:
+            # No "(CODE)" suffix (common in UAT/preview exports) — infer a
+            # canonical form code from the form name so form-scoped rules fire.
+            header.form_code = infer_form_code_from_name(header.form_name)
 
     # Generated On
     match = _RE_GENERATED.search(page_text)

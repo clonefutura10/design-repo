@@ -174,13 +174,26 @@ class FindingsQualifierResolver:
 
     def _find_test_code(self, domain: str, label_norm: str) -> str | None:
         test_map = _DOMAIN_TEST_MAP.get(domain, {})
+        if not label_norm:
+            return None
+        # 1. Exact match (highest priority — avoids "pr" matching "pr interval")
         if label_norm in test_map:
             return test_map[label_norm]
-        # Substring containment
+        # 2. Test name appears as a whole phrase inside the label
+        #    (e.g. label "result for weight" contains test "weight").
+        #    Require the test name to be reasonably specific (>= 4 chars) and to
+        #    appear on a word boundary, so short codes like "pr"/"ck"/"k" can't
+        #    accidentally match unrelated labels.
+        best = None
+        best_len = 0
         for test_name, test_code in test_map.items():
-            if test_name in label_norm or label_norm in test_name:
-                return test_code
-        return None
+            if len(test_name) < 4:
+                continue
+            if re.search(r'\b' + re.escape(test_name) + r'\b', label_norm):
+                if len(test_name) > best_len:
+                    best = test_code
+                    best_len = len(test_name)
+        return best
 
     def resolve_qualifier(
         self,
