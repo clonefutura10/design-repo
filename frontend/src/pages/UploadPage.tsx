@@ -11,38 +11,38 @@ import { annotate } from "../api/client";
 const PIPELINE_STEPS = [
   {
     icon: Database,
-    title: "Input Layer Components",
+    title: "Document & Standards Intake",
     color: "#6B2D88",
     bg: "#EDE0F5",
-    desc: "The input layer includes blank CRF PDFs, SDTM specs, controlled codelists, and mapping rules essential for processing.",
+    desc: "Accepts blank CRF PDFs alongside SDTM standards, controlled terminology, and study-specific mappings to ground every decision in authoritative sources.",
   },
   {
     icon: Cpu,
-    title: "Cache and Index Builder",
+    title: "Smart Knowledge Index",
     color: "#00699A",
     bg: "#E0F2FF",
-    desc: "This module builds structured registries, and lookup tables to optimize performance and indexing.",
+    desc: "Builds a high-speed, structured knowledge base from your standards and specs so field lookups happen instantly at any scale.",
   },
   {
     icon: FileSearch,
-    title: "PDF Parsing Engine",
+    title: "Form Structure Recognition",
     color: "#00843D",
     bg: "#E6F6EC",
-    desc: "The parsing engine detects forms, extracts headers and fields, enriches context, and filters noise from PDFs.",
+    desc: "Reads each page to identify CRF forms, visit folders, field labels, and data-entry patterns — filtering noise so only meaningful fields are passed forward.",
   },
   {
     icon: Layers,
-    title: "Multi-tier Resolution Engine",
+    title: "Intelligent SDTM Mapping",
     color: "#E65100",
     bg: "#FFF3E0",
-    desc: "Applies classification, and semantic resolutions in a cascading manner for accurate data interpretation.",
+    desc: "Maps every extracted field to the correct SDTM domain, variable, codelist, and qualifier with high-confidence scoring and supplemental dataset support.",
   },
   {
     icon: PenTool,
-    title: "PDF Annotation Writer",
+    title: "Annotated CRF Generation",
     color: "#D32F2F",
     bg: "#FDEAEA",
-    desc: "Generates annotated CRFs using python packages with domain color-coding, dataset headers, codes, and bookmarks.",
+    desc: "Produces a standards-compliant aCRF with colour-coded domain headers, extractable FreeText annotations, dataset bookmarks, and cross-page references.",
   },
 ];
 
@@ -156,14 +156,14 @@ export default function UploadPage() {
         {loading ? (
           <><Loader2 className="w-4 h-4 animate-spin" />Processing…</>
         ) : (
-          <><UploadCloud className="w-4 h-4" />Run Annotation Pipeline</>
+          <><UploadCloud className="w-4 h-4" />Generate Annotated CRF</>
         )}
       </button>
 
       {/* Pipeline Overview */}
       <div>
         <h2 className="text-base font-semibold mb-4" style={{ color: "#1A1A1A" }}>
-          How the Pipeline Works
+          How It Works
         </h2>
         <div className="space-y-3">
           {PIPELINE_STEPS.map(({ icon: Icon, title, color, bg, desc }, i) => (

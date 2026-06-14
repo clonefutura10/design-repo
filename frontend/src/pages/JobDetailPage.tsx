@@ -35,9 +35,9 @@ const CLASS_COLORS: Record<string, string> = {
 };
 
 const TIER_LABELS: Record<string, string> = {
-  TIER0_EXACT: "Exact Rule",
+  TIER0_EXACT: "High Confidence",
   TIER0_STANDARDS: "SDTM Standards",
-  TIER0_AZ_SPEC: "AZ Spec",
+  TIER0_AZ_SPEC: "Standards Lookup",
   TIER1_NOT_SUBMITTED: "Not Submitted",
   UNRESOLVED: "Unresolved",
 };
@@ -226,9 +226,9 @@ export default function JobDetailPage() {
   ];
 
   const tierBreakdown = [
-    { label: "High Conf (≥98%)", value: stats.tier0_regex ?? 0, color: "#6B2D88" },
-    { label: "Standards (≥92%)", value: stats.tier0_standards ?? 0, color: "#00A0DF" },
-    { label: "AZ Spec (≥90%)", value: stats.tier0_az_spec ?? 0, color: "#00843D" },
+    { label: "High Confidence", value: stats.tier0_regex ?? 0, color: "#6B2D88" },
+    { label: "SDTM Standards", value: stats.tier0_standards ?? 0, color: "#00A0DF" },
+    { label: "Standards Lookup", value: stats.tier0_az_spec ?? 0, color: "#00843D" },
     { label: "Not Submitted", value: stats.not_submitted_count ?? 0, color: "#F5A623" },
     { label: "Unresolved", value: stats.unresolved_count ?? 0, color: "#E5E5E5" },
   ];
