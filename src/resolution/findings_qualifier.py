@@ -15,14 +15,16 @@ import re
 from src.resolution.models import ResolutionResult
 
 
-# Variables in Findings domains that need TESTCD qualifiers
+# Variables in Findings domains that need TESTCD qualifiers.
+# NOTE: SUPP variables (VSCLSIG, EGCLSIG, etc.) are intentionally excluded —
+# they appear as "SUPPVS.QVAL where QNAM = VSCLSIG" and don't get TESTCD qualifiers.
 _FINDINGS_QUALIFIER_VARS: dict[str, set[str]] = {
     "VS": {"VSORRES", "VSORRESU", "VSSTRESN", "VSSTRESC", "VSSTRESU",
-           "VSNRIND", "VSSTAT", "VSREASND", "VSCLSIG"},
+           "VSNRIND", "VSSTAT", "VSREASND", "VSTEST", "VSSTRESC"},
     "LB": {"LBORRES", "LBORRESU", "LBSTRESN", "LBSTRESC", "LBSTRESU",
-           "LBNRIND", "LBORNRHI", "LBORNRLO", "LBSTAT", "LBREASND"},
+           "LBNRIND", "LBORNRHI", "LBORNRLO", "LBSTAT", "LBREASND", "LBTEST"},
     "EG": {"EGORRES", "EGORRESU", "EGSTRESN", "EGSTRESC", "EGSTRESU",
-           "EGNRIND", "EGSTAT", "EGREASND", "EGCLSIG"},
+           "EGNRIND", "EGSTAT", "EGREASND", "EGTEST"},
     "RP": {"RPORRES", "RPORRESU", "RPSTRESC", "RPDECOD"},
 }
 
@@ -228,10 +230,20 @@ class FindingsQualifierResolver:
             if test_code:
                 return f'{testcd_var} = "{test_code}"'
 
-        # 3. Check value options (e.g. dropdown containing test names)
+        # 3. Check value options (e.g. dropdown containing test names).
+        #    If MULTIPLE distinct test codes are found in value_options, this
+        #    is a multi-test grid selector (e.g. "Vital sign test name" with
+        #    Temperature, Weight, etc.). Return None — callers will clear the
+        #    propagation state rather than returning an arbitrary first match.
+        test_codes_from_opts: list[str] = []
         for opt in (value_options or []):
-            test_code = self._find_test_code(domain, _norm_label(opt))
-            if test_code:
-                return f'{testcd_var} = "{test_code}"'
+            tc = self._find_test_code(domain, _norm_label(opt))
+            if tc:
+                test_codes_from_opts.append(tc)
+        unique_codes = list(dict.fromkeys(test_codes_from_opts))  # order-preserving dedup
+        if len(unique_codes) > 1:
+            return None  # ambiguous multi-test grid
+        if unique_codes:
+            return f'{testcd_var} = "{unique_codes[0]}"'
 
         return None

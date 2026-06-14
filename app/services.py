@@ -207,19 +207,28 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
 
     # ── Post-process: add Findings domain TESTCD qualifiers ──
     # Walk unique_fields in form order, propagating the last resolved test code
-    # so that generic labels like "Result" / "Unit" / "Clinically Significant"
-    # pick up the correct TESTCD from the preceding test-name field.
+    # so that generic labels like "Result" / "Unit" pick up the correct TESTCD
+    # from the preceding test-name field.
     from src.resolution.findings_qualifier import _FINDINGS_QUALIFIER_VARS, _DOMAIN_TESTCD_VAR
     _findings_resolver = FindingsQualifierResolver()
     _current_testcd: dict[str, str] = {}   # domain → last resolved test code
-    _wc_cache: dict[str, str] = {}         # "DOMAIN||VAR||label_key" → where_clause
+    # Variables that ARE test-name selectors — when they appear and resolve to no
+    # specific testcd (multi-test grid), we must CLEAR the propagation state so
+    # subsequent Result/Unit fields don't inherit a stale code from a previous form.
+    _TEST_NAME_VARS = {"VS": "VSTEST", "LB": "LBTEST", "EG": "EGTEST", "RP": "RPTEST"}
 
+    import re as _re
     for fld, res in zip(_unique_fields, _unique_results):
         if not res.resolved or res.is_not_submitted:
             continue
         domain = (res.sdtm_domain or "").upper()
         variable = (res.sdtm_variable or "").upper()
         if domain not in _FINDINGS_QUALIFIER_VARS:
+            continue
+
+        # Skip SUPP variables — they get "QNAM = <var>" format in pdf_writer,
+        # not a TESTCD qualifier.
+        if res.is_supplemental:
             continue
 
         # Try to resolve a where_clause from the field label
@@ -231,11 +240,15 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         )
         if wc:
             res.where_clause = wc
-            # Propagate: extract the test code for use by subsequent fields
-            import re as _re
+            # Propagate: extract the test code for subsequent fields
             m = _re.search(r'"([A-Z0-9]+)"', wc)
             if m:
                 _current_testcd[domain] = m.group(1)
+        elif variable == _TEST_NAME_VARS.get(domain, ""):
+            # Multi-test grid selector (VSTEST with multiple value options that
+            # returned no specific testcd) — clear propagation to prevent
+            # downstream Result/Unit fields from inheriting a stale code.
+            _current_testcd.pop(domain, None)
         elif variable in _FINDINGS_QUALIFIER_VARS.get(domain, set()):
             # No direct match — use last known test code for this domain
             last_tc = _current_testcd.get(domain)

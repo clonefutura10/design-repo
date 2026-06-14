@@ -202,6 +202,9 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
 
     Same-domain variables are combined on one line with ' / ' separator.
     Different domains stay as separate stacked entries.
+
+    SUPP variables render as SUPPXX.QVAL with where_clause = "QNAM = <variable>"
+    following the CDISC aCRF standard.
     """
     annotations: list[dict] = []
 
@@ -221,20 +224,24 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
 
     domain = result.sdtm_domain.upper()
     is_supp = result.is_supplemental
-    if is_supp:
-        prefix = domain if domain.startswith("SUPP") else f"SUPP{domain}"
-        primary_text = f"{prefix}.{result.sdtm_variable}"
-    else:
-        primary_text = f"{domain}.{result.sdtm_variable}"
-
-    if result.codelist_code:
-        primary_text += f" ({result.codelist_code})"
-
     base_domain = domain[4:] if domain.startswith("SUPP") else domain
 
+    # Build primary annotation text
+    if is_supp:
+        prefix = domain if domain.startswith("SUPP") else f"SUPP{domain}"
+        primary_text = f"{prefix}.QVAL"
+        primary_qnam = result.sdtm_variable  # for where QNAM = <var>
+    else:
+        primary_text = f"{domain}.{result.sdtm_variable}"
+        primary_qnam = ""
+
+    if result.codelist_code and not is_supp:
+        primary_text += f" ({result.codelist_code})"
+
     from collections import OrderedDict
-    groups: OrderedDict[tuple[str, bool], list[str]] = OrderedDict()
-    groups[(base_domain, is_supp)] = [primary_text]
+    # groups: (base_domain, is_supp, qnam) → list of text fragments
+    groups: OrderedDict[tuple[str, bool, str], list[str]] = OrderedDict()
+    groups[(base_domain, is_supp, primary_qnam)] = [primary_text]
 
     for mapping in getattr(result, "additional_mappings", None) or []:
         add_domain = (mapping.get("domain") or mapping.get("sdtm_domain", "")).upper()
@@ -247,30 +254,44 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
 
         if add_is_supp:
             pfx = add_domain if add_domain.startswith("SUPP") else f"SUPP{add_domain}"
-            add_text = f"{pfx}.{add_variable}"
+            add_text = f"{pfx}.QVAL"
+            add_qnam = add_variable
         else:
             add_text = f"{add_domain}.{add_variable}"
+            add_qnam = ""
 
-        if add_codelist:
+        if add_codelist and not add_is_supp:
             add_text += f" ({add_codelist})"
 
         ann_base = add_domain[4:] if add_domain.startswith("SUPP") else add_domain
-        key = (ann_base, add_is_supp)
+        key = (ann_base, add_is_supp, add_qnam)
         if key not in groups:
             groups[key] = []
         groups[key].append(add_text)
 
-    where_clause = getattr(result, "where_clause", "") or ""
+    # TESTCD qualifier applies only to primary non-SUPP annotations
+    testcd_where = getattr(result, "where_clause", "") or ""
     is_derived = getattr(result, "is_derived", False)
 
-    for (grp_domain, grp_is_supp), texts in groups.items():
+    for (grp_domain, grp_is_supp, grp_qnam), texts in groups.items():
         combined_text = " / ".join(texts)
+        # Where-clause logic:
+        # - SUPP → "QNAM = <variable>" (CDISC standard)
+        # - Primary non-SUPP → TESTCD qualifier (from findings_qualifier)
+        # - Additional non-SUPP in different domain → no qualifier
+        if grp_is_supp:
+            wc = f"QNAM = {grp_qnam}" if grp_qnam else ""
+        elif grp_domain == base_domain and not is_supp:
+            wc = testcd_where
+        else:
+            wc = ""
+
         annotations.append({
             "text": combined_text,
             "domain": grp_domain,
             "is_not_submitted": False,
             "is_supp": grp_is_supp,
-            "where_clause": where_clause if grp_domain == base_domain else "",
+            "where_clause": wc,
             "is_derived": is_derived,
         })
 
@@ -318,9 +339,47 @@ _DOMAIN_HEADER_LEFT_X = 36.0
 _DOMAIN_HEADER_Y = 62.0
 
 
+def _freetext(
+    page: fitz.Page,
+    rect: fitz.Rect,
+    text: str,
+    fontsize: float,
+    fontname: str,
+    text_color: tuple,
+    fill_color: tuple,
+    border_color: tuple,
+    border_width: float = _BORDER_WIDTH,
+    dashed: bool = False,
+) -> None:
+    """Create a real PDF FreeText annotation (selectable, Pinnacle-21 extractable)."""
+    try:
+        annot = page.add_freetext_annot(
+            rect,
+            text,
+            fontsize=fontsize,
+            fontname=fontname,
+            text_color=text_color,
+            fill_color=fill_color,
+            rotate=0,
+            align=fitz.TEXT_ALIGN_LEFT,
+        )
+        annot.set_colors(stroke=border_color)
+        if dashed:
+            annot.set_border(width=border_width, dashes=[2, 2])
+        else:
+            annot.set_border(width=border_width)
+        annot.update()
+    except Exception:
+        # Fallback to drawn text if annotation API unavailable
+        page.draw_rect(rect, color=border_color, fill=fill_color, width=border_width,
+                       dashes="[2 2] 0" if dashed else None, overlay=True)
+        page.insert_text(fitz.Point(rect.x0 + _BOX_PADDING_X, rect.y1 - _BOX_PADDING_Y),
+                         text, fontsize=fontsize, fontname=fontname, color=text_color)
+
+
 def _draw_domain_name_top_left(page: fitz.Page, domains: list[str]) -> None:
     """
-    Draw coloured domain-name boxes at the top-left of the page.
+    Draw coloured domain-name boxes at the top-left of the page as FreeText annotations.
     Format: 'VS = VITAL SIGNS' inside a colored background box.
     """
     if not domains:
@@ -345,19 +404,17 @@ def _draw_domain_name_top_left(page: fitz.Page, domains: list[str]) -> None:
             _DOMAIN_HEADER_LEFT_X + tw + 6,
             y + 2,
         )
-        page.draw_rect(box_rect, color=border_c, fill=bar_fill, width=0.9, overlay=True)
-        page.insert_text(
-            fitz.Point(_DOMAIN_HEADER_LEFT_X, y),
-            label_text,
-            fontsize=_HEADER_FONT_SIZE,
-            fontname=_FONT_NAME_BOLD,
-            color=border_c,
+        _freetext(
+            page, box_rect, label_text,
+            fontsize=_HEADER_FONT_SIZE, fontname=_FONT_NAME_BOLD,
+            text_color=border_c, fill_color=bar_fill, border_color=border_c,
+            border_width=0.9,
         )
         y += _HEADER_BAR_HEIGHT + 2.0
 
 
 def _draw_see_page_reference(page: fitz.Page, first_pages: list[int], page_height: float, ann_x: float) -> None:
-    """Write 'For Annotations see page X · Y' at the bottom of annotation column."""
+    """Write 'For Annotations see page X · Y' as FreeText annotation at the bottom."""
     if not first_pages:
         return
 
@@ -368,13 +425,21 @@ def _draw_see_page_reference(page: fitz.Page, first_pages: list[int], page_heigh
         ref_text = f"For Annotations see page {page_nums[0]} – {page_nums[-1]}"
 
     y = page_height - _PAGE_BOTTOM_MARGIN - 4.0
-    page.insert_text(
-        fitz.Point(ann_x, y),
-        ref_text,
-        fontsize=7.0,
-        fontname=_FONT_NAME,
-        color=(0.35, 0.35, 0.35),
-    )
+    tw = fitz.get_text_length(ref_text, fontname=_FONT_NAME, fontsize=7.0)
+    rect = fitz.Rect(ann_x, y - 9, ann_x + tw + 6, y + 3)
+    _freetext(page, rect, ref_text, fontsize=7.0, fontname=_FONT_NAME,
+              text_color=(0.35, 0.35, 0.35), fill_color=(1.0, 1.0, 1.0),
+              border_color=(0.65, 0.65, 0.65), border_width=0.4)
+
+
+def _draw_continued_from_page(page: fitz.Page, prev_page_num: int, ann_x: float) -> None:
+    """Write 'Continued from page X' as FreeText annotation near the top of the annotation column."""
+    ref_text = f"Continued from page {prev_page_num}"
+    tw = fitz.get_text_length(ref_text, fontname=_FONT_NAME, fontsize=7.0)
+    rect = fitz.Rect(ann_x, 74, ann_x + tw + 6, 86)
+    _freetext(page, rect, ref_text, fontsize=7.0, fontname=_FONT_NAME,
+              text_color=(0.35, 0.35, 0.35), fill_color=(1.0, 1.0, 1.0),
+              border_color=(0.65, 0.65, 0.65), border_width=0.4)
 
 
 # =============================================================================
@@ -599,6 +664,17 @@ def annotate_pdf(
         for fc, pages in form_all_pages.items()
     }
 
+    # Track "Continued from page X" — pages 2,3,... within a form's first instance
+    # when consecutive pages belong to the same form (multi-page forms).
+    form_continued_from: dict[str, dict[int, int]] = {}  # fc -> {page_idx: preceding_page_idx}
+    for fc, pages in form_all_pages.items():
+        first_pages = sorted(form_first_instance_pages[fc])
+        continued: dict[int, int] = {}
+        for i in range(1, len(first_pages)):
+            if first_pages[i] - first_pages[i - 1] <= 1:  # consecutive pages
+                continued[first_pages[i]] = first_pages[i - 1]
+        form_continued_from[fc] = continued
+
     page_ann_count: dict[int, int] = defaultdict(int)
     for field, result in zip(fields, results):
         pi = field.page_index
@@ -650,6 +726,11 @@ def annotate_pdf(
             )
             if page_doms:
                 _draw_domain_name_top_left(page, page_doms)
+            # "Continued from page X" on subsequent pages of the same multi-page form
+            if fc:
+                prev_idx = form_continued_from.get(fc, {}).get(page_idx)
+                if prev_idx is not None:
+                    _draw_continued_from_page(page, prev_idx + 1, ann_x)
 
         # "For Annotations see page X" for repeat-visit pages
         if fc and page_idx in form_see_pages.get(fc, set()):
@@ -722,25 +803,17 @@ def annotate_pdf(
                 text_y + _BOX_PADDING_Y + ((eff_fs + _LINE_SPACING) if where_clause else 0),
             )
 
-            if use_dash:
-                page.draw_rect(box_rect, color=border_c, fill=fill_c,
-                               width=_BORDER_WIDTH, dashes="[2 2] 0", overlay=True)
-            else:
-                page.draw_rect(box_rect, color=border_c, fill=fill_c,
-                               width=_BORDER_WIDTH, overlay=True)
+            # Combine text + where-clause into a single annotation content string.
+            # FreeText annotations support multi-line content; the where-clause
+            # appears on the second line, indented slightly.
+            full_content = ann_text + (f"\n{wc_text}" if where_clause else "")
 
-            page.insert_text(fitz.Point(ann_x + _BOX_PADDING_X, text_y), ann_text,
-                             fontsize=eff_fs, fontname=font_n, color=text_c)
-
-            if where_clause:
-                wc_y = text_y + eff_fs + _LINE_SPACING
-                wc_colour = (
-                    min(1.0, text_c[0] * 0.7 + 0.15),
-                    min(1.0, text_c[1] * 0.7 + 0.15),
-                    min(1.0, text_c[2] * 0.7 + 0.15),
-                )
-                page.insert_text(fitz.Point(ann_x + _BOX_PADDING_X, wc_y), wc_text,
-                                 fontsize=eff_fs, fontname=_FONT_NAME, color=wc_colour)
+            _freetext(
+                page, box_rect, full_content,
+                fontsize=eff_fs, fontname=font_n,
+                text_color=text_c, fill_color=fill_c, border_color=border_c,
+                border_width=_BORDER_WIDTH, dashed=use_dash,
+            )
 
             y_off += this_h + _MULTI_BOX_SPACING
             any_drawn = True
