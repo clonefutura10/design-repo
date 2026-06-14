@@ -190,6 +190,49 @@ _MULTI_MAP_TABLE: dict[tuple[str, str], list[dict]] = {
         },
     ],
 
+    # ── Findings: ORRES always also maps to STRESC ───────────────────────────
+    ("VS", "VSORRES"): [
+        {"domain": "VS", "variable": "VSSTRESC", "label": "Character Result/Finding in Std Format"},
+    ],
+    ("LB", "LBORRES"): [
+        {"domain": "LB", "variable": "LBSTRESC", "label": "Character Result/Finding in Std Format"},
+    ],
+    ("EG", "EGORRES"): [
+        {"domain": "EG", "variable": "EGSTRESC", "label": "Character Result/Finding in Std Format"},
+    ],
+
+    # ── EC/EX dual-domain: each EC field also maps to EX ───────────────────
+    ("EC", "ECSTDTC"): [
+        {"domain": "EX", "variable": "EXSTDTC", "label": "Start Date/Time of Treatment"},
+        {"domain": "DM", "variable": "RFXSTDTC", "label": "Date/Time of First Study Treatment",
+         "condition_label": r"first\s*(dose|administration|study\s*treat)"},
+    ],
+    ("EC", "ECENDTC"): [
+        {"domain": "EX", "variable": "EXENDTC", "label": "End Date/Time of Treatment"},
+        {"domain": "DM", "variable": "RFXENDTC", "label": "Date/Time of Last Study Treatment",
+         "condition_label": r"last\s*(dose|administration|study\s*treat)"},
+    ],
+    ("EC", "ECLOC"): [
+        {"domain": "EX", "variable": "EXLOC", "label": "Location of Dose Administration"},
+    ],
+    ("EC", "ECLAT"): [
+        {"domain": "EX", "variable": "EXLAT", "label": "Laterality"},
+    ],
+    ("EC", "ECACN"): [
+        {"domain": "EX", "variable": "EXADJ", "label": "Reason for Dose Adjustment"},
+    ],
+    ("EC", "ECDOSE"): [
+        {"domain": "EX", "variable": "EXDOSE", "label": "Dose per Administration"},
+    ],
+    ("EC", "ECDOSU"): [
+        {"domain": "EX", "variable": "EXDOSU", "label": "Dose Units"},
+    ],
+
+    # ── SERAE death date also maps to DM.DTHDTC ─────────────────────────────
+    ("AE", "AEDTHDT"): [
+        {"domain": "DM", "variable": "DTHDTC", "label": "Date/Time of Death"},
+    ],
+
     # ── Concomitant medication ───────────────────────────────────────────────
     # Indication also maps to MH.MHTERM when referencing pre-existing condition
     ("CM", "CMINDC"): [
@@ -213,7 +256,10 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     # VISIT / SV
     # =========================================================================
     (r"^VISIT\d?$", r"^visit\s*date$", "SV", "SVSTDTC", "", False),
-    (r"^VISIT\d?$", r"^visit\s*not\s*done$", "SV", "SVENDTC", "", False),
+    (r"^VISIT\d?$", r"^visit\s*not\s*done$", "SV", "VISITND", "", True),
+    (r"^VISIT\d?$", r"contact\s*mode", "SV", "SVCNTMOD", "", True),
+    (r"^VISIT\d?$", r"visit\s*(was\s*)?impacted\s*by", "SV", "SVSPCHGI", "", True),
+    (r"^VISIT\d?$", r"^if\s*other,?\s*specify$", "SV", "SVCNTMOD", "", True),
 
     # =========================================================================
     # CONSENT / DS
@@ -225,6 +271,10 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     (r"^CONSENT\d?$", r"optional\s*consent.*category", "DS", "DSTERM", "", False),
     (r"^CONSENT\d?$", r"assessment\s*applicable", "DS", "NOT_SUBMITTED", "", False),
     (r"^CONSENT\d?$", r"is\s*the\s*subject\s*participating", "DS", "DSTERM", "", False),
+    (r"^CONSENT\d?$", r"protocol\s*version", "DS", "DSSPID", "", False),
+    (r"^CONSENT\d?$", r"patient\s*portal\s*consent\s*obtained", "DS", "DSDECOD", "", False),
+    (r"^CONSENT\d?$", r"date\s*of\s*patient\s*portal\s*consent", "DS", "DSSTDTC", "", False),
+    (r"^CONSENT\d?$", r"patient\s*source", "DS", "NOT_SUBMITTED", "", False),
 
     # =========================================================================
     # DM
@@ -253,7 +303,8 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     (r"^VS\d?$", r"vital\s*sign[s]?\s*test\s*name", "VS", "VSTEST", "C67153", False),
     (r"^VS\d?$", r"^result$", "VS", "VSORRES", "", False),
     (r"^VS\d?$", r"^unit$", "VS", "VSORRESU", "C66770", False),
-    (r"^VS\d?$", r"was\s*the\s*result\s*clinically\s*significant", "VS", "VSCLSIG", "C66742", False),
+    (r"^VS\d?$", r"^clinically\s*significant$", "VS", "VSCLSIG", "C66742", True),
+    (r"^VS\d?$", r"was\s*the\s*result\s*clinically\s*significant", "VS", "VSCLSIG", "C66742", True),
     (r"^VS\d?$", r"field\s*created\s*for\s*rsg", "VS", "NOT_SUBMITTED", "", False),
     (r"^VS\d?$", r"^heart\s*rate$", "VS", "VSORRES", "", False),
     (r"^VS\d?$", r"^respiratory\s*rate$", "VS", "VSORRES", "", False),
@@ -269,9 +320,11 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     # =========================================================================
     (r"^EG$", r"was\s*the\s*ecg\s*performed", "EG", "EGSTAT", "C66789", False),
     (r"^EG$", r"date\s*of\s*ecg", "EG", "EGDTC", "", False),
-    (r"^EG$", r"reason.{0,5}abnormal", "EG", "EGREAS", "", True),
+    (r"^EG$", r"reason.{0,5}abnormal", "EG", "EGSPFY", "", True),
+    (r"^EG$", r"if\s*abnormal\s*reason", "EG", "EGSPFY", "", True),
     (r"^EG$", r"overall\s*ecg\s*evaluation", "EG", "EGORRES", "", False),
     (r"^EG$", r"was\s*the\s*ecg\s*clinically\s*significant", "EG", "EGCLSIG", "", True),
+    (r"^EG$", r"^clinically\s*significant$", "EG", "EGCLSIG", "", True),
 
     # =========================================================================
     # PE
@@ -295,11 +348,12 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     (r"^MH$", r"^start\s*date$", "MH", "MHSTDTC", "", False),
     (r"^MH$", r"end\s*date\s*of\s*condition", "MH", "MHENDTC", "", False),
     (r"^MH$", r"^end\s*date$", "MH", "MHENDTC", "", False),
-    (r"^MH$", r"condition\s*ongoing", "MH", "MHENRF", "", False),
-    (r"^MH$", r"^ongoing", "MH", "MHENRF", "", False),
-    (r"^MH$", r"condition.*past\s*or\s*current", "MH", "MHENRF", "", False),
+    (r"^MH$", r"condition\s*ongoing", "MH", "MHENRTPT", "", False),
+    (r"^MH$", r"^ongoing$", "MH", "MHENRTPT", "", False),
+    (r"^MH$", r"condition.*past\s*or\s*current", "MH", "MHENRTPT", "", False),
     (r"^MH$", r"taking\s*current\s*medication", "MH", "MHCURM", "", True),
     (r"^MH$", r"any\s*current\s*medication", "MH", "MHCURM", "", True),
+    (r"^MH$", r"^current\s*medication$", "MH", "MHCURM", "", True),
     (r"^MH$", r"medical\s*condition\s*under\s*control", "MH", "MHCONTRL", "", True),
     # MedDRA coding fields
     (r"^MH$", r"meddra\s*lowest\s*level\s*term\s*code", "MH", "MHLLTCD", "", False),
@@ -363,8 +417,10 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     (r"^CM\d?$", r"treatment\s*stop\s*date", "CM", "CMENDTC", "", False),
     (r"^CM\d?$", r"cancer\s*therapy\s*agent\s*stop\s*date", "CM", "CMENDTC", "", False),
     (r"^CM\d?$", r"^end\s*date$", "CM", "CMENDTC", "", False),
-    (r"^CM\d?$", r"treatment\s*continues", "CM", "CMENRF", "AZC00378", False),
-    (r"^CM\d?$", r"^reason\s*for\s*treatment\s*stop$", "CM", "CMREAS", "", True),
+    (r"^CM\d?$", r"treatment\s*continues", "CM", "CMENRTPT", "AZC00378", False),
+    (r"^CM\d?$", r"^ongoing$", "CM", "CMENRTPT", "", False),
+    (r"^CM\d?$", r"^reason\s*for\s*treatment\s*stop$", "CM", "CMTRTSR", "", True),
+    (r"^CM\d?$", r"^reason\s*for\s*stop$", "CM", "CMTRTSR", "", True),
     (r"^CM\d?$", r"other\s*reason\s*for\s*treatment\s*stop", "CM", "CMREASOT", "", True),
     (r"^CM\d?$", r"reason\s*for\s*therapy", "CM", "CMINDC", "", False),
     (r"^CM\d?$", r"therapy\s*reason.*other", "CM", "CMREASOT", "", True),
@@ -445,6 +501,7 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     (r"^PREG$", r"sampling\s*date", "LB", "LBDTC", "", False),
     (r"^PREG$", r"test\s*result", "LB", "LBORRES", "", False),
     (r"^PREG$", r"pregnancy\s*result", "LB", "LBORRES", "", False),
+    (r"^PREG$", r"pregnancy\s*test\s*serum", "LB", "LBTEST", "", False),
     (r"^PREG$", r"pregnancy\s*test", "LB", "LBTEST", "", False),
 
     # =========================================================================
@@ -456,6 +513,24 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     (r"^RP$", r"collection\s*date", "RP", "RPDTC", "", False),
     (r"^RP$", r"collection\s*time", "RP", "RPTM", "", False),
     (r"^RP$", r"pregnancy\s*result", "RP", "RPORRES", "", False),
+
+    # =========================================================================
+    # PREGREP (Pregnancy Report form → RP domain Findings)
+    # =========================================================================
+    (r"^PREGREP$", r"assessment\s*date", "RP", "RPDTC", "", False),
+    (r"^PREGREP$", r"last\s*menstrual\s*period\s*start\s*date", "RP", "RPORRES", "", False),
+    (r"^PREGREP$", r"estimated\s*date\s*of\s*delivery", "RP", "RPORRES", "", False),
+    (r"^PREGREP$", r"using\s*hormonal\s*contraception", "RP", "RPORRES", "", False),
+    (r"^PREGREP$", r"hormonal\s*contraception.*specification", "RP", "RPSPFY", "", True),
+    (r"^PREGREP$", r"iud\s*specification", "RP", "RPSPFY", "", True),
+    (r"^PREGREP$", r"number\s*of\s*previous\s*pregnancies", "RP", "RPORRES", "", False),
+    (r"^PREGREP$", r"number\s*of\s*spontaneous\s*abortions", "RP", "RPORRES", "", False),
+    (r"^PREGREP$", r"number\s*of\s*.*live\s*births", "RP", "RPORRES", "", False),
+    (r"^PREGREP$", r"risk\s*factor", "RP", "RPSPFY", "", True),
+    (r"^PREGREP$", r"family\s*history", "RP", "RPORRES", "", False),
+    (r"^PREGREP$", r"outcome.*pregnancy", "RP", "RPDECOD", "", False),
+    (r"^PREGREP$", r"date\s*of\s*outcome", "RP", "RPENDTC", "", False),
+    (r"^PREGREP$", r"^result$", "RP", "RPORRES", "", False),
 
     # =========================================================================
     # SU_NIC
@@ -690,6 +765,9 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     (r"^DS\d?$", r"what\s*was\s*the\s*protocol\s*milestone", "DS", "DSTERM", "", False),
     (r"^DS\d?$", r"consent\s*withdrawal\s*category", "DS", "DSSPFY", "", True),
     (r"^DS\d?$", r"other\s*status,?\s*specify", "DS", "DSMODIFY", "", False),
+    (r"^(DS|DOSDISC)\d?$", r"please\s*specify.*non.?compliance|please\s*specify.*other.*reason.*ip", "DS", "IPDCSPEC", "", True),
+    (r"^(DS|DOSDISC)\d?$", r"related\s*to\s*(a\s*)?global.*country\s*situation", "DS", "DSSPRELI", "", True),
+    (r"^(DS|DOSDISC)\d?$", r"please\s*specify\s*if\s*other\s*subject\s*decision", "DS", "IPDCDSPC", "", True),
 
     # =========================================================================
     # SV (Subject Visits)
@@ -717,6 +795,40 @@ _RULES: list[tuple[str, str, str, str, str, bool]] = [
     (r"^AE\d*$", r"causality.*investigational\s*product", "AE", "AEREL", "", False),
     (r"^AE\d*$", r"^adverse\s*event\s*category$", "AE", "AECAT", "", False),
     (r"^AE\d*$", r"medication\s*given\s*for\s*this\s*ae", "AE", "AECONTRT", "", False),
+
+    # =========================================================================
+    # SERAE (Serious Adverse Events — supplemental variables)
+    # =========================================================================
+    (r"^(AE|SERAE)\d*$", r"ae\s*caused\s*subject\s*to\s*withdraw", "AE", "AEWD", "", True),
+    (r"^(AE|SERAE)\d*$", r"ae\s*required\s*(additional\s*)?treatment", "AE", "AETRT", "", True),
+    (r"^SERAE\d*$", r"date\s*ae\s*met\s*criteria\s*for\s*serious", "AE", "SAEDTC", "", True),
+    (r"^SERAE\d*$", r"date\s*investigator\s*aware\s*of\s*sae", "AE", "SAEIADTC", "", True),
+    (r"^SERAE\d*$", r"primary\s*cause\s*of\s*death", "AE", "DTHCAUS1", "", True),
+    (r"^SERAE\d*$", r"secondary\s*cause\s*of\s*death", "AE", "DTHCAUS2", "", True),
+    (r"^SERAE\d*$", r"date\s*of\s*hospitalization", "AE", "SAEHODTC", "", True),
+    (r"^SERAE\d*$", r"date\s*of\s*discharge", "AE", "SAEDIDTC", "", True),
+    (r"^SERAE\d*$", r"autopsy\s*performed", "AE", "SAEAU", "", True),
+    (r"^SERAE\d*$", r"sae\s*caused\s*by\s*study\s*procedure", "AE", "SAECAUSP", "", True),
+    (r"^SERAE\d*$", r"if\s*yes,?\s*please\s*specify\s*procedure", "AE", "SAESP", "", True),
+    (r"^SERAE\d*$", r"ae\s*description\s*\d*", "AE", "AEDESC01", "", True),
+    (r"^SERAE\d*$", r"sae\s*caused\s*by\s*other\s*medication", "AE", "AESMEDCA", "", True),
+    (r"^SERAE\d*$", r"specify\s*trade\s*name", "AE", "AESMED", "", True),
+    (r"^SERAE\d*$", r"date\s*of\s*death", "AE", "AEDTHDT", "", True),
+
+    # =========================================================================
+    # EX / EC — Study Drug Exposure (dual-domain annotation)
+    # Primary annotation uses EC; EX added via _MULTI_MAP_TABLE
+    # =========================================================================
+    (r"^EX\d?$", r"date\s*of\s*study\s*drug\s*administration|administration\s*date", "EC", "ECSTDTC", "", False),
+    (r"^EX\d?$", r"end\s*date\s*of\s*study\s*drug|last\s*date\s*of\s*study\s*drug", "EC", "ECENDTC", "", False),
+    (r"^EX\d?$", r"location\s*for\s*study\s*drug\s*administration", "EC", "ECLOC", "", False),
+    (r"^EX\d?$", r"laterality\s*for\s*study\s*drug", "EC", "ECLAT", "", False),
+    (r"^EX\d?$", r"action\s*taken.*investigational\s*product", "EC", "ECACN", "", False),
+    (r"^EX\d?$", r"^lot\s*number$", "EC", "ECLOT", "", True),
+    (r"^EX\d?$", r"^dose\s*administered$", "EC", "ECDOSE", "", False),
+    (r"^EX\d?$", r"^dose\s*unit$", "EC", "ECDOSU", "", False),
+    (r"^EX\d?$", r"^reason\s*dose\s*(not\s*given|missed)", "EC", "ECADJ", "", True),
+    (r"^EX\d?$", r"^amount\s*of\s*drug\s*administered", "EC", "ECDOSE", "", False),
 
     # =========================================================================
     # CE (Clinical Events)

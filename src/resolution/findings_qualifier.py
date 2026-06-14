@@ -18,16 +18,20 @@ from src.resolution.models import ResolutionResult
 # Variables in Findings domains that need TESTCD qualifiers
 _FINDINGS_QUALIFIER_VARS: dict[str, set[str]] = {
     "VS": {"VSORRES", "VSORRESU", "VSSTRESN", "VSSTRESC", "VSSTRESU",
-           "VSNRIND", "VSSTAT", "VSREASND"},
+           "VSNRIND", "VSSTAT", "VSREASND", "VSCLSIG"},
     "LB": {"LBORRES", "LBORRESU", "LBSTRESN", "LBSTRESC", "LBSTRESU",
            "LBNRIND", "LBORNRHI", "LBORNRLO", "LBSTAT", "LBREASND"},
     "EG": {"EGORRES", "EGORRESU", "EGSTRESN", "EGSTRESC", "EGSTRESU",
-           "EGNRIND", "EGSTAT", "EGREASND"},
+           "EGNRIND", "EGSTAT", "EGREASND", "EGCLSIG"},
+    "RP": {"RPORRES", "RPORRESU", "RPSTRESC", "RPDECOD"},
 }
 
-_DOMAIN_TESTCD_VAR = {"VS": "VSTESTCD", "LB": "LBTESTCD", "EG": "EGTESTCD"}
+_DOMAIN_TESTCD_VAR = {"VS": "VSTESTCD", "LB": "LBTESTCD", "EG": "EGTESTCD", "RP": "RPTESTCD"}
 
 _VS_TESTS: dict[str, str] = {
+    # VSALL — gating / "were vital signs performed" type fields
+    "vital signs": "VSALL", "vital signs performed": "VSALL",
+    "were vital signs collected": "VSALL",
     "weight": "WEIGHT", "body weight": "WEIGHT",
     "height": "HEIGHT", "body height": "HEIGHT",
     "systolic blood pressure": "SYSBP", "systolic bp": "SYSBP",
@@ -110,6 +114,9 @@ _LB_TESTS: dict[str, str] = {
     "cea": "CEA", "carcinoembryonic antigen": "CEA",
     "ca 125": "CA125", "ca125": "CA125",
     "ca 19-9": "CA199", "ca19-9": "CA199",
+    # Pregnancy tests
+    "pregnancy test serum": "HCG", "choriogonadotropin": "HCG", "hcg": "HCG",
+    "beta hcg": "HCG", "serum pregnancy test": "HCG",
 }
 
 _EG_TESTS: dict[str, str] = {
@@ -120,12 +127,34 @@ _EG_TESTS: dict[str, str] = {
     "qrs duration": "QRSDUR",
     "overall interpretation": "INTP", "interpretation": "INTP",
     "ecg interpretation": "INTP",
+    "overall ecg evaluation": "INTP",
+    # EGALL — gating / "was ECG performed" type fields
+    "ecg tests": "EGALL", "was ecg performed": "EGALL",
+    "was the ecg performed": "EGALL",
+}
+
+_RP_TESTS: dict[str, str] = {
+    "last menstrual period start date": "LMPSTDTC",
+    "last menstrual period": "LMPSTDTC", "lmp": "LMPSTDTC",
+    "estimated date of delivery": "EDLVRDTC",
+    "estimated delivery date": "EDLVRDTC", "edd": "EDLVRDTC",
+    "using hormonal contraception": "PRCNTR",
+    "hormonal contraception": "PRCNTR",
+    "number of previous pregnancies": "PRVPREGN",
+    "previous pregnancies": "PRVPREGN",
+    "number of spontaneous abortions": "SPABORTN",
+    "spontaneous abortions": "SPABORTN",
+    "number of live births": "PRNDNX",
+    "live births": "PRNDNX",
+    "risk factor": "PRRISK",
+    "family history": "PRFAMHIS",
 }
 
 _DOMAIN_TEST_MAP: dict[str, dict[str, str]] = {
     "VS": _VS_TESTS,
     "LB": _LB_TESTS,
     "EG": _EG_TESTS,
+    "RP": _RP_TESTS,
 }
 
 
