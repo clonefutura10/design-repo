@@ -1,0 +1,80 @@
+{
+  "_meta": {
+    "description": "Universal gating questions → NOT SUBMITTED. Fire on any form.",
+    "schema_version": "2.0"
+  },
+  "rules": [
+    {
+      "form_pattern": ".*",
+      "label_pattern": "^was\\s+the\\s+child\\s*bearing\\s+potential",
+      "domain": "XX",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "XX.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": ".*",
+      "label_pattern": "^is\\s+the\\s+(subject|patient)\\s+(of\\s+)?child\\s*bearing",
+      "domain": "XX",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "XX.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": ".*",
+      "label_pattern": "^if\\s+(yes|no),?\\s*(please\\s+)?(complete|withdraw|fill|specify|provide|enter|report)",
+      "domain": "XX",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "XX.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": ".*",
+      "label_pattern": "^if\\s+medication\\s+is\\s+currently",
+      "domain": "XX",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "XX.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": ".*",
+      "label_pattern": "^please\\s+record\\s+all\\s+clinically",
+      "domain": "XX",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "XX.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": ".*",
+      "label_pattern": "^please\\s+report\\s+medical\\s+conditions",
+      "domain": "XX",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "XX.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": ".*",
+      "label_pattern": "^if\\s+yes,?\\s*please\\s+record",
+      "domain": "XX",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "XX.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": ".*",
+      "label_pattern": "^total\\s+number\\s+of\\s+exacerbations\\s+(should|documented)\\s+be\\s+equal",
+      "domain": "XX",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "XX.NOT_SUBMITTED"
+    }
+  ]
+}

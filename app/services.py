@@ -20,6 +20,7 @@ from src.pdf_parser.field_identifier import CRFField
 from src.resolution.noise_filter import is_noise_field
 from src.resolution.tier0_rules import Tier0Rules, _reset_usage_tracking, set_study_context
 from src.resolution.tier1_not_submitted import Tier1NotSubmitted
+from src.resolution.tier3_llm import Tier3LLM
 from src.annotator.pdf_writer import annotate_pdf
 from src.resolution.models import ResolutionResult, ResolutionTier
 from src.resolution.findings_qualifier import FindingsQualifierResolver
@@ -132,8 +133,9 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
     # ══════════════════════════════════════════════════════════
     # STEP 3: Resolve SDTM Mappings (unique fields only)
     # ══════════════════════════════════════════════════════════
-    tier0 = Tier0Rules()
-    tier1 = Tier1NotSubmitted()
+    tier0  = Tier0Rules()
+    tier1  = Tier1NotSubmitted()
+    tier3  = Tier3LLM()
     _reset_usage_tracking()
 
     _unique_results: list[ResolutionResult] = []
@@ -142,6 +144,7 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         "tier0_standards": 0,
         "tier0_az_spec": 0,
         "tier1": 0,
+        "tier3_llm": 0,
         "unresolved": 0,
     }
 
@@ -165,6 +168,17 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
                 counters["tier0_standards"] += 1
             else:
                 counters["tier0_az_spec"] += 1
+            continue
+
+        # Tier 3: LLM fallback (no-op unless ANTHROPIC_API_KEY is set)
+        t3 = tier3.resolve(
+            form_code=fld.form_code,
+            field_label=fld.field_label,
+            form_name=getattr(fld, 'form_name', ''),
+        )
+        if t3:
+            _unique_results.append(t3)
+            counters["tier3_llm"] += 1
             continue
 
         _unique_results.append(ResolutionResult(
@@ -298,6 +312,8 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
         "tier0_regex": counters["tier0_regex"],
         "tier0_standards": counters["tier0_standards"],
         "tier0_az_spec": counters["tier0_az_spec"],
+        "tier3_llm": counters["tier3_llm"],
+        "llm_enabled": tier3.enabled,
     }
 
     # UI display uses unique results only

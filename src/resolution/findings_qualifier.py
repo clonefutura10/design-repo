@@ -122,9 +122,9 @@ _LB_TESTS: dict[str, str] = {
 }
 
 _EG_TESTS: dict[str, str] = {
-    "pr interval": "PRXXX", "p-r interval": "PRXXX",
-    "rr interval": "RRXXX",
-    "qt interval": "QTXXX", "qtcf": "QTCFXXX", "qtcb": "QTCBXXX",
+    "pr interval": "PR", "p-r interval": "PR",
+    "rr interval": "RR",
+    "qt interval": "QT", "qtcf": "QTCF", "qtcb": "QTCB",
     "heart rate": "HRATE", "ventricular rate": "VRATE",
     "qrs duration": "QRSDUR",
     "overall interpretation": "INTP", "interpretation": "INTP",

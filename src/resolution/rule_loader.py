@@ -1,139 +1,187 @@
 """
-Rule Loader — Loads domain-scoped rules from JSON configuration files.
+Rule Loader — Loads SDTM mapping rules from JSON configuration files.
 
-Separates rule DATA from the matching ENGINE. Rules are stored in
-config/rules/*.json and compiled at startup.
+Rules live in config/rules/*.json. Three file types are supported:
+  - form_rules.json    — form-scoped rules (form_pattern + label_pattern)
+  - gating_rules.json — universal NOT_SUBMITTED gating questions (any form)
+  - universal_rules.json — domain-scoped rules without a form constraint
 
-This is the extensibility mechanism: to add rules for a new therapeutic area,
-add a new JSON file — no Python code changes needed.
+To add rules for a new therapeutic area or form type, add or edit a JSON
+file in config/rules/ — no Python code changes needed.
+
+Schema v2.0 fields per rule:
+  form_pattern   (optional str)  — regex matched against the CRF form code
+  label_pattern  (required str)  — regex matched against the normalized field label
+  domain         (required str)  — target SDTM domain (e.g. "LB")
+  variable       (required str)  — target SDTM variable (e.g. "LBORRES")
+  codelist       (optional str)  — controlled terminology code (or "")
+  is_supp        (optional bool) — True if this maps to SUPPxx dataset
+  note           (optional str)  — human-readable description
 """
 
 from __future__ import annotations
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from src.utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# DATA MODEL
-# ═══════════════════════════════════════════════════════════════════════════════
+_RULES_DIR = Path(__file__).resolve().parent.parent.parent / "config" / "rules"
+
+# Load order matters — form_rules must come before universal_rules so more
+# specific (form-scoped) matches win when both could apply.
+_LOAD_ORDER = ["form_rules.json", "gating_rules.json", "universal_rules.json"]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data model
+# ─────────────────────────────────────────────────────────────────────────────
 
 @dataclass(frozen=True)
-class DomainRule:
-    """A compiled domain-scoped matching rule."""
-    domain: str                  # Target SDTM domain (e.g., "LB")
-    label_pattern: re.Pattern   # Compiled regex for field label
-    variable: str               # Target SDTM variable (e.g., "LBORRES")
-    codelist: str               # Codelist code (or "")
-    is_supp: bool               # Whether this maps to SUPPxx
-    note: str                   # Human-readable description
+class MappingRule:
+    """A compiled, optionally form-scoped SDTM mapping rule."""
+    domain: str                       # Target SDTM domain
+    label_pattern: re.Pattern         # Compiled regex for field label
+    variable: str                     # Target SDTM variable
+    codelist: str                     # Controlled terminology code (or "")
+    is_supp: bool                     # True → maps to SUPPxx dataset
+    note: str                         # Human-readable description
+    form_pattern: re.Pattern | None   # If set, rule only fires for matching form codes
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# LOADER
-# ═══════════════════════════════════════════════════════════════════════════════
+# ─────────────────────────────────────────────────────────────────────────────
+# Loader
+# ─────────────────────────────────────────────────────────────────────────────
 
-_RULES_DIR = Path(__file__).resolve().parent.parent.parent / "config" / "rules"
-_compiled_domain_rules: list[DomainRule] = []
+_all_rules: list[MappingRule] = []
 _loaded = False
 
 
-def _compile_rules_from_file(filepath: Path) -> list[DomainRule]:
-    """Load and compile rules from a single JSON file."""
+def _compile_file(filepath: Path) -> list[MappingRule]:
     if not filepath.exists():
-        logger.warning(f"Rules file not found: {filepath}")
         return []
-
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    rules = []
-    raw_rules = data.get("rules", [])
-
-    for i, entry in enumerate(raw_rules):
+    out: list[MappingRule] = []
+    for i, entry in enumerate(data.get("rules", [])):
         try:
-            compiled = DomainRule(
+            fp_raw = entry.get("form_pattern", "")
+            rule = MappingRule(
                 domain=entry["domain"].upper(),
                 label_pattern=re.compile(entry["label_pattern"], re.IGNORECASE),
                 variable=entry["variable"].upper(),
                 codelist=entry.get("codelist", ""),
-                is_supp=entry.get("is_supp", False),
+                is_supp=bool(entry.get("is_supp", False)),
                 note=entry.get("note", ""),
+                form_pattern=re.compile(fp_raw, re.IGNORECASE) if fp_raw else None,
             )
-            rules.append(compiled)
-        except (KeyError, re.error) as e:
-            logger.warning(f"Skipping invalid rule #{i} in {filepath.name}: {e}")
+            out.append(rule)
+        except (KeyError, re.error) as exc:
+            logger.warning(f"Skipping rule #{i} in {filepath.name}: {exc}")
 
-    logger.info(f"Loaded {len(rules)} domain rules from {filepath.name}")
-    return rules
+    logger.info(f"Loaded {len(out)} rules from {filepath.name}")
+    return out
 
 
-def load_all_domain_rules() -> list[DomainRule]:
-    """
-    Load and compile all domain-scoped rules from config/rules/*.json.
-
-    Called once at startup. Results are cached module-level.
-    """
-    global _compiled_domain_rules, _loaded
-
+def _load_all() -> list[MappingRule]:
+    global _all_rules, _loaded
     if _loaded:
-        return _compiled_domain_rules
+        return _all_rules
 
-    _compiled_domain_rules = []
-
+    _all_rules = []
     if not _RULES_DIR.exists():
         _RULES_DIR.mkdir(parents=True, exist_ok=True)
-        logger.warning(f"Created empty rules directory: {_RULES_DIR}")
         _loaded = True
-        return _compiled_domain_rules
+        return _all_rules
 
-    # Load all JSON files in the rules directory
-    json_files = sorted(_RULES_DIR.glob("*.json"))
+    # Load in prescribed order first, then any remaining files alphabetically
+    loaded_names: set[str] = set()
+    for name in _LOAD_ORDER:
+        fp = _RULES_DIR / name
+        if fp.exists():
+            _all_rules.extend(_compile_file(fp))
+            loaded_names.add(name)
 
-    for filepath in json_files:
-        rules = _compile_rules_from_file(filepath)
-        _compiled_domain_rules.extend(rules)
+    for fp in sorted(_RULES_DIR.glob("*.json")):
+        if fp.name not in loaded_names:
+            _all_rules.extend(_compile_file(fp))
 
-    logger.info(
-        f"Total domain rules loaded: {len(_compiled_domain_rules)} "
-        f"from {len(json_files)} file(s)"
-    )
+    logger.info(f"Total rules loaded: {len(_all_rules)}")
     _loaded = True
-    return _compiled_domain_rules
+    return _all_rules
 
 
-def match_domain_rules(
-    inferred_domain: str,
-    normalized_label: str,
-) -> DomainRule | None:
+def reload_rules() -> None:
+    """Force a reload (useful after editing JSON files at runtime)."""
+    global _loaded
+    _loaded = False
+    _load_all()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Public matching API
+# ─────────────────────────────────────────────────────────────────────────────
+
+def match_form_rules(form_code: str, normalized_label: str) -> MappingRule | None:
     """
-    Find the first matching domain-scoped rule for a given domain + label.
+    Find the first rule where the form_pattern matches form_code AND the
+    label_pattern matches normalized_label.
 
-    Args:
-        inferred_domain: The SDTM domain inferred for this field's form.
-        normalized_label: The field label, normalized for matching.
-
-    Returns:
-        The matching DomainRule, or None if no match found.
+    Rules without a form_pattern are skipped here — use match_domain_rules()
+    for domain-only matching.
     """
-    rules = load_all_domain_rules()
-    domain_upper = inferred_domain.upper()
-
+    rules = _load_all()
     for rule in rules:
+        if rule.form_pattern is None:
+            continue
+        if not rule.form_pattern.match(form_code):
+            continue
+        if rule.label_pattern.search(normalized_label):
+            return rule
+    return None
+
+
+def match_domain_rules(inferred_domain: str, normalized_label: str) -> MappingRule | None:
+    """
+    Find the first rule where:
+      - form_pattern is absent (domain-scoped only), AND
+      - domain matches inferred_domain, AND
+      - label_pattern matches normalized_label.
+    """
+    rules = _load_all()
+    domain_upper = inferred_domain.upper()
+    for rule in rules:
+        if rule.form_pattern is not None:
+            continue
         if rule.domain != domain_upper:
             continue
         if rule.label_pattern.search(normalized_label):
             return rule
-
     return None
 
 
-def get_rules_for_domain(domain: str) -> list[DomainRule]:
-    """Get all loaded rules for a specific domain."""
-    rules = load_all_domain_rules()
+def match_gating_rules(normalized_label: str) -> MappingRule | None:
+    """
+    Check universal gating rules (form_pattern = '.*') against any label.
+    Returns the first match or None.
+    """
+    rules = _load_all()
+    for rule in rules:
+        if rule.form_pattern is None:
+            continue
+        # Gating rules have form_pattern=".*" — they match any form code
+        if rule.form_pattern.pattern != ".*":
+            continue
+        if rule.label_pattern.search(normalized_label):
+            return rule
+    return None
+
+
+def get_rules_for_domain(domain: str) -> list[MappingRule]:
+    """All loaded rules (any type) for a specific SDTM domain."""
     domain_upper = domain.upper()
-    return [r for r in rules if r.domain == domain_upper]
+    return [r for r in _load_all() if r.domain == domain_upper]

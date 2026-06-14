@@ -7,7 +7,6 @@ Defines the core data structures used throughout the SDTM resolution pipeline.
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class ResolutionTier(str, Enum):

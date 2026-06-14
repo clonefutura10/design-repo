@@ -20,10 +20,8 @@ Visual features matching real annotated CRF conventions:
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 from collections import defaultdict
-from typing import Optional
 
 import fitz  # pymupdf
 

@@ -1,0 +1,4104 @@
+{
+  "_meta": {
+    "description": "Form-scoped SDTM field mapping rules.",
+    "schema_version": "2.0",
+    "note": "First match wins. form_pattern matches the CRF form code."
+  },
+  "rules": [
+    {
+      "form_pattern": "^VISIT\\d?$",
+      "label_pattern": "^visit\\s*date$",
+      "domain": "SV",
+      "variable": "SVSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SV.SVSTDTC"
+    },
+    {
+      "form_pattern": "^VISIT\\d?$",
+      "label_pattern": "^visit\\s*not\\s*done$",
+      "domain": "SV",
+      "variable": "VISITND",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SV.VISITND"
+    },
+    {
+      "form_pattern": "^VISIT\\d?$",
+      "label_pattern": "contact\\s*mode",
+      "domain": "SV",
+      "variable": "SVCNTMOD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SV.SVCNTMOD"
+    },
+    {
+      "form_pattern": "^VISIT\\d?$",
+      "label_pattern": "visit\\s*(was\\s*)?impacted\\s*by",
+      "domain": "SV",
+      "variable": "SVSPCHGI",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SV.SVSPCHGI"
+    },
+    {
+      "form_pattern": "^VISIT\\d?$",
+      "label_pattern": "^if\\s*other,?\\s*specify$",
+      "domain": "SV",
+      "variable": "SVCNTMOD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SV.SVCNTMOD"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "date\\s*subject\\s*signed\\s*main\\s*informed\\s*consent",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "date\\s*subject\\s*signed\\s*main\\s*informed\\s*assent",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "date\\s*of\\s*optional\\s*consent",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "date\\s*of\\s*domiciliary",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "optional\\s*consent.*category",
+      "domain": "DS",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSTERM"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "assessment\\s*applicable",
+      "domain": "DS",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "is\\s*the\\s*subject\\s*participating",
+      "domain": "DS",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSTERM"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "protocol\\s*version",
+      "domain": "DS",
+      "variable": "DSSPID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSPID"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "patient\\s*portal\\s*consent\\s*obtained",
+      "domain": "DS",
+      "variable": "DSDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSDECOD"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "date\\s*of\\s*patient\\s*portal\\s*consent",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^CONSENT\\d?$",
+      "label_pattern": "patient\\s*source",
+      "domain": "DS",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^birth\\s*date$",
+      "domain": "DM",
+      "variable": "BRTHDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.BRTHDTC"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^date\\s*of\\s*birth$",
+      "domain": "DM",
+      "variable": "BRTHDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.BRTHDTC"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^age$",
+      "domain": "DM",
+      "variable": "AGE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.AGE"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^age\\s*as\\s*collected$",
+      "domain": "DM",
+      "variable": "AGE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.AGE"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^age\\s*unit$",
+      "domain": "DM",
+      "variable": "AGEU",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.AGEU"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^sex$",
+      "domain": "DM",
+      "variable": "SEX",
+      "codelist": "C66731",
+      "is_supp": false,
+      "note": "DM.SEX"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^ethnicity$",
+      "domain": "DM",
+      "variable": "ETHNIC",
+      "codelist": "C66790",
+      "is_supp": false,
+      "note": "DM.ETHNIC"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^race$",
+      "domain": "DM",
+      "variable": "RACE",
+      "codelist": "C74457",
+      "is_supp": false,
+      "note": "DM.RACE"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^specify\\s*other$",
+      "domain": "DM",
+      "variable": "RACEOTH",
+      "codelist": "",
+      "is_supp": true,
+      "note": "DM.RACEOTH"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^if\\s*other\\s*race",
+      "domain": "DM",
+      "variable": "RACEOTH",
+      "codelist": "",
+      "is_supp": true,
+      "note": "DM.RACEOTH"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "field\\s*created\\s*for\\s*rsg",
+      "domain": "DM",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "date\\s*of\\s*birth\\s*will\\s*be\\s*integrated",
+      "domain": "DM",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^DM$",
+      "label_pattern": "^calculating\\s*age$",
+      "domain": "DM",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "were\\s*vital\\s*signs\\s*collected",
+      "domain": "VS",
+      "variable": "VSSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSSTAT"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "was\\s*the\\s*vital\\s*signs?\\s*examination\\s*performed",
+      "domain": "VS",
+      "variable": "VSSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSSTAT"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "vital\\s*sign[s]?\\s*(collection\\s*)?date",
+      "domain": "VS",
+      "variable": "VSDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSDTC"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^examination\\s*date$",
+      "domain": "VS",
+      "variable": "VSDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSDTC"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "vital\\s*sign[s]?\\s*test\\s*name",
+      "domain": "VS",
+      "variable": "VSTEST",
+      "codelist": "C67153",
+      "is_supp": false,
+      "note": "VS.VSTEST"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^result$",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^unit$",
+      "domain": "VS",
+      "variable": "VSORRESU",
+      "codelist": "C66770",
+      "is_supp": false,
+      "note": "VS.VSORRESU"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^clinically\\s*significant$",
+      "domain": "VS",
+      "variable": "VSCLSIG",
+      "codelist": "C66742",
+      "is_supp": true,
+      "note": "VS.VSCLSIG"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "was\\s*the\\s*result\\s*clinically\\s*significant",
+      "domain": "VS",
+      "variable": "VSCLSIG",
+      "codelist": "C66742",
+      "is_supp": true,
+      "note": "VS.VSCLSIG"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "field\\s*created\\s*for\\s*rsg",
+      "domain": "VS",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^heart\\s*rate$",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^respiratory\\s*rate$",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^systolic\\s*blood\\s*pressure$",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^diastolic\\s*blood\\s*pressure$",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^temperature$",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^height$",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^weight$",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^VS\\d?$",
+      "label_pattern": "^bmi\\b",
+      "domain": "VS",
+      "variable": "VSORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "VS.VSORRES"
+    },
+    {
+      "form_pattern": "^EG$",
+      "label_pattern": "was\\s*the\\s*ecg\\s*performed",
+      "domain": "EG",
+      "variable": "EGSTAT",
+      "codelist": "C66789",
+      "is_supp": false,
+      "note": "EG.EGSTAT"
+    },
+    {
+      "form_pattern": "^EG$",
+      "label_pattern": "date\\s*of\\s*ecg",
+      "domain": "EG",
+      "variable": "EGDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EG.EGDTC"
+    },
+    {
+      "form_pattern": "^EG$",
+      "label_pattern": "reason.{0,5}abnormal",
+      "domain": "EG",
+      "variable": "EGSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "EG.EGSPFY"
+    },
+    {
+      "form_pattern": "^EG$",
+      "label_pattern": "if\\s*abnormal\\s*reason",
+      "domain": "EG",
+      "variable": "EGSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "EG.EGSPFY"
+    },
+    {
+      "form_pattern": "^EG$",
+      "label_pattern": "overall\\s*ecg\\s*evaluation",
+      "domain": "EG",
+      "variable": "EGORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EG.EGORRES"
+    },
+    {
+      "form_pattern": "^EG$",
+      "label_pattern": "was\\s*the\\s*ecg\\s*clinically\\s*significant",
+      "domain": "EG",
+      "variable": "EGCLSIG",
+      "codelist": "",
+      "is_supp": true,
+      "note": "EG.EGCLSIG"
+    },
+    {
+      "form_pattern": "^EG$",
+      "label_pattern": "^clinically\\s*significant$",
+      "domain": "EG",
+      "variable": "EGCLSIG",
+      "codelist": "",
+      "is_supp": true,
+      "note": "EG.EGCLSIG"
+    },
+    {
+      "form_pattern": "^PE\\d?$",
+      "label_pattern": "was\\s*the\\s*physical\\s*examination\\s*performed",
+      "domain": "PR",
+      "variable": "PROCCUR",
+      "codelist": "C66742",
+      "is_supp": false,
+      "note": "PR.PROCCUR"
+    },
+    {
+      "form_pattern": "^PE\\d?$",
+      "label_pattern": "physical\\s*examination\\s*date",
+      "domain": "PR",
+      "variable": "PRSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRSTDTC"
+    },
+    {
+      "form_pattern": "^PE\\d?$",
+      "label_pattern": "^examination\\s*date$",
+      "domain": "PR",
+      "variable": "PRSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRSTDTC"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "does\\s*the\\s*subject\\s*have\\s*any\\s*past",
+      "domain": "MH",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "has\\s*the\\s*subject\\s*had\\s*any\\s*medical\\s*conditions",
+      "domain": "MH",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "has\\s*subject\\s*any\\s*relevant\\s*medical",
+      "domain": "MH",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "has\\s*the\\s*subject\\s*experienced\\s*any\\s*past",
+      "domain": "MH",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "medical\\s*history\\s*verbatim\\s*term",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "^what\\s*is\\s*the\\s*medical\\s*condition",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "^medical\\s*history\\s*term$",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "^condition$",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "start\\s*date\\s*of\\s*condition",
+      "domain": "MH",
+      "variable": "MHSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHSTDTC"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "^start\\s*date$",
+      "domain": "MH",
+      "variable": "MHSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHSTDTC"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "end\\s*date\\s*of\\s*condition",
+      "domain": "MH",
+      "variable": "MHENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHENDTC"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "^end\\s*date$",
+      "domain": "MH",
+      "variable": "MHENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHENDTC"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "condition\\s*ongoing",
+      "domain": "MH",
+      "variable": "MHENRTPT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHENRTPT"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "^ongoing$",
+      "domain": "MH",
+      "variable": "MHENRTPT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHENRTPT"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "condition.*past\\s*or\\s*current",
+      "domain": "MH",
+      "variable": "MHENRTPT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHENRTPT"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "taking\\s*current\\s*medication",
+      "domain": "MH",
+      "variable": "MHCURM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "MH.MHCURM"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "any\\s*current\\s*medication",
+      "domain": "MH",
+      "variable": "MHCURM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "MH.MHCURM"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "^current\\s*medication$",
+      "domain": "MH",
+      "variable": "MHCURM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "MH.MHCURM"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "medical\\s*condition\\s*under\\s*control",
+      "domain": "MH",
+      "variable": "MHCONTRL",
+      "codelist": "",
+      "is_supp": true,
+      "note": "MH.MHCONTRL"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*lowest\\s*level\\s*term\\s*code",
+      "domain": "MH",
+      "variable": "MHLLTCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHLLTCD"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*lowest\\s*level\\s*term\\s*name",
+      "domain": "MH",
+      "variable": "MHLLT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHLLT"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*preferred\\s*term\\s*code",
+      "domain": "MH",
+      "variable": "MHPTCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHPTCD"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*preferred\\s*term\\s*name",
+      "domain": "MH",
+      "variable": "MHDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHDECOD"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*high\\s*level\\s*term\\s*code",
+      "domain": "MH",
+      "variable": "MHHLTCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHHLTCD"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*high\\s*level\\s*term\\s*name",
+      "domain": "MH",
+      "variable": "MHHLT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHHLT"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*high\\s*level\\s*group\\s*term\\s*code",
+      "domain": "MH",
+      "variable": "MHHLGTCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHHLGTCD"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*high\\s*level\\s*group\\s*term\\s*name",
+      "domain": "MH",
+      "variable": "MHHLGT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHHLGT"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*system\\s*organ\\s*class\\s*code",
+      "domain": "MH",
+      "variable": "MHBDSYCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHBDSYCD"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*system\\s*organ\\s*class\\s*name",
+      "domain": "MH",
+      "variable": "MHBODSYS",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHBODSYS"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*system\\s*organ\\s*class\\s*abbreviation",
+      "domain": "MH",
+      "variable": "MHBODSYS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "MH.MHBODSYS"
+    },
+    {
+      "form_pattern": "^MH$",
+      "label_pattern": "meddra\\s*version",
+      "domain": "MH",
+      "variable": "MEDDRAV",
+      "codelist": "",
+      "is_supp": true,
+      "note": "MH.MEDDRAV"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*dictionary\\s*text\\s*8$",
+      "domain": "CM",
+      "variable": "CMDTXT7",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDTXT7"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*dictionary\\s*text\\s*7$",
+      "domain": "CM",
+      "variable": "CMDTXT6",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDTXT6"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*dictionary\\s*text\\s*6$",
+      "domain": "CM",
+      "variable": "CMDTXT5",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDTXT5"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*dictionary\\s*text\\s*5$",
+      "domain": "CM",
+      "variable": "CMDTXT4",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDTXT4"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*dictionary\\s*text\\s*4$",
+      "domain": "CM",
+      "variable": "CMDTXT3",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDTXT3"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*dictionary\\s*text\\s*3$",
+      "domain": "CM",
+      "variable": "CMDTXT2",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDTXT2"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*dictionary\\s*text\\s*2$",
+      "domain": "CM",
+      "variable": "CMDTXT1",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDTXT1"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*dictionary\\s*text$",
+      "domain": "CM",
+      "variable": "CMDTXT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDTXT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name\\s*8",
+      "domain": "CM",
+      "variable": "CMPREF8",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMPREF8"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name\\s*7",
+      "domain": "CM",
+      "variable": "CMPREF7",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMPREF7"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name\\s*6",
+      "domain": "CM",
+      "variable": "CMPREF6",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMPREF6"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name\\s*5",
+      "domain": "CM",
+      "variable": "CMPREF5",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMPREF5"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name\\s*4",
+      "domain": "CM",
+      "variable": "CMPREF4",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMPREF4"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name\\s*3",
+      "domain": "CM",
+      "variable": "CMPREF3",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMPREF3"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name\\s*2",
+      "domain": "CM",
+      "variable": "CMPREF2",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMPREF2"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name\\s*\\(",
+      "domain": "CM",
+      "variable": "CMDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMDECOD"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^preferred\\s*name$",
+      "domain": "CM",
+      "variable": "CMDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMDECOD"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^active\\s*ingredient\\s*2$",
+      "domain": "CM",
+      "variable": "CMINGRD2",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMINGRD2"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^active\\s*ingredient\\s*1$",
+      "domain": "CM",
+      "variable": "CMINGRD1",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMINGRD1"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^active\\s*ingredient$",
+      "domain": "CM",
+      "variable": "CMINGRD1",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMINGRD1"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^pref\\.?\\s*grouping\\s*term",
+      "domain": "CM",
+      "variable": "CMGROUP",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMGROUP"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "was\\s*the\\s*subject\\s*ever\\s*treated",
+      "domain": "CM",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "has\\s*the\\s*subject\\s*had\\s*any\\s*cancer\\s*therapy",
+      "domain": "CM",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^any\\s*medications$",
+      "domain": "CM",
+      "variable": "CMTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMTRT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "medication\\s*number",
+      "domain": "CM",
+      "variable": "CMSPID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMSPID"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "medication\\s*or\\s*therapy",
+      "domain": "CM",
+      "variable": "CMTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMTRT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "medication\\s*verbatim\\s*name",
+      "domain": "CM",
+      "variable": "CMTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMTRT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*name$",
+      "domain": "CM",
+      "variable": "CMTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMTRT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^cancer\\s*therapy\\s*agent$",
+      "domain": "CM",
+      "variable": "CMTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMTRT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "combination\\s*drug",
+      "domain": "CM",
+      "variable": "CMTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMTRT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "medication\\s*route",
+      "domain": "CM",
+      "variable": "CMROUTE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMROUTE"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "agent\\s*route\\s*of\\s*administration",
+      "domain": "CM",
+      "variable": "CMROUTE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMROUTE"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "inhalator\\s*type",
+      "domain": "CM",
+      "variable": "CMROUTE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMROUTE"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "depo.*injection.*intramuscular",
+      "domain": "CM",
+      "variable": "CMROUTE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMROUTE"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "treatment\\s*start\\s*date",
+      "domain": "CM",
+      "variable": "CMSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMSTDTC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "cancer\\s*therapy\\s*agent\\s*start\\s*date",
+      "domain": "CM",
+      "variable": "CMSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMSTDTC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^start\\s*date$",
+      "domain": "CM",
+      "variable": "CMSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMSTDTC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "treatment\\s*prior\\s*to\\s*study",
+      "domain": "CM",
+      "variable": "CMSTRF",
+      "codelist": "AZC00378",
+      "is_supp": false,
+      "note": "CM.CMSTRF"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "treatment\\s*stop\\s*date",
+      "domain": "CM",
+      "variable": "CMENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMENDTC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "cancer\\s*therapy\\s*agent\\s*stop\\s*date",
+      "domain": "CM",
+      "variable": "CMENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMENDTC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^end\\s*date$",
+      "domain": "CM",
+      "variable": "CMENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMENDTC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "treatment\\s*continues",
+      "domain": "CM",
+      "variable": "CMENRTPT",
+      "codelist": "AZC00378",
+      "is_supp": false,
+      "note": "CM.CMENRTPT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^ongoing$",
+      "domain": "CM",
+      "variable": "CMENRTPT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMENRTPT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^reason\\s*for\\s*treatment\\s*stop$",
+      "domain": "CM",
+      "variable": "CMTRTSR",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMTRTSR"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^reason\\s*for\\s*stop$",
+      "domain": "CM",
+      "variable": "CMTRTSR",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMTRTSR"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "other\\s*reason\\s*for\\s*treatment\\s*stop",
+      "domain": "CM",
+      "variable": "CMREASOT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMREASOT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "reason\\s*for\\s*therapy",
+      "domain": "CM",
+      "variable": "CMINDC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMINDC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "therapy\\s*reason.*other",
+      "domain": "CM",
+      "variable": "CMREASOT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMREASOT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^therapy\\s*reason$",
+      "domain": "CM",
+      "variable": "CMINDC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMINDC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^indication$",
+      "domain": "CM",
+      "variable": "CMINDC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMINDC"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^therapy\\s*class$",
+      "domain": "CM",
+      "variable": "CMCLAS",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMCLAS"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "dose\\s*per\\s*administration",
+      "domain": "CM",
+      "variable": "CMDOSE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMDOSE"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^dose$",
+      "domain": "CM",
+      "variable": "CMDOSE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMDOSE"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "total\\s*daily\\s*dose",
+      "domain": "CM",
+      "variable": "CMDOSTOT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMDOSTOT"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "dose\\s*unit.*other",
+      "domain": "CM",
+      "variable": "CMDOSUO",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDOSUO"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^dose\\s*unit$",
+      "domain": "CM",
+      "variable": "CMDOSU",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMDOSU"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "dosing\\s*frequency.*other",
+      "domain": "CM",
+      "variable": "CMDOSFRQO",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMDOSFRQO"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "medication\\s*dosing\\s*frequency$",
+      "domain": "CM",
+      "variable": "CMDOSFRQ",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMDOSFRQ"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "action\\s*taken.*end\\s*of\\s*medication",
+      "domain": "CM",
+      "variable": "CMACTTK",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMACTTK"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^medication\\s*code$",
+      "domain": "CM",
+      "variable": "CMCD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMCD"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^atc\\s*code$",
+      "domain": "CM",
+      "variable": "CMCLASCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMCLASCD"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^atc\\s*dictionary\\s*text$",
+      "domain": "CM",
+      "variable": "CMCLAS",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMCLAS"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^drug\\s*dictionary\\s*version$",
+      "domain": "CM",
+      "variable": "WHODRGV",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.WHODRGV"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^treatment\\s*status$",
+      "domain": "CM",
+      "variable": "CMTRTSTS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMTRTSTS"
+    },
+    {
+      "form_pattern": "^CM\\d?$",
+      "label_pattern": "^best\\s*overall\\s*response$",
+      "domain": "CM",
+      "variable": "CMBORSLT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "CM.CMBORSLT"
+    },
+    {
+      "form_pattern": "^LB3$",
+      "label_pattern": "was\\s*the\\s*sample\\s*collected",
+      "domain": "LB",
+      "variable": "LBSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBSTAT"
+    },
+    {
+      "form_pattern": "^LB3$",
+      "label_pattern": "collection\\s*date",
+      "domain": "LB",
+      "variable": "LBDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBDTC"
+    },
+    {
+      "form_pattern": "^LB3$",
+      "label_pattern": "what\\s*was\\s*the\\s*lab\\s*panel",
+      "domain": "LB",
+      "variable": "LBCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBCAT"
+    },
+    {
+      "form_pattern": "^LB3$",
+      "label_pattern": "accession\\s*number",
+      "domain": "LB",
+      "variable": "LBREFID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBREFID"
+    },
+    {
+      "form_pattern": "^LB3$",
+      "label_pattern": "what\\s*is\\s*the\\s*test\\s*name",
+      "domain": "LB",
+      "variable": "LBTEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBTEST"
+    },
+    {
+      "form_pattern": "^LB3$",
+      "label_pattern": "laboratory\\s*value\\s*dipstick",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^ae\\s*number$",
+      "domain": "LB",
+      "variable": "LBREFID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBREFID"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "was\\s*the\\s*sample\\s*collected",
+      "domain": "LB",
+      "variable": "LBSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBSTAT"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "was\\s*local\\s*lab\\s*performed",
+      "domain": "LB",
+      "variable": "LBSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBSTAT"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "was\\s*local\\s*hematology\\s*performed",
+      "domain": "LB",
+      "variable": "LBSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBSTAT"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "was\\s*local\\s*bio.*chemistry\\s*performed",
+      "domain": "LB",
+      "variable": "LBSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBSTAT"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "if\\s*no.*please\\s*specify",
+      "domain": "LB",
+      "variable": "LBREASND",
+      "codelist": "",
+      "is_supp": true,
+      "note": "LB.LBREASND"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "(collection|specimen\\s*collection)\\s*date",
+      "domain": "LB",
+      "variable": "LBDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBDTC"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "collection\\s*time",
+      "domain": "LB",
+      "variable": "LBTM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBTM"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^panel\\s*name$",
+      "domain": "LB",
+      "variable": "LBCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBCAT"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "alanine\\s*aminotransferase",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "aspartate\\s*aminotransferase",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "alkaline\\s*phosphatase",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "gamma.?glutamyl\\s*transferase",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "bilirubin.*total",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^albumin$",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^creatinine$",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "blood\\s*urea\\s*nitrogen",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^potassium",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^sodium",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^hb$",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^haematocrit$",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^rbc$",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "leukocyte\\s*count",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "platelet\\s*count",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "eosinophils",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "neutrophils",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "basophils",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "lymphocytes",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "leucocytes.*wbc",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "serum\\s*tryptase",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "protocol\\s*timepoint",
+      "domain": "LB",
+      "variable": "LBTPT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBTPT"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "activated\\s*partial\\s*thromboplastin",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "international\\s*normalized\\s*ratio",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "cholesterol.*total",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "^appearance\\s*and\\s*colo",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "microscopic\\s*(?:red|white)\\s*blood",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^LB\\d?$",
+      "label_pattern": "occult\\s*blood",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^PREG$",
+      "label_pattern": "was\\s*pregnancy\\s*test\\s*performed",
+      "domain": "LB",
+      "variable": "LBSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBSTAT"
+    },
+    {
+      "form_pattern": "^PREG$",
+      "label_pattern": "was\\s*the\\s*pregnancy\\s*test\\s*performed",
+      "domain": "LB",
+      "variable": "LBSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBSTAT"
+    },
+    {
+      "form_pattern": "^PREG$",
+      "label_pattern": "sampling\\s*date",
+      "domain": "LB",
+      "variable": "LBDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBDTC"
+    },
+    {
+      "form_pattern": "^PREG$",
+      "label_pattern": "test\\s*result",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^PREG$",
+      "label_pattern": "pregnancy\\s*result",
+      "domain": "LB",
+      "variable": "LBORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBORRES"
+    },
+    {
+      "form_pattern": "^PREG$",
+      "label_pattern": "pregnancy\\s*test\\s*serum",
+      "domain": "LB",
+      "variable": "LBTEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBTEST"
+    },
+    {
+      "form_pattern": "^PREG$",
+      "label_pattern": "pregnancy\\s*test",
+      "domain": "LB",
+      "variable": "LBTEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "LB.LBTEST"
+    },
+    {
+      "form_pattern": "^RP$",
+      "label_pattern": "was\\s*the\\s*child\\s*bearing\\s*potential",
+      "domain": "RP",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^RP$",
+      "label_pattern": "was\\s*the\\s*pregnancy\\s*test\\s*performed",
+      "domain": "RP",
+      "variable": "RPOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPOCCUR"
+    },
+    {
+      "form_pattern": "^RP$",
+      "label_pattern": "collection\\s*date",
+      "domain": "RP",
+      "variable": "RPDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPDTC"
+    },
+    {
+      "form_pattern": "^RP$",
+      "label_pattern": "collection\\s*time",
+      "domain": "RP",
+      "variable": "RPTM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPTM"
+    },
+    {
+      "form_pattern": "^RP$",
+      "label_pattern": "pregnancy\\s*result",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "assessment\\s*date",
+      "domain": "RP",
+      "variable": "RPDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPDTC"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "last\\s*menstrual\\s*period\\s*start\\s*date",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "estimated\\s*date\\s*of\\s*delivery",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "using\\s*hormonal\\s*contraception",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "hormonal\\s*contraception.*specification",
+      "domain": "RP",
+      "variable": "RPSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "RP.RPSPFY"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "iud\\s*specification",
+      "domain": "RP",
+      "variable": "RPSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "RP.RPSPFY"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "number\\s*of\\s*previous\\s*pregnancies",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "number\\s*of\\s*spontaneous\\s*abortions",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "number\\s*of\\s*.*live\\s*births",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "risk\\s*factor",
+      "domain": "RP",
+      "variable": "RPSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "RP.RPSPFY"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "family\\s*history",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "outcome.*pregnancy",
+      "domain": "RP",
+      "variable": "RPDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPDECOD"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "date\\s*of\\s*outcome",
+      "domain": "RP",
+      "variable": "RPENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPENDTC"
+    },
+    {
+      "form_pattern": "^PREGREP$",
+      "label_pattern": "^result$",
+      "domain": "RP",
+      "variable": "RPORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "RP.RPORRES"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "category\\s*of\\s*substance",
+      "domain": "SU",
+      "variable": "SUCAT",
+      "codelist": "AZC00536",
+      "is_supp": false,
+      "note": "SU.SUCAT"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "^substance\\s*use\\s*category$",
+      "domain": "SU",
+      "variable": "SUCAT",
+      "codelist": "AZC00536",
+      "is_supp": false,
+      "note": "SU.SUCAT"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "smoking\\s*status",
+      "domain": "SU",
+      "variable": "SUSTATUS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SU.SUSTATUS"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "^substance\\s*user$",
+      "domain": "SU",
+      "variable": "SUSTATUS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SU.SUSTATUS"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "has\\s*the\\s*subject\\s*ever\\s*used",
+      "domain": "SU",
+      "variable": "SUSTATUS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SU.SUSTATUS"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "number\\s*of\\s*pack\\s*years",
+      "domain": "SU",
+      "variable": "SUPKYR",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SU.SUPKYR"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "^start\\s*date$",
+      "domain": "SU",
+      "variable": "SUSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUSTDTC"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "what\\s*was\\s*the\\s*start\\s*date",
+      "domain": "SU",
+      "variable": "SUSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUSTDTC"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "^end\\s*date$",
+      "domain": "SU",
+      "variable": "SUENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUENDTC"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "what\\s*was\\s*the\\s*end\\s*date",
+      "domain": "SU",
+      "variable": "SUENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUENDTC"
+    },
+    {
+      "form_pattern": "^SU_NIC$",
+      "label_pattern": "status\\s*no\\s*change",
+      "domain": "SU",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^SU$",
+      "label_pattern": "smoking\\s*status",
+      "domain": "SU",
+      "variable": "SUSTATUS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SU.SUSTATUS"
+    },
+    {
+      "form_pattern": "^SU$",
+      "label_pattern": "^start\\s*date$",
+      "domain": "SU",
+      "variable": "SUSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUSTDTC"
+    },
+    {
+      "form_pattern": "^SU$",
+      "label_pattern": "^stop\\s*date",
+      "domain": "SU",
+      "variable": "SUENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUENDTC"
+    },
+    {
+      "form_pattern": "^SU$",
+      "label_pattern": "number\\s*of\\s*pack\\s*years",
+      "domain": "SU",
+      "variable": "SUPKYR",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SU.SUPKYR"
+    },
+    {
+      "form_pattern": "^SU$",
+      "label_pattern": "status\\s*no\\s*change",
+      "domain": "SU",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^SU_?ALC$",
+      "label_pattern": "substance\\s*use\\s*category",
+      "domain": "SU",
+      "variable": "SUCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUCAT"
+    },
+    {
+      "form_pattern": "^SU_?ALC$",
+      "label_pattern": "alcohol\\s*use\\s*occur",
+      "domain": "SU",
+      "variable": "SUSTATUS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SU.SUSTATUS"
+    },
+    {
+      "form_pattern": "^SU_?ALC$",
+      "label_pattern": "alcohol\\s*consumption",
+      "domain": "SU",
+      "variable": "SUDOSE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUDOSE"
+    },
+    {
+      "form_pattern": "^SU_?ALC$",
+      "label_pattern": "substance\\s*use\\s*frequency",
+      "domain": "SU",
+      "variable": "SUFREQ",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SU.SUFREQ"
+    },
+    {
+      "form_pattern": "^ALLERH$",
+      "label_pattern": "any\\s*allergy",
+      "domain": "MH",
+      "variable": "MHOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHOCCUR"
+    },
+    {
+      "form_pattern": "^ALLERH$",
+      "label_pattern": "allergen\\s*class",
+      "domain": "MH",
+      "variable": "MHSCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHSCAT"
+    },
+    {
+      "form_pattern": "^ALLERH$",
+      "label_pattern": "allergy\\s*history",
+      "domain": "MH",
+      "variable": "MHOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHOCCUR"
+    },
+    {
+      "form_pattern": "^ALLERH$",
+      "label_pattern": "allergen\\s*agent",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^ALLERH$",
+      "label_pattern": "specify\\s*other\\s*allergen",
+      "domain": "MH",
+      "variable": "ALLEROTH",
+      "codelist": "",
+      "is_supp": true,
+      "note": "MH.ALLEROTH"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "has\\s*subject\\s*undergone",
+      "domain": "PR",
+      "variable": "PROCCUR",
+      "codelist": "C66742",
+      "is_supp": false,
+      "note": "PR.PROCCUR"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "has\\s*the\\s*subject\\s*had\\s*any\\s*relevant\\s*surgery",
+      "domain": "PR",
+      "variable": "PROCCUR",
+      "codelist": "C66742",
+      "is_supp": false,
+      "note": "PR.PROCCUR"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "surgical\\s*history\\s*verbatim",
+      "domain": "PR",
+      "variable": "PRTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRTERM"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "^surgical\\s*procedure(\\s*term)?$",
+      "domain": "PR",
+      "variable": "PRTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRTERM"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "date\\s*of\\s*surgery",
+      "domain": "PR",
+      "variable": "PRSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRSTDTC"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "^start\\s*date$",
+      "domain": "PR",
+      "variable": "PRSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRSTDTC"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "taking\\s*current\\s*medication",
+      "domain": "PR",
+      "variable": "PRCURM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRCURM"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "^current\\s*medication$",
+      "domain": "PR",
+      "variable": "PRCURM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRCURM"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*lowest\\s*level\\s*term\\s*code",
+      "domain": "PR",
+      "variable": "PRLLTCD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRLLTCD"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*lowest\\s*level\\s*term\\s*name",
+      "domain": "PR",
+      "variable": "PRLLT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRLLT"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*preferred\\s*term\\s*code",
+      "domain": "PR",
+      "variable": "PRPTCD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRPTCD"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*preferred\\s*term\\s*name",
+      "domain": "PR",
+      "variable": "PRDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRDECOD"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*high\\s*level\\s*term\\s*code",
+      "domain": "PR",
+      "variable": "PRHLTCD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRHLTCD"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*high\\s*level\\s*term\\s*name",
+      "domain": "PR",
+      "variable": "PRHLT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRHLT"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*high\\s*level\\s*group\\s*term\\s*code",
+      "domain": "PR",
+      "variable": "PRHLGTCD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRHLGTCD"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*high\\s*level\\s*group\\s*term\\s*name",
+      "domain": "PR",
+      "variable": "PRHLGT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRHLGT"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*system\\s*organ\\s*class\\s*code",
+      "domain": "PR",
+      "variable": "PRBDSYCD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRBDSYCD"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*system\\s*organ\\s*class\\s*name",
+      "domain": "PR",
+      "variable": "PRBODSYS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRBODSYS"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*system\\s*organ\\s*class\\s*abbreviation",
+      "domain": "PR",
+      "variable": "PRBDABB",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRBDABB"
+    },
+    {
+      "form_pattern": "^HISS$",
+      "label_pattern": "meddra\\s*version",
+      "domain": "PR",
+      "variable": "MEDDRAV",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.MEDDRAV"
+    },
+    {
+      "form_pattern": "^ASMPERF\\d?$",
+      "label_pattern": "assessment.*type",
+      "domain": "PR",
+      "variable": "PRCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRCAT"
+    },
+    {
+      "form_pattern": "^ASMPERF\\d?$",
+      "label_pattern": "reason\\s*assessment.*not\\s*performed",
+      "domain": "PR",
+      "variable": "PRREASND",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRREASND"
+    },
+    {
+      "form_pattern": "^ASMPERF\\d?$",
+      "label_pattern": "assessment.*performed",
+      "domain": "PR",
+      "variable": "PROCCUR",
+      "codelist": "C66742",
+      "is_supp": false,
+      "note": "PR.PROCCUR"
+    },
+    {
+      "form_pattern": "^ASMPERF\\d?$",
+      "label_pattern": "assessment\\s*date",
+      "domain": "PR",
+      "variable": "PRSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRSTDTC"
+    },
+    {
+      "form_pattern": "^ASMPERF\\d?$",
+      "label_pattern": "protocol\\s*schedule",
+      "domain": "PR",
+      "variable": "PRSCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRSCAT"
+    },
+    {
+      "form_pattern": "^ASMPERF\\d?$",
+      "label_pattern": "select.*yes.*populate",
+      "domain": "PR",
+      "variable": "PRSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRSPFY"
+    },
+    {
+      "form_pattern": "^ASMPERF\\d?$",
+      "label_pattern": "accession\\s*id",
+      "domain": "PR",
+      "variable": "PRREFID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRREFID"
+    },
+    {
+      "form_pattern": "^ASMPERF\\d?$",
+      "label_pattern": "^comment$",
+      "domain": "PR",
+      "variable": "PRCOMM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PR.PRCOMM"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "asthma\\s*first\\s*diagnosed\\s*date",
+      "domain": "MH",
+      "variable": "MHSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHSTDTC"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "first\\s*appearance\\s*of\\s*asthma",
+      "domain": "FA",
+      "variable": "FADTC",
+      "codelist": "C101833",
+      "is_supp": false,
+      "note": "FA.FADTC"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "total\\s*number\\s*of\\s*exacerbations",
+      "domain": "FA",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FAORRES"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "number\\s*of\\s*exacerbations\\s*resulted",
+      "domain": "FA",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FAORRES"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "number\\s*of\\s*exacerbations\\s*documented",
+      "domain": "FA",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FAORRES"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "number\\s*of\\s*exacerbations",
+      "domain": "FA",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FAORRES"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "diagnosis\\s*of\\s*rhinitis",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "diagnosis\\s*of",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "near\\s*fatal\\s*asthma",
+      "domain": "FA",
+      "variable": "FASPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "FA.FASPFY"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "rhinitis\\s*seasonal",
+      "domain": "MH",
+      "variable": "MHSCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHSCAT"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "nasal\\s*polyps",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^RESHISTE$",
+      "label_pattern": "corticosteroids",
+      "domain": "MH",
+      "variable": "MHTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "MH.MHTERM"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "any\\s*asthma.*related\\s*event\\s*since",
+      "domain": "FAHO",
+      "variable": "FATESTCD",
+      "codelist": "C101832",
+      "is_supp": false,
+      "note": "FAHO.FATESTCD"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "any\\s*asthma.*related\\s*event",
+      "domain": "FAHO",
+      "variable": "FATESTCD",
+      "codelist": "C101832",
+      "is_supp": false,
+      "note": "FAHO.FATESTCD"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*ambulance",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*days",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*emergency",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*hospital",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*visits",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*other",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*home",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*telephone",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*spirometry",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*advanced",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*plain",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "number\\s*of\\s*computer",
+      "domain": "FAHO",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FAHO.FAORRES"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "emergency\\s*room\\s*visit\\s*date",
+      "domain": "HO",
+      "variable": "HOSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "HO.HOSTDTC"
+    },
+    {
+      "form_pattern": "^HEVENT\\d?$",
+      "label_pattern": "oxygen\\s*initiated\\s*date",
+      "domain": "CM",
+      "variable": "CMSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CM.CMSTDTC"
+    },
+    {
+      "form_pattern": "^CHCSS$",
+      "label_pattern": "any\\s*non.*asthma.*related",
+      "domain": "HO",
+      "variable": "HOSCAT",
+      "codelist": "AZC00454",
+      "is_supp": false,
+      "note": "HO.HOSCAT"
+    },
+    {
+      "form_pattern": "^CHCSS$",
+      "label_pattern": "date\\s*of\\s*emergency",
+      "domain": "HO",
+      "variable": "HOSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "HO.HOSTDTC"
+    },
+    {
+      "form_pattern": "^CHCSS$",
+      "label_pattern": "ae\\s*number",
+      "domain": "HO",
+      "variable": "HOSENUM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "HO.HOSENUM"
+    },
+    {
+      "form_pattern": "^PULMTE$",
+      "label_pattern": "documented\\s*historical\\s*reversibility.*available",
+      "domain": "FA",
+      "variable": "FASTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FASTAT"
+    },
+    {
+      "form_pattern": "^PULMTE$",
+      "label_pattern": "historical\\s*reversibility\\s*date",
+      "domain": "FA",
+      "variable": "FADTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FADTC"
+    },
+    {
+      "form_pattern": "^PULMTE$",
+      "label_pattern": "fev1\\s*reversibility\\s*\\(ml\\)",
+      "domain": "FA",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FAORRES"
+    },
+    {
+      "form_pattern": "^PULMTE$",
+      "label_pattern": "fev1\\s*reversibility\\s*\\(%\\)",
+      "domain": "FA",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FAORRES"
+    },
+    {
+      "form_pattern": "^PULMTE$",
+      "label_pattern": "fev1\\s*reversibility",
+      "domain": "FA",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FAORRES"
+    },
+    {
+      "form_pattern": "^PULMTE$",
+      "label_pattern": "protocol\\s*schedule",
+      "domain": "FA",
+      "variable": "FATPT",
+      "codelist": "AZC02551",
+      "is_supp": false,
+      "note": "FA.FATPT"
+    },
+    {
+      "form_pattern": "^PULMTE$",
+      "label_pattern": "fev1.*historical\\s*value",
+      "domain": "FA",
+      "variable": "FAORRES",
+      "codelist": "",
+      "is_supp": false,
+      "note": "FA.FAORRES"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "sample\\s*collection\\s*category",
+      "domain": "BE",
+      "variable": "BECAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE.BECAT"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "sample\\s*collection\\s*method",
+      "domain": "BE",
+      "variable": "BEMETHOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE.BEMETHOD"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "biofluid\\s*collected",
+      "domain": "BE",
+      "variable": "BESPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE.BESPEC"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "biofluid\\s*processed",
+      "domain": "BE",
+      "variable": "BEPRCSD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.BEPRCSD"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "biofluid",
+      "domain": "BE",
+      "variable": "BESPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE.BESPEC"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "sample\\s*format",
+      "domain": "BE",
+      "variable": "SMPFMT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.SMPFMT"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "sample\\s*collected$",
+      "domain": "BE",
+      "variable": "BESTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE.BESTAT"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "^sample\\s*id$",
+      "domain": "BE",
+      "variable": "BEREFID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE.BEREFID"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "^date\\s*of\\s*collection",
+      "domain": "BE",
+      "variable": "BEDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "BE.BEDTC"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "^time\\s*of\\s*collection",
+      "domain": "BE",
+      "variable": "BETM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.BETM"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "^date\\s*of\\s*processing",
+      "domain": "BE",
+      "variable": "BEPRCDTC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.BEPRCDTC"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "^time\\s*of\\s*processing",
+      "domain": "BE",
+      "variable": "BEPRCTM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.BEPRCTM"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "sample\\s*condition,?\\s*other",
+      "domain": "BE",
+      "variable": "SMPCDOT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.SMPCDOT"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "sample\\s*condition$",
+      "domain": "BE",
+      "variable": "SMPCOND",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.SMPCOND"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "laboratory\\s*id",
+      "domain": "BE",
+      "variable": "LABID",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.LABID"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "main\\s*consent\\s*category",
+      "domain": "BE",
+      "variable": "CNSTCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.CNSTCAT"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "optional\\s*consent.*category",
+      "domain": "BE",
+      "variable": "OCNSTCAT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.OCNSTCAT"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "destination\\s*system",
+      "domain": "BE",
+      "variable": "DESTSYS",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.DESTSYS"
+    },
+    {
+      "form_pattern": "^SPCBEDB\\d?$",
+      "label_pattern": "number\\s*of\\s*aliquots",
+      "domain": "BE",
+      "variable": "ALIQCNT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "BE.ALIQCNT"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "sample\\s*collection\\s*category",
+      "domain": "PC",
+      "variable": "PCCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCCAT"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "sample\\s*collection\\s*method",
+      "domain": "PC",
+      "variable": "PCMETHOD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.PCMETHOD"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "biofluid\\s*collected",
+      "domain": "PC",
+      "variable": "PCSPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCSPEC"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "biofluid\\s*processed",
+      "domain": "PC",
+      "variable": "PCPRCSD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.PCPRCSD"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "biofluid",
+      "domain": "PC",
+      "variable": "PCSPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCSPEC"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "sample\\s*format",
+      "domain": "PC",
+      "variable": "SMPFMT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.SMPFMT"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "analysis\\s*method",
+      "domain": "PC",
+      "variable": "PCTEST",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCTEST"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "sample\\s*collected$",
+      "domain": "PC",
+      "variable": "PCSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCSTAT"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "^sample\\s*id$",
+      "domain": "PC",
+      "variable": "PCREFID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCREFID"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "^date\\s*of\\s*collection",
+      "domain": "PC",
+      "variable": "PCDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCDTC"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "^time\\s*of\\s*collection",
+      "domain": "PC",
+      "variable": "PCTM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.PCTM"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "^date\\s*of\\s*processing",
+      "domain": "PC",
+      "variable": "PCPRCDTC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.PCPRCDTC"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "^time\\s*of\\s*processing",
+      "domain": "PC",
+      "variable": "PCPRCTM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.PCPRCTM"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "^number\\s*of\\s*aliquots$",
+      "domain": "PC",
+      "variable": "ALIQCNT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.ALIQCNT"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "sample\\s*condition,?\\s*other",
+      "domain": "PC",
+      "variable": "SMPCDOT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.SMPCDOT"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "sample\\s*condition$",
+      "domain": "PC",
+      "variable": "SMPCOND",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.SMPCOND"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "laboratory\\s*id",
+      "domain": "PC",
+      "variable": "LABID",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.LABID"
+    },
+    {
+      "form_pattern": "^SPCPKB$",
+      "label_pattern": "protocol\\s*schedule",
+      "domain": "PC",
+      "variable": "PCTPT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCTPT"
+    },
+    {
+      "form_pattern": "^SPCPKB1$",
+      "label_pattern": "sample\\s*collection\\s*category",
+      "domain": "IS",
+      "variable": "ISCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IS.ISCAT"
+    },
+    {
+      "form_pattern": "^SPCPKB1$",
+      "label_pattern": "sample\\s*collected$",
+      "domain": "IS",
+      "variable": "ISSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IS.ISSTAT"
+    },
+    {
+      "form_pattern": "^SPCPKB1$",
+      "label_pattern": "^sample\\s*id$",
+      "domain": "IS",
+      "variable": "ISREFID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IS.ISREFID"
+    },
+    {
+      "form_pattern": "^SPCPKB1$",
+      "label_pattern": "^date\\s*of\\s*collection",
+      "domain": "IS",
+      "variable": "ISDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IS.ISDTC"
+    },
+    {
+      "form_pattern": "^SPCPKB1$",
+      "label_pattern": "^time\\s*of\\s*collection",
+      "domain": "IS",
+      "variable": "ISTM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IS.ISTM"
+    },
+    {
+      "form_pattern": "^SPCPKB1$",
+      "label_pattern": "protocol\\s*schedule",
+      "domain": "IS",
+      "variable": "ISTPT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IS.ISTPT"
+    },
+    {
+      "form_pattern": "^SPC",
+      "label_pattern": "sample\\s*collected$",
+      "domain": "PC",
+      "variable": "PCSTAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCSTAT"
+    },
+    {
+      "form_pattern": "^SPC",
+      "label_pattern": "^sample\\s*id$",
+      "domain": "PC",
+      "variable": "PCREFID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCREFID"
+    },
+    {
+      "form_pattern": "^SPC",
+      "label_pattern": "^date\\s*of\\s*collection$",
+      "domain": "PC",
+      "variable": "PCDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCDTC"
+    },
+    {
+      "form_pattern": "^SPC",
+      "label_pattern": "^time\\s*of\\s*collection$",
+      "domain": "PC",
+      "variable": "PCTM",
+      "codelist": "",
+      "is_supp": true,
+      "note": "PC.PCTM"
+    },
+    {
+      "form_pattern": "^SPC",
+      "label_pattern": "sample\\s*collection\\s*category",
+      "domain": "PC",
+      "variable": "PCCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCCAT"
+    },
+    {
+      "form_pattern": "^SPC",
+      "label_pattern": "biofluid\\s*collected",
+      "domain": "PC",
+      "variable": "PCSPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCSPEC"
+    },
+    {
+      "form_pattern": "^SPC",
+      "label_pattern": "biofluid",
+      "domain": "PC",
+      "variable": "PCSPEC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PC.PCSPEC"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "did\\s*the\\s*subject\\s*meet\\s*all\\s*eligibility",
+      "domain": "IE",
+      "variable": "IEORALL",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IE.IEORALL"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "were\\s*all\\s*eligibility\\s*criteria\\s*met",
+      "domain": "IE",
+      "variable": "IEORALL",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IE.IEORALL"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "subject\\s*complies\\s*with\\s*all\\s*inclusion",
+      "domain": "IE",
+      "variable": "IEORALL",
+      "codelist": "",
+      "is_supp": true,
+      "note": "IE.IEORALL"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "category\\s*of\\s*failed\\s*criterion",
+      "domain": "IE",
+      "variable": "IECAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IE.IECAT"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "^criterion\\s*type$",
+      "domain": "IE",
+      "variable": "IECAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IE.IECAT"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "^failed\\s*criterion\\s*type$",
+      "domain": "IE",
+      "variable": "IECAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IE.IECAT"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "identifier\\s*of\\s*the\\s*criterion",
+      "domain": "IE",
+      "variable": "IETESTCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IE.IETESTCD"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "exception\\s*criterion\\s*identifier",
+      "domain": "IE",
+      "variable": "IETESTCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IE.IETESTCD"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "^failed\\s*criterion\\s*no",
+      "domain": "IE",
+      "variable": "IETESTCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IE.IETESTCD"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "was\\s*subject\\s*allocated\\s*a\\s*randomization",
+      "domain": "DS",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "randomization\\s*code$",
+      "domain": "DM",
+      "variable": "ACTARMCD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DM.ACTARMCD"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "date\\s*of\\s*randomization",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "what\\s*was\\s*the\\s*randomization\\s*date",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^IE\\d?$",
+      "label_pattern": "derived\\s*critfno",
+      "domain": "IE",
+      "variable": "NOT_SUBMITTED",
+      "codelist": "",
+      "is_supp": false,
+      "note": "IE.NOT_SUBMITTED"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "completion\\s*or\\s*discontinuation\\s*date",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "subject.*status",
+      "domain": "DS",
+      "variable": "DSDECOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSDECOD"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "specify\\s*status",
+      "domain": "DS",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSTERM"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "date\\s*of\\s*main\\s*informed\\s*consent",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "main\\s*informed\\s*consent\\s*obtained",
+      "domain": "DS",
+      "variable": "DSOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSOCCUR"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "csp\\s*version",
+      "domain": "DS",
+      "variable": "DSSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "DS.DSSPFY"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "re-?signed\\s*informed\\s*consent",
+      "domain": "DS",
+      "variable": "DSOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSOCCUR"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "date\\s*of\\s*re-?signed",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "date\\s*of\\s*informed\\s*consent",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "optional\\s*consent.*obtained",
+      "domain": "DS",
+      "variable": "DSOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSOCCUR"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "optional\\s*consent.*category",
+      "domain": "DS",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSTERM"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "informed\\s*consent\\s*withdrawal\\s*date",
+      "domain": "DS",
+      "variable": "DSSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSSTDTC"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "what\\s*was\\s*the\\s*protocol\\s*milestone",
+      "domain": "DS",
+      "variable": "DSTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSTERM"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "consent\\s*withdrawal\\s*category",
+      "domain": "DS",
+      "variable": "DSSPFY",
+      "codelist": "",
+      "is_supp": true,
+      "note": "DS.DSSPFY"
+    },
+    {
+      "form_pattern": "^DS\\d?$",
+      "label_pattern": "other\\s*status,?\\s*specify",
+      "domain": "DS",
+      "variable": "DSMODIFY",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DS.DSMODIFY"
+    },
+    {
+      "form_pattern": "^(DS|DOSDISC)\\d?$",
+      "label_pattern": "please\\s*specify.*non.?compliance|please\\s*specify.*other.*reason.*ip",
+      "domain": "DS",
+      "variable": "IPDCSPEC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "DS.IPDCSPEC"
+    },
+    {
+      "form_pattern": "^(DS|DOSDISC)\\d?$",
+      "label_pattern": "related\\s*to\\s*(a\\s*)?global.*country\\s*situation",
+      "domain": "DS",
+      "variable": "DSSPRELI",
+      "codelist": "",
+      "is_supp": true,
+      "note": "DS.DSSPRELI"
+    },
+    {
+      "form_pattern": "^(DS|DOSDISC)\\d?$",
+      "label_pattern": "please\\s*specify\\s*if\\s*other\\s*subject\\s*decision",
+      "domain": "DS",
+      "variable": "IPDCDSPC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "DS.IPDCDSPC"
+    },
+    {
+      "form_pattern": "^SV$",
+      "label_pattern": "did\\s*this\\s*visit\\s*occur",
+      "domain": "SV",
+      "variable": "SVOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SV.SVOCCUR"
+    },
+    {
+      "form_pattern": "^SV$",
+      "label_pattern": "^visit\\s*date$",
+      "domain": "SV",
+      "variable": "SVSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "SV.SVSTDTC"
+    },
+    {
+      "form_pattern": "^SV$",
+      "label_pattern": "^contact\\s*mode$",
+      "domain": "SV",
+      "variable": "SVUPDES",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SV.SVUPDES"
+    },
+    {
+      "form_pattern": "^SV$",
+      "label_pattern": "^other.*specify$",
+      "domain": "SV",
+      "variable": "SVUPDES",
+      "codelist": "",
+      "is_supp": true,
+      "note": "SV.SVUPDES"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "^any\\s*adverse\\s*events?$",
+      "domain": "AE",
+      "variable": "AETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AETERM"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "^ae\\s*no\\.?$",
+      "domain": "AE",
+      "variable": "AESPID",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AESPID"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "^adverse\\s*event$",
+      "domain": "AE",
+      "variable": "AETERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AETERM"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "date\\s*ae\\s*started",
+      "domain": "AE",
+      "variable": "AESTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AESTDTC"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "date\\s*ae\\s*stopped",
+      "domain": "AE",
+      "variable": "AEENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AEENDTC"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "^start\\s*date$",
+      "domain": "AE",
+      "variable": "AESTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AESTDTC"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "^end\\s*date$",
+      "domain": "AE",
+      "variable": "AEENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AEENDTC"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "were\\s*any\\s*adverse\\s*events?\\s*(experienced|reported)",
+      "domain": "AE",
+      "variable": "AEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AEOCCUR"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "^outcome$",
+      "domain": "AE",
+      "variable": "AEOUT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AEOUT"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "maximum\\s*ae\\s*intensity",
+      "domain": "AE",
+      "variable": "AESEV",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AESEV"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "^serious$",
+      "domain": "AE",
+      "variable": "AESER",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AESER"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "action\\s*taken.*investigational\\s*product",
+      "domain": "AE",
+      "variable": "AEACN",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AEACN"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "causality.*investigational\\s*product",
+      "domain": "AE",
+      "variable": "AEREL",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AEREL"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "^adverse\\s*event\\s*category$",
+      "domain": "AE",
+      "variable": "AECAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AECAT"
+    },
+    {
+      "form_pattern": "^AE\\d*$",
+      "label_pattern": "medication\\s*given\\s*for\\s*this\\s*ae",
+      "domain": "AE",
+      "variable": "AECONTRT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "AE.AECONTRT"
+    },
+    {
+      "form_pattern": "^(AE|SERAE)\\d*$",
+      "label_pattern": "ae\\s*caused\\s*subject\\s*to\\s*withdraw",
+      "domain": "AE",
+      "variable": "AEWD",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.AEWD"
+    },
+    {
+      "form_pattern": "^(AE|SERAE)\\d*$",
+      "label_pattern": "ae\\s*required\\s*(additional\\s*)?treatment",
+      "domain": "AE",
+      "variable": "AETRT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.AETRT"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "date\\s*ae\\s*met\\s*criteria\\s*for\\s*serious",
+      "domain": "AE",
+      "variable": "SAEDTC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.SAEDTC"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "date\\s*investigator\\s*aware\\s*of\\s*sae",
+      "domain": "AE",
+      "variable": "SAEIADTC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.SAEIADTC"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "primary\\s*cause\\s*of\\s*death",
+      "domain": "AE",
+      "variable": "DTHCAUS1",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.DTHCAUS1"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "secondary\\s*cause\\s*of\\s*death",
+      "domain": "AE",
+      "variable": "DTHCAUS2",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.DTHCAUS2"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "date\\s*of\\s*hospitalization",
+      "domain": "AE",
+      "variable": "SAEHODTC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.SAEHODTC"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "date\\s*of\\s*discharge",
+      "domain": "AE",
+      "variable": "SAEDIDTC",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.SAEDIDTC"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "autopsy\\s*performed",
+      "domain": "AE",
+      "variable": "SAEAU",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.SAEAU"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "sae\\s*caused\\s*by\\s*study\\s*procedure",
+      "domain": "AE",
+      "variable": "SAECAUSP",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.SAECAUSP"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "if\\s*yes,?\\s*please\\s*specify\\s*procedure",
+      "domain": "AE",
+      "variable": "SAESP",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.SAESP"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "ae\\s*description\\s*\\d*",
+      "domain": "AE",
+      "variable": "AEDESC01",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.AEDESC01"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "sae\\s*caused\\s*by\\s*other\\s*medication",
+      "domain": "AE",
+      "variable": "AESMEDCA",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.AESMEDCA"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "specify\\s*trade\\s*name",
+      "domain": "AE",
+      "variable": "AESMED",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.AESMED"
+    },
+    {
+      "form_pattern": "^SERAE\\d*$",
+      "label_pattern": "date\\s*of\\s*death",
+      "domain": "AE",
+      "variable": "AEDTHDT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "AE.AEDTHDT"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "date\\s*of\\s*study\\s*drug\\s*administration|administration\\s*date",
+      "domain": "EC",
+      "variable": "ECSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC.ECSTDTC"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "end\\s*date\\s*of\\s*study\\s*drug|last\\s*date\\s*of\\s*study\\s*drug",
+      "domain": "EC",
+      "variable": "ECENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC.ECENDTC"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "location\\s*for\\s*study\\s*drug\\s*administration",
+      "domain": "EC",
+      "variable": "ECLOC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC.ECLOC"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "laterality\\s*for\\s*study\\s*drug",
+      "domain": "EC",
+      "variable": "ECLAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC.ECLAT"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "action\\s*taken.*investigational\\s*product",
+      "domain": "EC",
+      "variable": "ECACN",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC.ECACN"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "^lot\\s*number$",
+      "domain": "EC",
+      "variable": "ECLOT",
+      "codelist": "",
+      "is_supp": true,
+      "note": "EC.ECLOT"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "^dose\\s*administered$",
+      "domain": "EC",
+      "variable": "ECDOSE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC.ECDOSE"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "^dose\\s*unit$",
+      "domain": "EC",
+      "variable": "ECDOSU",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC.ECDOSU"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "^reason\\s*dose\\s*(not\\s*given|missed)",
+      "domain": "EC",
+      "variable": "ECADJ",
+      "codelist": "",
+      "is_supp": true,
+      "note": "EC.ECADJ"
+    },
+    {
+      "form_pattern": "^EX\\d?$",
+      "label_pattern": "^amount\\s*of\\s*drug\\s*administered",
+      "domain": "EC",
+      "variable": "ECDOSE",
+      "codelist": "",
+      "is_supp": false,
+      "note": "EC.ECDOSE"
+    },
+    {
+      "form_pattern": "^CE\\d*$",
+      "label_pattern": "has\\s*the\\s*patient\\s*had\\s*any.*exacerbation",
+      "domain": "CE",
+      "variable": "CEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE.CEOCCUR"
+    },
+    {
+      "form_pattern": "^CE\\d*$",
+      "label_pattern": "was\\s*there\\s*any\\s*new.*exacerbation",
+      "domain": "CE",
+      "variable": "CEOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE.CEOCCUR"
+    },
+    {
+      "form_pattern": "^CE\\d*$",
+      "label_pattern": "exacerbation.*start\\s*date",
+      "domain": "CE",
+      "variable": "CESTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE.CESTDTC"
+    },
+    {
+      "form_pattern": "^CE\\d*$",
+      "label_pattern": "exacerbation.*end\\s*date",
+      "domain": "CE",
+      "variable": "CEENDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE.CEENDTC"
+    },
+    {
+      "form_pattern": "^CE\\d*$",
+      "label_pattern": "ongoing\\s*at\\s*study\\s*end",
+      "domain": "CE",
+      "variable": "CEONGO",
+      "codelist": "",
+      "is_supp": false,
+      "note": "CE.CEONGO"
+    },
+    {
+      "form_pattern": "^DD\\d*$",
+      "label_pattern": "^death\\s*date$",
+      "domain": "DD",
+      "variable": "DTHDT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DD.DTHDT"
+    },
+    {
+      "form_pattern": "^DD\\d*$",
+      "label_pattern": "(?:primary\\s*)?cause\\s*of\\s*death",
+      "domain": "DD",
+      "variable": "DTHCAUS",
+      "codelist": "",
+      "is_supp": false,
+      "note": "DD.DTHCAUS"
+    },
+    {
+      "form_pattern": "^DD\\d*$",
+      "label_pattern": "related\\s*to\\s*disease\\s*under",
+      "domain": "DD",
+      "variable": "DTHREL",
+      "codelist": "",
+      "is_supp": true,
+      "note": "DD.DTHREL"
+    },
+    {
+      "form_pattern": "^PR\\d*$",
+      "label_pattern": "was\\s*the\\s*ncfbe\\s*diagnosed",
+      "domain": "PR",
+      "variable": "PROCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PROCCUR"
+    },
+    {
+      "form_pattern": "^PR\\d*$",
+      "label_pattern": "ncfbe\\s*diagnosis\\s*date",
+      "domain": "PR",
+      "variable": "PRSTDTC",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRSTDTC"
+    },
+    {
+      "form_pattern": "^PR\\d*$",
+      "label_pattern": "diagnosis\\s*basis",
+      "domain": "PR",
+      "variable": "PRMETHOD",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRMETHOD"
+    },
+    {
+      "form_pattern": "^PR\\d*$",
+      "label_pattern": "aetiologies",
+      "domain": "PR",
+      "variable": "PRSCAT",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRSCAT"
+    },
+    {
+      "form_pattern": "^PR\\d*$",
+      "label_pattern": "microbiology.*pathogens",
+      "domain": "PR",
+      "variable": "PRTERM",
+      "codelist": "",
+      "is_supp": false,
+      "note": "PR.PRTERM"
+    },
+    {
+      "form_pattern": "^HO\\d*$",
+      "label_pattern": "any\\s*emergency\\s*room\\s*visit",
+      "domain": "HO",
+      "variable": "HOOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "HO.HOOCCUR"
+    },
+    {
+      "form_pattern": "^HO\\d*$",
+      "label_pattern": "any\\s*unscheduled\\s*physician\\s*visit",
+      "domain": "HO",
+      "variable": "HOOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "HO.HOOCCUR"
+    },
+    {
+      "form_pattern": "^HO\\d*$",
+      "label_pattern": "was\\s*unscheduled\\s*visit\\s*assessment\\s*performed",
+      "domain": "HO",
+      "variable": "HOOCCUR",
+      "codelist": "",
+      "is_supp": false,
+      "note": "HO.HOOCCUR"
+    }
+  ]
+}
