@@ -270,8 +270,9 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
     # TESTCD qualifier applies only to primary non-SUPP annotations
     testcd_where = getattr(result, "where_clause", "") or ""
     is_derived = getattr(result, "is_derived", False)
+    value_decode = getattr(result, "value_decode", "") or ""
 
-    for (grp_domain, grp_is_supp, grp_qnam), texts in groups.items():
+    for grp_index, ((grp_domain, grp_is_supp, grp_qnam), texts) in enumerate(groups.items()):
         combined_text = " / ".join(texts)
         # Where-clause logic:
         # - SUPP → "QNAM = <variable>" (CDISC standard)
@@ -291,6 +292,8 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
             "is_supp": grp_is_supp,
             "where_clause": wc,
             "is_derived": is_derived,
+            # Value-level decode applies to the primary variable only (issue #3)
+            "value_decode": value_decode if grp_index == 0 else "",
         })
 
     return annotations
@@ -577,7 +580,24 @@ def _append_legend_page(doc: fitz.Document, page_width: float, page_height: floa
 # Hierarchical Bookmark Builder
 # =============================================================================
 
-def _build_toc(form_first_page: dict[str, tuple[int, str]], form_domains: dict[str, str]) -> list[list]:
+def _build_toc(
+    form_first_page: dict[str, tuple[int, str]],
+    form_domains: dict[str, str],
+    form_visits: dict[str, list[tuple[str, int]]] | None = None,
+) -> list[list]:
+    """
+    Build a dual bookmark hierarchy (CDISC MSG recommendation):
+
+      1. "CRFs by Topic"  → class → domain → form   (existing structure)
+      2. "CRFs by Visit"  → visit/folder → form     (chronological)
+
+    PDFs have a single outline tree, so the two views are rendered as two
+    top-level branches within that one outline. The by-visit branch is added
+    only when folder/visit metadata is available.
+    """
+    toc: list[list] = []
+
+    # ── Branch 1: By Topic (class → domain → form) ───────────────────────────
     class_domain_forms: dict[str, dict[str, list[tuple[str, int]]]] = defaultdict(
         lambda: defaultdict(list)
     )
@@ -586,17 +606,48 @@ def _build_toc(form_first_page: dict[str, tuple[int, str]], form_domains: dict[s
         cls = _domain_class(domain) if domain else "Other"
         class_domain_forms[cls][domain or "??"].append((form_code, page_idx))
 
-    toc: list[list] = []
+    topic_first_page = min(
+        (pg for forms in class_domain_forms.values() for fl in forms.values() for _, pg in fl),
+        default=0,
+    )
+    toc.append([1, "CRFs by Topic", topic_first_page + 1])
     class_order = list(_DOMAIN_CLASSES.keys()) + ["Other"]
     for cls in class_order:
         if cls not in class_domain_forms:
             continue
-        toc.append([1, cls, list(class_domain_forms[cls].values())[0][0][1] + 1])
+        toc.append([2, cls, list(class_domain_forms[cls].values())[0][0][1] + 1])
         for domain, forms in sorted(class_domain_forms[cls].items(), key=lambda x: x[0]):
             full = _get_domain_full_name(domain)
-            toc.append([2, f"{domain} — {full}", forms[0][1] + 1])
+            toc.append([3, f"{domain} — {full}", forms[0][1] + 1])
             for form_code, pg in forms:
-                toc.append([3, form_code, pg + 1])
+                toc.append([4, form_code, pg + 1])
+
+    # ── Branch 2: By Visit (folder → form), chronological by page order ──────
+    if form_visits:
+        # Collect (visit, form_code, page_idx) and order visits by first appearance
+        visit_entries: dict[str, list[tuple[str, int]]] = defaultdict(list)
+        visit_first_page: dict[str, int] = {}
+        for form_code, occurrences in form_visits.items():
+            for visit, page_idx in occurrences:
+                if not visit:
+                    continue
+                visit_entries[visit].append((form_code, page_idx))
+                if visit not in visit_first_page or page_idx < visit_first_page[visit]:
+                    visit_first_page[visit] = page_idx
+
+        if visit_entries:
+            branch_first = min(visit_first_page.values())
+            toc.append([1, "CRFs by Visit", branch_first + 1])
+            for visit in sorted(visit_first_page, key=lambda v: visit_first_page[v]):
+                forms = sorted(visit_entries[visit], key=lambda x: x[1])
+                toc.append([2, visit, visit_first_page[visit] + 1])
+                seen_forms: set[str] = set()
+                for form_code, pg in forms:
+                    if form_code in seen_forms:
+                        continue
+                    seen_forms.add(form_code)
+                    toc.append([3, form_code, pg + 1])
+
     return toc
 
 
@@ -686,6 +737,9 @@ def annotate_pdf(
 
     form_first_page: dict[str, tuple[int, str]] = {}
     form_primary_domain: dict[str, str] = {}
+    # For the chronological "by visit" bookmark branch: form_code -> [(visit, page_idx)]
+    form_visits: dict[str, list[tuple[str, int]]] = defaultdict(list)
+    _seen_visit_form: set[tuple[str, str]] = set()
     for field, result in zip(fields, results):
         fc = field.form_code
         if fc and fc not in form_first_page and field.page_index is not None:
@@ -693,6 +747,13 @@ def annotate_pdf(
         if fc and fc not in form_primary_domain and result.sdtm_domain:
             d = result.sdtm_domain.upper()
             form_primary_domain[fc] = d[4:] if d.startswith("SUPP") else d
+        # Record one (visit, page) entry per (form, visit) pair
+        visit = getattr(field, "folder", "") or ""
+        if fc and visit and field.page_index is not None:
+            key = (fc, visit)
+            if key not in _seen_visit_form:
+                _seen_visit_form.add(key)
+                form_visits[fc].append((visit, field.page_index))
 
     domain_header_written: set[int] = set()
     see_page_written: set[str] = set()
@@ -752,6 +813,8 @@ def annotate_pdf(
             h = eff_fs + 2 * _BOX_PADDING_Y
             if entry.get("where_clause"):
                 h += eff_fs + _LINE_SPACING
+            if entry.get("value_decode"):
+                h += eff_fs + _LINE_SPACING
             return h
 
         stack_h = sum(_entry_height(e) + _MULTI_BOX_SPACING for e in ann_entries) - _MULTI_BOX_SPACING
@@ -763,6 +826,7 @@ def annotate_pdf(
         for entry in ann_entries:
             ann_text = entry["text"]
             where_clause = entry.get("where_clause", "") or ""
+            value_decode = entry.get("value_decode", "") or ""
             is_derived = entry.get("is_derived", False)
 
             if not ann_text:
@@ -788,23 +852,34 @@ def annotate_pdf(
                 font_n = _FONT_NAME_BOLD
                 use_dash = is_derived
 
+            # Count extra lines (where-clause and/or value-decode) for box sizing
+            extra_lines = 0
             tw = fitz.get_text_length(ann_text, fontname=font_n, fontsize=eff_fs)
+            wc_text = ""
             if where_clause:
                 wc_text = f"where {where_clause}"
-                tw_wc = fitz.get_text_length(wc_text, fontname=_FONT_NAME, fontsize=eff_fs)
-                tw = max(tw, tw_wc)
+                tw = max(tw, fitz.get_text_length(wc_text, fontname=_FONT_NAME, fontsize=eff_fs))
+                extra_lines += 1
+            if value_decode:
+                vd_text = f"({value_decode})"
+                tw = max(tw, fitz.get_text_length(vd_text, fontname=_FONT_NAME, fontsize=eff_fs))
+                extra_lines += 1
 
             box_rect = fitz.Rect(
                 ann_x,
                 text_y - eff_fs - _BOX_PADDING_Y,
                 ann_x + tw + 2 * _BOX_PADDING_X,
-                text_y + _BOX_PADDING_Y + ((eff_fs + _LINE_SPACING) if where_clause else 0),
+                text_y + _BOX_PADDING_Y + extra_lines * (eff_fs + _LINE_SPACING),
             )
 
-            # Combine text + where-clause into a single annotation content string.
-            # FreeText annotations support multi-line content; the where-clause
-            # appears on the second line, indented slightly.
-            full_content = ann_text + (f"\n{wc_text}" if where_clause else "")
+            # Combine text + where-clause + value-decode into one FreeText content
+            # string. FreeText annotations support multi-line content; each extra
+            # line stacks below the primary annotation.
+            full_content = ann_text
+            if where_clause:
+                full_content += f"\n{wc_text}"
+            if value_decode:
+                full_content += f"\n({value_decode})"
 
             _freetext(
                 page, box_rect, full_content,
@@ -823,7 +898,7 @@ def annotate_pdf(
     ref_page = doc[0]
     _append_legend_page(doc, ref_page.rect.width, ref_page.rect.height)
 
-    toc = _build_toc(form_first_page, form_primary_domain)
+    toc = _build_toc(form_first_page, form_primary_domain, dict(form_visits))
     toc.append([1, "Colour Legend", doc.page_count])
     if toc:
         try:

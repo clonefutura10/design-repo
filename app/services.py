@@ -224,6 +224,7 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
     # so that generic labels like "Result" / "Unit" pick up the correct TESTCD
     # from the preceding test-name field.
     from src.resolution.findings_qualifier import _FINDINGS_QUALIFIER_VARS, _DOMAIN_TESTCD_VAR
+    from src.resolution.value_decoder import compute_value_decode
     _findings_resolver = FindingsQualifierResolver()
     _current_testcd: dict[str, str] = {}   # domain → last resolved test code
     # Variables that ARE test-name selectors — when they appear and resolve to no
@@ -232,6 +233,18 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
     _TEST_NAME_VARS = {"VS": "VSTEST", "LB": "LBTEST", "EG": "EGTEST", "RP": "RPTEST"}
 
     import re as _re
+    # Value-level decode (issue #3): additive — for controlled-response fields,
+    # attach how each response option maps to its SDTM submission value. Runs for
+    # every resolved field; returns "" (no-op) for non-controlled fields.
+    for fld, res in zip(_unique_fields, _unique_results):
+        if res.resolved and not res.is_not_submitted and not res.is_supplemental:
+            decode = compute_value_decode(
+                res.sdtm_variable or "",
+                getattr(fld, "value_options", []),
+            )
+            if decode:
+                res.value_decode = decode
+
     for fld, res in zip(_unique_fields, _unique_results):
         if not res.resolved or res.is_not_submitted:
             continue

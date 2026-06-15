@@ -55,6 +55,11 @@ class ResolutionResult:
     # True if this variable is derived/assigned (not directly collected) — gets dashed border
     is_derived: bool = False
 
+    # Value-level decode for controlled-response fields (issue #3).
+    # e.g. 'Y = Yes, N = No' — rendered as a compact extra line under the
+    # annotation. Empty for free-text / numeric / non-controlled fields.
+    value_decode: str = ""
+
     @property
     def annotation_text(self) -> str:
         """
