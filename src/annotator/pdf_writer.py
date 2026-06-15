@@ -64,6 +64,19 @@ _HEADER_BAR_HEIGHT = 11.0
 
 _LINE_SPACING = 1.5  # extra space between primary text and where-clause
 
+# FreeText annotations render text at a real line height of ≈1.36–1.45×fontsize
+# and reserve a small internal horizontal margin. The box geometry must budget
+# for both or the last line / right edge of text clips outside the box.
+_FT_LINE_FACTOR = 1.45
+_FT_SIDE_INSET = 4.0
+
+# Navigation-note style ("Continued from page X" / "For Annotations see page X").
+# Readable font + visible box so the note reads as a real reference marker.
+_NOTE_FONT_SIZE = 9.0
+_NOTE_FILL = (0.93, 0.95, 0.99)
+_NOTE_BORDER = (0.30, 0.42, 0.62)
+_NOTE_TEXT = (0.18, 0.28, 0.48)
+
 
 # =============================================================================
 # SDTM Domain Metadata
@@ -352,7 +365,21 @@ def _freetext(
     border_width: float = _BORDER_WIDTH,
     dashed: bool = False,
 ) -> None:
-    """Create a real PDF FreeText annotation (selectable, Pinnacle-21 extractable)."""
+    """
+    Create a real PDF FreeText annotation (selectable, Pinnacle-21 extractable),
+    rendered exactly once.
+
+    PyMuPDF ≥1.24 rejects ``annot.set_colors(stroke=...)`` for FreeText
+    ("cannot be used for FreeText annotations"). The previous implementation
+    called it inside the try AFTER the annotation was created, so it raised and
+    the except-branch drew the box+text a SECOND time into the content stream —
+    every annotation rendered twice (a faint regular copy plus a bold offset
+    copy that spilled below the box). We now create the annotation, then set the
+    border / update as independent best-effort steps so the drawn-text fallback
+    only runs when the annotation API is entirely unavailable. The FreeText
+    border renders in the text colour (≈ the domain colour already used), so a
+    separate stroke colour is unnecessary.
+    """
     try:
         annot = page.add_freetext_annot(
             rect,
@@ -361,21 +388,27 @@ def _freetext(
             fontname=fontname,
             text_color=text_color,
             fill_color=fill_color,
-            rotate=0,
             align=fitz.TEXT_ALIGN_LEFT,
         )
-        annot.set_colors(stroke=border_color)
+    except Exception:
+        # Hard fallback (drawn once) only if the annotation API is unavailable.
+        page.draw_rect(rect, color=text_color, fill=fill_color, width=border_width,
+                       dashes="[2 2] 0" if dashed else None, overlay=True)
+        page.insert_text(fitz.Point(rect.x0 + _BOX_PADDING_X, rect.y1 - _BOX_PADDING_Y),
+                         text, fontsize=fontsize, fontname=fontname, color=text_color)
+        return
+
+    try:
         if dashed:
             annot.set_border(width=border_width, dashes=[2, 2])
         else:
             annot.set_border(width=border_width)
+    except Exception:
+        pass
+    try:
         annot.update()
     except Exception:
-        # Fallback to drawn text if annotation API unavailable
-        page.draw_rect(rect, color=border_color, fill=fill_color, width=border_width,
-                       dashes="[2 2] 0" if dashed else None, overlay=True)
-        page.insert_text(fitz.Point(rect.x0 + _BOX_PADDING_X, rect.y1 - _BOX_PADDING_Y),
-                         text, fontsize=fontsize, fontname=fontname, color=text_color)
+        pass
 
 
 def _draw_domain_name_top_left(page: fitz.Page, domains: list[str]) -> None:
@@ -414,8 +447,22 @@ def _draw_domain_name_top_left(page: fitz.Page, domains: list[str]) -> None:
         y += _HEADER_BAR_HEIGHT + 2.0
 
 
+def _draw_note(page: fitz.Page, text: str, ann_x: float, y_top: float) -> None:
+    """
+    Draw a navigation-note FreeText box ("Continued from page X" /
+    "For Annotations see page X") with a readable font and a visible border so
+    it reads as a real reference marker rather than faint grey text.
+    """
+    tw = fitz.get_text_length(text, fontname=_FONT_NAME_BOLD, fontsize=_NOTE_FONT_SIZE)
+    h = _NOTE_FONT_SIZE * _FT_LINE_FACTOR + 2 * _BOX_PADDING_Y
+    rect = fitz.Rect(ann_x, y_top, ann_x + tw + 2 * _BOX_PADDING_X + _FT_SIDE_INSET, y_top + h)
+    _freetext(page, rect, text, fontsize=_NOTE_FONT_SIZE, fontname=_FONT_NAME_BOLD,
+              text_color=_NOTE_TEXT, fill_color=_NOTE_FILL, border_color=_NOTE_BORDER,
+              border_width=0.7)
+
+
 def _draw_see_page_reference(page: fitz.Page, first_pages: list[int], page_height: float, ann_x: float) -> None:
-    """Write 'For Annotations see page X · Y' as FreeText annotation at the bottom."""
+    """Write 'For Annotations see page X · Y' as a navigation note at the bottom."""
     if not first_pages:
         return
 
@@ -425,22 +472,13 @@ def _draw_see_page_reference(page: fitz.Page, first_pages: list[int], page_heigh
     else:
         ref_text = f"For Annotations see page {page_nums[0]} – {page_nums[-1]}"
 
-    y = page_height - _PAGE_BOTTOM_MARGIN - 4.0
-    tw = fitz.get_text_length(ref_text, fontname=_FONT_NAME, fontsize=7.0)
-    rect = fitz.Rect(ann_x, y - 9, ann_x + tw + 6, y + 3)
-    _freetext(page, rect, ref_text, fontsize=7.0, fontname=_FONT_NAME,
-              text_color=(0.35, 0.35, 0.35), fill_color=(1.0, 1.0, 1.0),
-              border_color=(0.65, 0.65, 0.65), border_width=0.4)
+    h = _NOTE_FONT_SIZE * _FT_LINE_FACTOR + 2 * _BOX_PADDING_Y
+    _draw_note(page, ref_text, ann_x, page_height - _PAGE_BOTTOM_MARGIN - h)
 
 
 def _draw_continued_from_page(page: fitz.Page, prev_page_num: int, ann_x: float) -> None:
-    """Write 'Continued from page X' as FreeText annotation near the top of the annotation column."""
-    ref_text = f"Continued from page {prev_page_num}"
-    tw = fitz.get_text_length(ref_text, fontname=_FONT_NAME, fontsize=7.0)
-    rect = fitz.Rect(ann_x, 74, ann_x + tw + 6, 86)
-    _freetext(page, rect, ref_text, fontsize=7.0, fontname=_FONT_NAME,
-              text_color=(0.35, 0.35, 0.35), fill_color=(1.0, 1.0, 1.0),
-              border_color=(0.65, 0.65, 0.65), border_width=0.4)
+    """Write 'Continued from page X' as a navigation note near the top of the column."""
+    _draw_note(page, f"Continued from page {prev_page_num}", ann_x, 72.0)
 
 
 # =============================================================================
@@ -655,6 +693,20 @@ def _build_toc(
 # Main annotate_pdf function
 # =============================================================================
 
+def _form_identity(field: CRFField) -> str:
+    """
+    Identity used to group repeat instances of the SAME form across visits.
+
+    Uses form_code + form_name, because form-name inference can collapse
+    distinct forms (e.g. "Enrolment" and "Demographics") onto the same code;
+    keying on code alone would merge them and hide the second form's
+    annotations behind a "For Annotations see page" reference.
+    """
+    fc = (field.form_code or "").strip().upper()
+    fn = (getattr(field, "form_name", "") or "").strip().lower()
+    return f"{fc}|{fn}" if (fc or fn) else ""
+
+
 def annotate_pdf(
     input_pdf_path: Path,
     output_pdf_path: Path,
@@ -681,7 +733,8 @@ def annotate_pdf(
 
     tracker = _OverlapTracker()
 
-    # Pre-group by page
+    # Pre-group by page. Repeat-instance grouping keys on FORM IDENTITY
+    # (code + name), not code alone — see _form_identity().
     page_results: dict[int, list[ResolutionResult]] = defaultdict(list)
     page_form_codes: dict[int, set[str]] = defaultdict(set)
     form_all_pages: dict[str, list[int]] = defaultdict(list)
@@ -692,13 +745,14 @@ def annotate_pdf(
             page_results[pi].append(result)
             if field.form_code:
                 page_form_codes[pi].add(field.form_code)
-                if pi not in form_all_pages[field.form_code]:
-                    form_all_pages[field.form_code].append(pi)
+            fid = _form_identity(field)
+            if fid and pi not in form_all_pages[fid]:
+                form_all_pages[fid].append(pi)
 
-    # Identify first instance pages per form_code
+    # Identify first instance pages per form identity
     _INSTANCE_GAP = 3
     form_first_instance_pages: dict[str, set[int]] = {}
-    for fc, pages in form_all_pages.items():
+    for fid, pages in form_all_pages.items():
         pages_sorted = sorted(set(pages))
         first: list[int] = []
         for p in pages_sorted:
@@ -706,31 +760,31 @@ def annotate_pdf(
                 first.append(p)
             else:
                 break
-        form_first_instance_pages[fc] = set(first)
+        form_first_instance_pages[fid] = set(first)
 
     form_see_pages: dict[str, set[int]] = {
-        fc: set(ps for ps in pages if ps not in form_first_instance_pages[fc])
-        for fc, pages in form_all_pages.items()
+        fid: set(ps for ps in pages if ps not in form_first_instance_pages[fid])
+        for fid, pages in form_all_pages.items()
     }
 
     # Track "Continued from page X" — pages 2,3,... within a form's first instance
     # when consecutive pages belong to the same form (multi-page forms).
-    form_continued_from: dict[str, dict[int, int]] = {}  # fc -> {page_idx: preceding_page_idx}
-    for fc, pages in form_all_pages.items():
-        first_pages = sorted(form_first_instance_pages[fc])
+    form_continued_from: dict[str, dict[int, int]] = {}  # fid -> {page_idx: preceding_page_idx}
+    for fid, pages in form_all_pages.items():
+        first_pages = sorted(form_first_instance_pages[fid])
         continued: dict[int, int] = {}
         for i in range(1, len(first_pages)):
             if first_pages[i] - first_pages[i - 1] <= 1:  # consecutive pages
                 continued[first_pages[i]] = first_pages[i - 1]
-        form_continued_from[fc] = continued
+        form_continued_from[fid] = continued
 
     page_ann_count: dict[int, int] = defaultdict(int)
     for field, result in zip(fields, results):
         pi = field.page_index
         if pi is None:
             continue
-        fc = field.form_code or ""
-        if fc and pi in form_see_pages.get(fc, set()):
+        fid = _form_identity(field)
+        if fid and pi in form_see_pages.get(fid, set()):
             continue
         if result.resolved or result.is_not_submitted:
             page_ann_count[pi] += 1
@@ -765,6 +819,7 @@ def annotate_pdf(
         page_idx = field.page_index
         y = field.y
         fc = field.form_code or ""
+        fid = _form_identity(field)
 
         if page_idx is None or y is None or y == 0.0:
             stats["skipped_no_position"] += 1
@@ -786,17 +841,17 @@ def annotate_pdf(
             if page_doms:
                 _draw_domain_name_top_left(page, page_doms)
             # "Continued from page X" on subsequent pages of the same multi-page form
-            if fc:
-                prev_idx = form_continued_from.get(fc, {}).get(page_idx)
+            if fid:
+                prev_idx = form_continued_from.get(fid, {}).get(page_idx)
                 if prev_idx is not None:
                     _draw_continued_from_page(page, prev_idx + 1, ann_x)
 
         # "For Annotations see page X" for repeat-visit pages
-        if fc and page_idx in form_see_pages.get(fc, set()):
-            see_key = f"{fc}_{page_idx}"
+        if fid and page_idx in form_see_pages.get(fid, set()):
+            see_key = f"{fid}_{page_idx}"
             if see_key not in see_page_written:
                 see_page_written.add(see_key)
-                first_inst = sorted(form_first_instance_pages.get(fc, []))
+                first_inst = sorted(form_first_instance_pages.get(fid, []))
                 _draw_see_page_reference(page, first_inst, ph, ann_x)
             continue
 
@@ -810,12 +865,13 @@ def annotate_pdf(
             stats["multi_domain_fields"] += 1
 
         def _entry_height(entry: dict) -> float:
-            h = eff_fs + 2 * _BOX_PADDING_Y
+            n_lines = 1
             if entry.get("where_clause"):
-                h += eff_fs + _LINE_SPACING
+                n_lines += 1
             if entry.get("value_decode"):
-                h += eff_fs + _LINE_SPACING
-            return h
+                n_lines += 1
+            # Budget the FreeText real line height so no line clips below the box.
+            return n_lines * (eff_fs * _FT_LINE_FACTOR) + 2 * _BOX_PADDING_Y
 
         stack_h = sum(_entry_height(e) + _MULTI_BOX_SPACING for e in ann_entries) - _MULTI_BOX_SPACING
         slot_y = tracker.find_slot(page_idx, y, stack_h, ph)
@@ -865,11 +921,12 @@ def annotate_pdf(
                 tw = max(tw, fitz.get_text_length(vd_text, fontname=_FONT_NAME, fontsize=eff_fs))
                 extra_lines += 1
 
+            box_top = text_y - eff_fs - _BOX_PADDING_Y
             box_rect = fitz.Rect(
                 ann_x,
-                text_y - eff_fs - _BOX_PADDING_Y,
-                ann_x + tw + 2 * _BOX_PADDING_X,
-                text_y + _BOX_PADDING_Y + extra_lines * (eff_fs + _LINE_SPACING),
+                box_top,
+                ann_x + tw + 2 * _BOX_PADDING_X + _FT_SIDE_INSET,
+                box_top + this_h,
             )
 
             # Combine text + where-clause + value-decode into one FreeText content
