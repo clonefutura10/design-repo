@@ -636,6 +636,56 @@ class Tier0Rules:
             if result:
                 return self._enrich_with_multi_mappings(result)
 
+        # ──────────────────────────────────────────────────────────────────
+        # PASS 5: Findings test-name fallback (conf 0.88)
+        # On a Findings-domain form (LB/VS/EG), a field whose label IS a known
+        # test name (e.g. "Glucose", "Urea", "Weight") maps to {D}ORRES — the
+        # result variable — qualified by {D}TESTCD, matching the reference aCRF
+        # convention (LBORRES where LBTESTCD = "GLUC"). Only reached when every
+        # rule above misses, so it never overrides curated mappings.
+        # ──────────────────────────────────────────────────────────────────
+        result = self._try_findings_test(form_code, field_label, inference)
+        if result:
+            result = self._guard_domain(result)
+            if result:
+                return self._enrich_with_multi_mappings(result)
+
+        return None
+
+    def _try_findings_test(self, form_code, field_label, inference):
+        """Resolve a bare Findings test-name label to {DOMAIN}ORRES + TESTCD where-clause."""
+        if not inference or not inference.domains or inference.confidence < 0.70:
+            return None
+        from src.resolution.findings_qualifier import (
+            _DOMAIN_TEST_MAP, _DOMAIN_TESTCD_VAR, _norm_label,
+        )
+        label_norm = _norm_label(field_label)
+        if not label_norm:
+            return None
+        for dom in inference.domains:
+            d = dom.upper()
+            test_map = _DOMAIN_TEST_MAP.get(d)
+            if not test_map:
+                continue
+            # Exact match only — substring matching on short codes (k, ca, pt…)
+            # would be unsafe.
+            code = test_map.get(label_norm)
+            if code:
+                testcd_var = _DOMAIN_TESTCD_VAR[d]
+                return ResolutionResult(
+                    form_code=form_code,
+                    field_label=field_label,
+                    sdtm_domain=d,
+                    sdtm_variable=f"{d}ORRES",
+                    codelist_code="",
+                    is_supplemental=False,
+                    confidence=0.88,
+                    resolved=True,
+                    tier=ResolutionTier.TIER0_EXACT,
+                    where_clause=f'{testcd_var} = "{code}"',
+                    sdtm_label="",
+                    core="",
+                )
         return None
 
     # ──────────────────────────────────────────────────────────────────────
