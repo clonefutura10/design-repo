@@ -161,7 +161,12 @@ _DOMAIN_TEST_MAP: dict[str, dict[str, str]] = {
 
 
 def _norm_label(text: str) -> str:
-    text = re.sub(r'[\xa0  -​]', ' ', text)
+    # Replace specific Unicode whitespace/zero-width chars explicitly.
+    # NOTE: do NOT use a regex range like [\xa0 -​] — the '-' between space
+    # (U+0020) and ZWSP (U+200B) is parsed as a RANGE covering almost every
+    # letter, digit, and hyphen, which collapses every label to "".
+    for ch in ("\xa0", " ", " ", "​", "﻿"):
+        text = text.replace(ch, " ")
     text = re.sub(r'\s+', ' ', text).strip().lower()
     return text
 
