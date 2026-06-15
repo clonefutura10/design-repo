@@ -1,26 +1,5 @@
 """
 Tier 0 Rules - Deterministic form-aware SDTM mapping.
-
-Resolution order:
-    Pass 0: Learned mappings from reference aCRFs -> confidence 0.96
-    Pass 1: Hardcoded regex rules (exact form_code match) -> confidence 0.98
-    Pass 2: Hardcoded regex rules (inferred domain match) -> confidence 0.95
-    Pass 2.5: Universal domain-scoped JSON rules -> confidence 0.93
-    Pass 3: SDTM Standards (sdtm_spec_by_dataset.json) -> confidence 0.92
-    Pass 4: AZ Spec Lookup (az_spec_lookup.json) -> confidence 0.90
-
-NOTE: When is_supp=True, store the BASE domain only (e.g., "AE" not "SUPPAE").
-      The pdf_writer automatically prepends "SUPP" for supplemental fields.
-
-CROSS-STUDY PORTABILITY (v8):
-    - Pass 0 enables instant lookup from verified past aCRFs
-    - Pass 2 enables rules to fire for unknown form codes via domain inference
-    - Pass 2.5 uses external JSON rules matched purely on inferred domain
-    - Standards/AZ Spec lookups now use inferred domains as fallback
-    - Anti-duplication guard delegated to usage_guard module (findings-aware)
-    - Multi-mapping support for fields that map to multiple SDTM variables
-    - form_name can be passed for better inference quality
-    - Oncology domain guard prevents TR/TU/RS leaking into non-oncology studies
 """
 
 from __future__ import annotations
@@ -43,17 +22,16 @@ logger = get_logger(__name__)
 # ============================================================================
 # CONFIDENCE LEVELS
 # ============================================================================
-_CONF_LEARNED = 0.96               # Learned from verified reference aCRFs
-_CONF_EXACT_FORM_RULE = 0.98       # Rule fired on exact form_code match
-_CONF_INFERRED_DOMAIN_RULE = 0.95  # Rule fired via inferred domain
-_CONF_DOMAIN_JSON_RULE = 0.93      # Rule fired via JSON domain-scoped rules
-_CONF_STANDARDS = 0.92             # SDTM standards match
-_CONF_AZ_SPEC = 0.90              # AZ spec lookup match
+_CONF_LEARNED = 0.96
+_CONF_EXACT_FORM_RULE = 0.98
+_CONF_INFERRED_DOMAIN_RULE = 0.95
+_CONF_DOMAIN_JSON_RULE = 0.93
+_CONF_STANDARDS = 0.92
+_CONF_AZ_SPEC = 0.90
 
 
 # ============================================================================
 # THERAPEUTIC AREA GUARD
-# TR/TU/RS are oncology-only. Block in non-oncology studies.
 # ============================================================================
 _ONCOLOGY_ONLY_DOMAINS = {"TR", "TU", "RS"}
 _thread_local = threading.local()
@@ -64,7 +42,6 @@ def _is_oncology_study() -> bool:
 
 
 def _detect_oncology_study(form_codes: set[str]) -> bool:
-    """Detect if study is oncology-related based on form codes present."""
     oncology_indicators = {
         "RECIST", "TUMOR", "TUMOUR", "DISEXT", "ONCRSR",
         "PATHGEN", "PATHREP", "CAPRX", "CAPXR", "TARG",
@@ -79,13 +56,12 @@ def _detect_oncology_study(form_codes: set[str]) -> bool:
 
 
 def set_study_context(form_codes: set[str]):
-    """Call once at pipeline start with all form codes in the study."""
     _thread_local.is_oncology = _detect_oncology_study(form_codes)
     logger.info(f"Study context: oncology={_thread_local.is_oncology}, forms={len(form_codes)}")
 
 
 # ============================================================================
-# LOAD LEARNED MAPPINGS (from reference aCRFs)
+# LOAD LEARNED MAPPINGS
 # ============================================================================
 _LEARNED_MAPPINGS_FILE = Path("cache/learned_mappings.json")
 _LEARNED_MAPPINGS: dict[str, dict] = {}
@@ -103,94 +79,61 @@ if _LEARNED_MAPPINGS_FILE.exists():
 
 # ============================================================================
 # MULTI-MAPPING TABLE
-# For fields that legitimately map to multiple SDTM variables.
-# Key: (primary_domain, primary_variable)
-# Value: list of additional mappings with optional form/label conditions
 # ============================================================================
 _MULTI_MAP_TABLE: dict[tuple[str, str], list[dict]] = {
-    # ── Disposition dates ────────────────────────────────────────────────────
-    # Informed consent date → DS.DSSTDTC + DM.RFICDTC
     ("DS", "DSSTDTC"): [
         {
-            "domain": "DM",
-            "variable": "RFICDTC",
+            "domain": "DM", "variable": "RFICDTC",
             "label": "Date/Time of Informed Consent",
             "condition_form": r"CONSENT|ICF|DS_ICF",
             "condition_label": r"informed\s*consent",
         },
         {
-            "domain": "DM",
-            "variable": "RFSTDTC",
+            "domain": "DM", "variable": "RFSTDTC",
             "label": "Subject Reference Start Date/Time",
             "condition_label": r"(first\s*dose|start\s*of\s*treat|date\s*of\s*randomiz)",
         },
         {
-            "domain": "DM",
-            "variable": "RFENDTC",
+            "domain": "DM", "variable": "RFENDTC",
             "label": "Subject Reference End Date/Time",
             "condition_label": r"(end\s*of\s*treat|last\s*treat|withdrawal\s*date|study\s*end)",
         },
         {
-            "domain": "DM",
-            "variable": "RFPENDTC",
+            "domain": "DM", "variable": "RFPENDTC",
             "label": "Date/Time of End of Participation",
             "condition_label": r"(end\s*of\s*(study\s*)?participation|last.*follow.?up)",
         },
         {
-            "domain": "DM",
-            "variable": "DTHDTC",
+            "domain": "DM", "variable": "DTHDTC",
             "label": "Date/Time of Death",
             "condition_label": r"(death|died|date\s*of\s*death)",
         },
     ],
-
-    # ── Exposure dates ───────────────────────────────────────────────────────
-    # First dose → EX.EXSTDTC + DM.RFXSTDTC
     ("EX", "EXSTDTC"): [
         {
-            "domain": "DM",
-            "variable": "RFXSTDTC",
+            "domain": "DM", "variable": "RFXSTDTC",
             "label": "Date/Time of First Study Treatment",
             "condition_label": r"first\s*(dose|administration|study\s*treat)",
         },
     ],
-    # Last dose → EX.EXENDTC + DM.RFXENDTC
     ("EX", "EXENDTC"): [
         {
-            "domain": "DM",
-            "variable": "RFXENDTC",
+            "domain": "DM", "variable": "RFXENDTC",
             "label": "Date/Time of Last Study Treatment",
             "condition_label": r"last\s*(dose|administration|study\s*treat)",
         },
     ],
-
-    # ── Death details ────────────────────────────────────────────────────────
-    # DD.DDDTC → always also DM.DTHDTC (death date is always both)
     ("DD", "DDDTC"): [
-        {
-            "domain": "DM",
-            "variable": "DTHDTC",
-            "label": "Date/Time of Death",
-        },
-        {
-            "domain": "DS",
-            "variable": "DSSTDTC",
-            "label": "Date/Time of Collection",
-        },
+        {"domain": "DM", "variable": "DTHDTC", "label": "Date/Time of Death"},
+        {"domain": "DS", "variable": "DSSTDTC", "label": "Date/Time of Collection"},
     ],
-
-    # ── Adverse event dates ──────────────────────────────────────────────────
-    # AE onset date → AE.AESTDTC; if SAE hospitalization, also CE.CESTDTC
     ("AE", "AESTDTC"): [
         {
-            "domain": "CE",
-            "variable": "CESTDTC",
+            "domain": "CE", "variable": "CESTDTC",
             "label": "Start Date/Time of Clinical Event",
             "condition_label": r"(hospitaliz|admiss|inpatient)",
         },
     ],
-
-    # ── Findings: ORRES always also maps to STRESC ───────────────────────────
     ("VS", "VSORRES"): [
         {"domain": "VS", "variable": "VSSTRESC", "label": "Character Result/Finding in Std Format"},
     ],
@@ -200,8 +143,6 @@ _MULTI_MAP_TABLE: dict[tuple[str, str], list[dict]] = {
     ("EG", "EGORRES"): [
         {"domain": "EG", "variable": "EGSTRESC", "label": "Character Result/Finding in Std Format"},
     ],
-
-    # ── EC/EX dual-domain: each EC field also maps to EX ───────────────────
     ("EC", "ECSTDTC"): [
         {"domain": "EX", "variable": "EXSTDTC", "label": "Start Date/Time of Treatment"},
         {"domain": "DM", "variable": "RFXSTDTC", "label": "Date/Time of First Study Treatment",
@@ -227,25 +168,17 @@ _MULTI_MAP_TABLE: dict[tuple[str, str], list[dict]] = {
     ("EC", "ECDOSU"): [
         {"domain": "EX", "variable": "EXDOSU", "label": "Dose Units"},
     ],
-
-    # ── SERAE death date also maps to DM.DTHDTC ─────────────────────────────
     ("AE", "AEDTHDT"): [
         {"domain": "DM", "variable": "DTHDTC", "label": "Date/Time of Death"},
     ],
-
-    # ── Concomitant medication ───────────────────────────────────────────────
-    # Indication also maps to MH.MHTERM when referencing pre-existing condition
     ("CM", "CMINDC"): [
         {
-            "domain": "MH",
-            "variable": "MHTERM",
+            "domain": "MH", "variable": "MHTERM",
             "label": "Medical History Verbatim Term",
             "condition_label": r"(indication|reason\s*for|underlying\s*condition|prior\s*condition)",
         },
     ],
 }
-
-
 
 
 # ============================================================================
@@ -272,11 +205,10 @@ if _STANDARDS_FILE.exists():
 
 
 # ============================================================================
-# LOAD AZ SPEC LOOKUP + pre-build fuzzy token index
+# LOAD AZ SPEC LOOKUP
 # ============================================================================
 _AZ_SPEC_FILE = Path("cache/az_spec_lookup.json")
 _AZ_SPEC_LOOKUP: dict[str, dict[str, list[dict]]] = {}
-# Pre-tokenised sets for Jaccard matching: {module: {norm_label: frozenset}}
 _AZ_SPEC_TOKENS: dict[str, dict[str, frozenset[str]]] = {}
 
 if _AZ_SPEC_FILE.exists():
@@ -296,7 +228,7 @@ if _AZ_SPEC_FILE.exists():
 
 
 # ============================================================================
-# FORM -> DOMAIN MAP (duplicates removed — each key appears exactly once)
+# FORM -> DOMAIN MAP
 # ============================================================================
 _FORM_TO_DOMAIN: dict[str, str] = {
     "AE": "AE", "SERAE": "AE", "AZAWSAE": "AE", "AELOG": "AE",
@@ -348,14 +280,12 @@ _FORM_TO_DOMAIN: dict[str, str] = {
     "EDS": "BE", "EDS1": "BE",
     "HRU": "HO",
     "UNS": "PR",
-    # Oncology forms
     "CAPRX": "CM", "CAPXROM": "PR",
     "PATHGEN": "FA", "PATHREP": "FA",
     "DISEXT": "TU",
     "GROUP": "DM", "ENROL": "DM",
     "BOXRAY": "PR", "ECHOC": "PR",
     "HPV": "LB",
-    # Questionnaires (QS) — validated instruments, PROs, scoring tools
     "QS": "QS", "PSTAT": "QS", "ECOG": "QS",
     "CGIC": "QS", "PGIC": "QS", "PGIS": "QS",
     "BSI": "QS", "BHQ": "QS", "BVAS": "QS", "BVASV3": "QS",
@@ -396,17 +326,9 @@ if _FORM_MAP_FILE.exists():
 # ============================================================================
 
 def _is_questionnaire_form(form_code: str, field_labels: list[str] = None) -> bool:
-    """
-    Heuristic: detect if a form is likely a questionnaire/PRO instrument.
-    Used as fallback when form_code isn't in _FORM_TO_DOMAIN.
-    """
     form_upper = form_code.upper().strip()
-
-    # Check explicit mapping first
     if _FORM_TO_DOMAIN.get(form_upper) == "QS":
         return True
-
-    # Keyword patterns in form code
     qs_keywords = (
         "SCORE", "SCALE", "INDEX", "QUESTIONNAIRE", "PRO",
         "SURVEY", "ASSESS", "RATING", "INVENTORY",
@@ -414,7 +336,6 @@ def _is_questionnaire_form(form_code: str, field_labels: list[str] = None) -> bo
     for kw in qs_keywords:
         if kw in form_upper:
             return True
-
     return False
 
 
@@ -423,7 +344,6 @@ def _is_questionnaire_form(form_code: str, field_labels: list[str] = None) -> bo
 # ============================================================================
 
 def _get_domain_for_form(form_code: str) -> str:
-    """Get primary domain for a form code using legacy map + inferencer fallback."""
     form_upper = form_code.upper().strip()
 
     if form_upper in _FORM_TO_DOMAIN:
@@ -440,7 +360,6 @@ def _get_domain_for_form(form_code: str) -> str:
             return "IS"
         return "PC"
 
-    # Questionnaire heuristic fallback
     if _is_questionnaire_form(form_code):
         return "QS"
 
@@ -456,7 +375,6 @@ def _get_domain_for_form(form_code: str) -> str:
 # ============================================================================
 
 def _reset_usage_tracking():
-    """Call between pipeline runs to reset the guard."""
     reset_usage_tracking()
 
 
@@ -466,7 +384,6 @@ def _reset_usage_tracking():
 _STRIP_TRAILING_DIGITS = re.compile(r"\s+\d+$")
 _STRIP_PARENS = re.compile(r"\s*\(.*?\)\s*$")
 
-# Noise words removed during fuzzy label cleaning (mirrors former tier2 logic)
 _FUZZY_NOISE_WORDS: frozenset[str] = frozenset({
     "please", "specify", "select", "enter", "record", "indicate",
     "the", "a", "an", "of", "for", "is", "was", "were", "are",
@@ -481,7 +398,6 @@ _FUZZY_NOISE_PREFIXES: tuple[str, ...] = (
 
 
 def _fuzzy_clean(label: str) -> str:
-    """Strip CRF preamble and noise words for fuzzy matching."""
     cleaned = re.sub(r"\s+", " ", label.lower().strip())
     for prefix in _FUZZY_NOISE_PREFIXES:
         if cleaned.startswith(prefix):
@@ -500,10 +416,50 @@ def _jaccard(a: frozenset[str], b: frozenset[str]) -> float:
 
 
 def _directional_overlap(query: frozenset[str], target: frozenset[str]) -> float:
-    """Fraction of query tokens present in target — directional recall metric."""
     if not query:
         return 0.0
     return len(query & target) / len(query)
+
+
+# ============================================================================
+# DERIVED FIELD DETECTION (MedDRA, WHO-Drug, ATC)
+# These fields should produce NO annotation at all on the aCRF.
+# ============================================================================
+
+_DERIVED_FIELD_PATTERNS: list[str] = [
+    "meddra lowest level term code",
+    "meddra lowest level term name",
+    "meddra preferred term code",
+    "meddra preferred term name",
+    "meddra high level term code",
+    "meddra high level term name",
+    "meddra high level group term code",
+    "meddra high level group term name",
+    "meddra system organ class code",
+    "meddra system organ class name",
+    "meddra system organ class abbreviation",
+    "meddra version",
+    "medication code",
+    "medication dictionary text",
+    "atc code",
+    "atc dictionary text",
+    "preferred name",
+    "pref. grouping term",
+    "active ingredient",
+    "drug dictionary version",
+]
+
+
+def is_derived_dictionary_field(label: str) -> bool:
+    """
+    Detect MedDRA/WHO-Drug/ATC dictionary-coded fields that are DERIVED.
+    These should NOT be annotated on the aCRF at all per CDISC guidance.
+    """
+    label_lower = label.strip().lower()
+    for pattern in _DERIVED_FIELD_PATTERNS:
+        if label_lower.startswith(pattern):
+            return True
+    return False
 
 
 # ============================================================================
@@ -513,35 +469,24 @@ class Tier0Rules:
     """Deterministic form-aware SDTM mapping rules with domain inference fallback."""
 
     def resolve(self, form_code: str, field_label: str, form_name: str = "") -> ResolutionResult | None:
-        """
-        Return ResolutionResult if a rule matches, None otherwise.
-
-        Resolution order:
-          0. Learned mappings from reference aCRFs (conf 0.96)
-          1. Compiled regex rules with EXACT form_code match (conf 0.98)
-          2. Compiled regex rules with INFERRED DOMAIN match (conf 0.95)
-          2.5. Universal domain-scoped rules from JSON config (conf 0.93)
-          3. SDTM Standards lookup (conf 0.92)
-          4. AZ Spec Lookup (conf 0.90)
-        """
         if not form_code or not field_label:
+            return None
+
+        # Skip derived dictionary fields entirely (no annotation)
+        if is_derived_dictionary_field(field_label):
             return None
 
         norm_label = normalize_label_for_lookup(field_label)
         form_upper = form_code.upper().strip()
 
-        # ──────────────────────────────────────────────────────────────────
-        # PASS 0: Learned mappings from reference aCRFs (highest priority)
-        # ──────────────────────────────────────────────────────────────────
+        # PASS 0: Learned mappings
         result = self._try_learned_lookup(form_code, norm_label, field_label, form_name)
         if result:
             result = self._guard_domain(result)
             if result:
                 return self._enrich_with_multi_mappings(result)
 
-        # ──────────────────────────────────────────────────────────────────
-        # PASS 1: Exact form-code scoped rules (highest confidence)
-        # ──────────────────────────────────────────────────────────────────
+        # PASS 1: Exact form-code scoped rules
         result = self._try_compiled_rules(
             form_upper, norm_label, field_label, form_code, _CONF_EXACT_FORM_RULE
         )
@@ -550,9 +495,7 @@ class Tier0Rules:
             if result:
                 return self._enrich_with_multi_mappings(result)
 
-        # ──────────────────────────────────────────────────────────────────
-        # PASS 2: Domain-inferred rule matching (slightly lower confidence)
-        # ──────────────────────────────────────────────────────────────────
+        # PASS 2: Domain-inferred rule matching
         inference = infer_domains_cached(form_code, form_name)
         if inference.domains and inference.confidence >= 0.70:
             for inferred_domain in inference.domains:
@@ -567,9 +510,7 @@ class Tier0Rules:
                         if result:
                             return self._enrich_with_multi_mappings(result)
 
-        # ──────────────────────────────────────────────────────────────────
         # PASS 2.5: Universal domain-scoped rules from JSON config
-        # ──────────────────────────────────────────────────────────────────
         if inference.domains and inference.confidence >= 0.70:
             for inferred_domain in inference.domains:
                 matched_rule = match_domain_rules(inferred_domain, norm_label)
@@ -608,42 +549,28 @@ class Tier0Rules:
                         if result:
                             return self._enrich_with_multi_mappings(result)
 
-        # ──────────────────────────────────────────────────────────────────
-        # PASS 3: SDTM Standards lookup (conf 0.92)
-        # ──────────────────────────────────────────────────────────────────
+        # PASS 3: SDTM Standards lookup
         result = self._try_standards_lookup(form_code, norm_label, field_label, form_name)
         if result:
             result = self._guard_domain(result)
             if result:
                 return self._enrich_with_multi_mappings(result)
 
-        # ──────────────────────────────────────────────────────────────────
-        # PASS 4: AZ Spec Lookup — exact string match (conf 0.90)
-        # ──────────────────────────────────────────────────────────────────
+        # PASS 4: AZ Spec Lookup — exact
         result = self._try_az_spec_lookup(form_code, norm_label, field_label, form_name)
         if result:
             result = self._guard_domain(result)
             if result:
                 return self._enrich_with_multi_mappings(result)
 
-        # ──────────────────────────────────────────────────────────────────
-        # PASS 4.5: AZ Spec Lookup — Jaccard fuzzy match (conf 0.72–0.86)
-        # Catches labels that differ in phrasing but share key tokens.
-        # ──────────────────────────────────────────────────────────────────
+        # PASS 4.5: AZ Spec Lookup — Jaccard fuzzy
         result = self._try_az_spec_fuzzy(form_code, norm_label, field_label, form_name)
         if result:
             result = self._guard_domain(result)
             if result:
                 return self._enrich_with_multi_mappings(result)
 
-        # ──────────────────────────────────────────────────────────────────
-        # PASS 5: Findings test-name fallback (conf 0.88)
-        # On a Findings-domain form (LB/VS/EG), a field whose label IS a known
-        # test name (e.g. "Glucose", "Urea", "Weight") maps to {D}ORRES — the
-        # result variable — qualified by {D}TESTCD, matching the reference aCRF
-        # convention (LBORRES where LBTESTCD = "GLUC"). Only reached when every
-        # rule above misses, so it never overrides curated mappings.
-        # ──────────────────────────────────────────────────────────────────
+        # PASS 5: Findings test-name fallback
         result = self._try_findings_test(form_code, field_label, inference)
         if result:
             result = self._guard_domain(result)
@@ -653,7 +580,7 @@ class Tier0Rules:
         return None
 
     def _try_findings_test(self, form_code, field_label, inference):
-        """Resolve a bare Findings test-name label to {DOMAIN}ORRES + TESTCD where-clause."""
+        """Resolve a bare Findings test-name label to {DOMAIN}ORRES + TESTCD."""
         if not inference or not inference.domains or inference.confidence < 0.70:
             return None
         from src.resolution.findings_qualifier import (
@@ -667,8 +594,6 @@ class Tier0Rules:
             test_map = _DOMAIN_TEST_MAP.get(d)
             if not test_map:
                 continue
-            # Exact match only — substring matching on short codes (k, ca, pt…)
-            # would be unsafe.
             code = test_map.get(label_norm)
             if code:
                 testcd_var = _DOMAIN_TESTCD_VAR[d]
@@ -688,54 +613,32 @@ class Tier0Rules:
                 )
         return None
 
-    # ──────────────────────────────────────────────────────────────────────
-    # ONCOLOGY DOMAIN GUARD
-    # ──────────────────────────────────────────────────────────────────────
     def _guard_domain(self, result: ResolutionResult) -> ResolutionResult | None:
-        """Block oncology-only domains in non-oncology studies."""
         if not result or result.is_not_submitted:
             return result
         if result.sdtm_domain in _ONCOLOGY_ONLY_DOMAINS and not _is_oncology_study():
-            # Remap known oncology variables to PR equivalents
             var_map = {
-                "TUDTC": "PRSTDTC",
-                "TRDTC": "PRSTDTC",
-                "TUORRES": "PRORRES",
-                "TRORRES": "PRORRES",
-                "TULOC": "PRLOC",
-                "TRLOC": "PRLOC",
-                "TRSTRESC": "PRORRES",
-                "TUSTRESC": "PRORRES",
+                "TUDTC": "PRSTDTC", "TRDTC": "PRSTDTC",
+                "TUORRES": "PRORRES", "TRORRES": "PRORRES",
+                "TULOC": "PRLOC", "TRLOC": "PRLOC",
+                "TRSTRESC": "PRORRES", "TUSTRESC": "PRORRES",
             }
             new_var = var_map.get(result.sdtm_variable)
             if new_var:
                 result.sdtm_domain = "PR"
                 result.sdtm_variable = new_var
             else:
-                # Generic fallback: move to PR with same variable
                 result.sdtm_domain = "PR"
         return result
 
-    # ──────────────────────────────────────────────────────────────────────
-    # PASS 0: LEARNED MAPPINGS LOOKUP
-    # ──────────────────────────────────────────────────────────────────────
     def _try_learned_lookup(
         self, form_code: str, norm_label: str, field_label: str, form_name: str = ""
     ) -> ResolutionResult | None:
-        """
-        Look up field in learned mappings extracted from reference aCRFs.
-
-        Search order:
-          1. form_code|label (most specific)
-          2. domain|label (domain-scoped)
-          3. |label (fallback — any domain, requires occurrence_count >= 2)
-        """
         if not _LEARNED_MAPPINGS:
             return None
 
         form_upper = form_code.upper().strip()
 
-        # Determine domain hints
         domain_hints = []
         legacy_domain = _get_domain_for_form(form_code)
         if legacy_domain:
@@ -747,7 +650,6 @@ class Tier0Rules:
                 if d not in domain_hints:
                     domain_hints.append(d)
 
-        # Build search keys in priority order
         keys_to_try = []
         keys_to_try.append(f"{form_upper}|{norm_label}")
         for domain in domain_hints:
@@ -759,11 +661,9 @@ class Tier0Rules:
             if not entry:
                 continue
 
-            # Require minimum occurrence for fallback (domain-less) keys
             if key.startswith("|") and entry.get("occurrence_count", 0) < 2:
                 continue
 
-            # Handle NOT SUBMITTED
             if entry.get("is_not_submitted", False):
                 return ResolutionResult(
                     form_code=form_code,
@@ -786,7 +686,6 @@ class Tier0Rules:
             if not domain or not variable:
                 continue
 
-            # Usage guard for non-form-specific matches
             if not key.startswith(form_upper):
                 if not check_usage(form_code, domain, variable, field_label):
                     continue
@@ -808,27 +707,12 @@ class Tier0Rules:
 
         return None
 
-    # ──────────────────────────────────────────────────────────────────────
-    # COMPILED RULES CHECKER
-    # ──────────────────────────────────────────────────────────────────────
     def _try_compiled_rules(
-        self,
-        form_to_match: str,
-        norm_label: str,
-        field_label: str,
-        original_form_code: str,
-        confidence: float,
+        self, form_to_match: str, norm_label: str, field_label: str,
+        original_form_code: str, confidence: float,
     ) -> ResolutionResult | None:
-        """
-        Match form-scoped rules from config/rules/form_rules.json + gating_rules.json.
-
-        form_to_match is either the exact form code (Pass 1) or an inferred
-        domain string (Pass 2). Both are tested against rule.form_pattern.
-        """
         rule = match_form_rules(form_to_match, norm_label)
 
-        # Also try universal gating rules (form_pattern = ".*") — these fire
-        # regardless of form code and map to NOT_SUBMITTED.
         if rule is None:
             rule = match_gating_rules(norm_label)
 
@@ -851,7 +735,6 @@ class Tier0Rules:
                 codelist_code="",
             )
 
-        # Usage guard only for inferred/fallback matches (Pass 2+)
         if confidence < _CONF_EXACT_FORM_RULE:
             if not check_usage(original_form_code, rule.domain, rule.variable, field_label):
                 return None
@@ -871,32 +754,15 @@ class Tier0Rules:
             codelist_code=rule.codelist,
         )
 
-    # ──────────────────────────────────────────────────────────────────────
-    # AZ SPEC FUZZY LOOKUP (pass 4.5)
-    # ──────────────────────────────────────────────────────────────────────
     def _try_az_spec_fuzzy(
-        self,
-        form_code: str,
-        norm_label: str,
-        field_label: str,
-        form_name: str = "",
+        self, form_code: str, norm_label: str, field_label: str, form_name: str = "",
     ) -> ResolutionResult | None:
-        """
-        Fuzzy fallback using Jaccard token similarity against AZ spec labels.
-
-        Only fires when the pre-tokenised index is available and the query
-        has at least 2 tokens (single-word queries are too ambiguous).
-
-        Combined score = Jaccard * 0.6 + directional_recall * 0.4
-        Minimum threshold: combined >= 0.72 (calibrated against tier2 experience).
-        """
         if not _AZ_SPEC_TOKENS:
             return None
 
-        # Determine modules to search (same logic as exact lookup)
-        form_upper   = form_code.upper().strip()
-        base_form    = re.sub(r"\d+$", "", form_upper)
-        us_prefix    = form_upper.split("_")[0] if "_" in form_upper else ""
+        form_upper = form_code.upper().strip()
+        base_form = re.sub(r"\d+$", "", form_upper)
+        us_prefix = form_upper.split("_")[0] if "_" in form_upper else ""
         modules: list[str] = []
 
         for candidate in (form_upper, base_form, us_prefix):
@@ -916,18 +782,17 @@ class Tier0Rules:
         if not modules:
             return None
 
-        # Build query token variants
         query_tokens = frozenset(re.findall(r"[a-z0-9]+", norm_label.lower()))
-        cleaned      = _fuzzy_clean(field_label)
+        cleaned = _fuzzy_clean(field_label)
         clean_tokens = frozenset(re.findall(r"[a-z0-9]+", cleaned)) if cleaned != norm_label else query_tokens
 
-        best_score   = 0.0
+        best_score = 0.0
         best_entries: list[dict] | None = None
-        _MIN_SCORE   = 0.72
+        _MIN_SCORE = 0.72
 
         for module in modules:
             mod_tokens = _AZ_SPEC_TOKENS.get(module, {})
-            mod_data   = _AZ_SPEC_LOOKUP.get(module, {})
+            mod_data = _AZ_SPEC_LOOKUP.get(module, {})
 
             for spec_label, spec_toks in mod_tokens.items():
                 if len(spec_toks) < 2:
@@ -936,28 +801,26 @@ class Tier0Rules:
                 for qtoks in (query_tokens, clean_tokens):
                     if len(qtoks) < 2:
                         continue
-                    j    = _jaccard(qtoks, spec_toks)
+                    j = _jaccard(qtoks, spec_toks)
                     d_ov = _directional_overlap(qtoks, spec_toks)
                     score = j * 0.6 + d_ov * 0.4
 
                     if score > best_score and score >= _MIN_SCORE:
-                        best_score   = score
+                        best_score = score
                         best_entries = mod_data.get(spec_label)
 
         if not best_entries:
             return None
 
-        # Confidence scales linearly from 0.72 (floor) → 0.86 (ceiling at score=1)
         raw_conf = 0.72 + (best_score - _MIN_SCORE) / (1.0 - _MIN_SCORE) * (0.86 - 0.72)
         confidence = min(round(raw_conf, 3), 0.86)
 
-        # Pick best entry (primary mapping preferred, then non-supplemental)
-        primary    = [e for e in best_entries if e.get("map_order", "") == "1"]
+        primary = [e for e in best_entries if e.get("map_order", "") == "1"]
         candidates = primary if primary else best_entries
-        non_supp   = [e for e in candidates if not e.get("is_supplemental", False)]
-        chosen     = non_supp[0] if non_supp else candidates[0]
+        non_supp = [e for e in candidates if not e.get("is_supplemental", False)]
+        chosen = non_supp[0] if non_supp else candidates[0]
 
-        sdtm_domain   = chosen.get("sdtm_domain", "")
+        sdtm_domain = chosen.get("sdtm_domain", "")
         sdtm_variable = chosen.get("sdtm_variable", "")
         if not sdtm_domain or not sdtm_variable:
             return None
@@ -985,11 +848,7 @@ class Tier0Rules:
             codelist_code=chosen.get("codelist_code", "") or "",
         )
 
-    # ──────────────────────────────────────────────────────────────────────
-    # MULTI-MAPPING ENRICHMENT
-    # ──────────────────────────────────────────────────────────────────────
     def _enrich_with_multi_mappings(self, result: ResolutionResult) -> ResolutionResult:
-        """Check if this field has additional SDTM mappings and attach them."""
         if not result.resolved or result.is_not_submitted:
             return result
 
@@ -1021,13 +880,9 @@ class Tier0Rules:
 
         return result
 
-    # ──────────────────────────────────────────────────────────────────────
-    # SDTM STANDARDS LOOKUP
-    # ──────────────────────────────────────────────────────────────────────
     def _try_standards_lookup(
         self, form_code: str, norm_label: str, field_label: str, form_name: str = ""
     ) -> ResolutionResult | None:
-        """Try resolving via SDTM Standards index."""
         if not _STANDARDS_INDEX:
             return None
 
@@ -1059,7 +914,6 @@ class Tier0Rules:
                 if result:
                     return result
 
-        # Try stripped variants
         stripped_parens = _STRIP_PARENS.sub("", norm_label).strip()
         stripped_digits = _STRIP_TRAILING_DIGITS.sub("", norm_label).strip()
 
@@ -1088,7 +942,6 @@ class Tier0Rules:
     def _search_standards_dataset(
         self, dataset: str, norm_label: str, field_label: str, form_code: str
     ) -> ResolutionResult | None:
-        """Search a specific SDTM standards dataset for a label match."""
         ds_index = _STANDARDS_INDEX.get(dataset)
         if not ds_index or norm_label not in ds_index:
             return None
@@ -1105,7 +958,6 @@ class Tier0Rules:
         return self._build_standards_result(entry, field_label, form_code)
 
     def _pick_best_entry(self, entries: list[dict], field_label: str) -> dict:
-        """Pick the best matching entry when multiple exist for same label."""
         match = re.search(r"\s+(\d+)\s*(?:\(.*\))?\s*$", field_label.strip())
         if not match:
             for entry in entries:
@@ -1131,7 +983,6 @@ class Tier0Rules:
     def _build_standards_result(
         self, entry: dict, field_label: str, form_code: str
     ) -> ResolutionResult:
-        """Build a ResolutionResult from a standards entry."""
         dataset = entry.get("dataset", "")
         is_supp = entry.get("is_supplemental", False)
         base_domain = entry.get("base_domain", "")
@@ -1156,13 +1007,9 @@ class Tier0Rules:
             codelist_code=entry.get("codelist_code", ""),
         )
 
-    # ──────────────────────────────────────────────────────────────────────
-    # AZ SPEC LOOKUP
-    # ──────────────────────────────────────────────────────────────────────
     def _try_az_spec_lookup(
         self, form_code: str, norm_label: str, field_label: str, form_name: str = ""
     ) -> ResolutionResult | None:
-        """Try resolving via AZ Spec Lookup."""
         if not _AZ_SPEC_LOOKUP:
             return None
 

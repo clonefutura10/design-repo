@@ -62,16 +62,12 @@ _NOT_SUB_FILL = (0.96, 0.96, 0.96)
 
 _HEADER_BAR_HEIGHT = 11.0
 
-_LINE_SPACING = 1.5  # extra space between primary text and where-clause
+_LINE_SPACING = 1.5
 
-# FreeText annotations render text at a real line height of ≈1.36–1.45×fontsize
-# and reserve a small internal horizontal margin. The box geometry must budget
-# for both or the last line / right edge of text clips outside the box.
 _FT_LINE_FACTOR = 1.45
 _FT_SIDE_INSET = 4.0
 
-# Navigation-note style ("Continued from page X" / "For Annotations see page X").
-# Readable font + visible box so the note reads as a real reference marker.
+# Navigation-note style
 _NOTE_FONT_SIZE = 9.0
 _NOTE_FILL = (0.93, 0.95, 0.99)
 _NOTE_BORDER = (0.30, 0.42, 0.62)
@@ -143,23 +139,19 @@ def _get_domain_full_name(domain: str) -> str:
 
 # =============================================================================
 # Domain Colour Map (border_rgb, fill_rgb)
-# Fill colours are PROMINENT saturated pastels — clearly visible background
 # =============================================================================
 
 _DOMAIN_COLOURS: dict[str, tuple[tuple[float, float, float], tuple[float, float, float]]] = {
-    # Events — warm red
     "AE": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
     "CE": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
     "DD": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
     "HO": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
     "MH": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
-    # Interventions — forest green
     "CM": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
     "EC": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
     "EX": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
     "PR": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
     "SU": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
-    # Findings — royal blue
     "BE": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
     "EG": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
     "FA": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
@@ -174,7 +166,6 @@ _DOMAIN_COLOURS: dict[str, tuple[tuple[float, float, float], tuple[float, float,
     "RE": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
     "RP": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
     "VS": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    # Special Purpose — medium purple
     "CO": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
     "DM": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
     "DS": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
@@ -182,7 +173,6 @@ _DOMAIN_COLOURS: dict[str, tuple[tuple[float, float, float], tuple[float, float,
     "SC": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
     "SV": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
     "TI": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
-    # Oncology — dark maroon
     "RS": ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
     "TR": ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
     "TU": ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
@@ -210,12 +200,6 @@ def _get_domain_colours(domain: str) -> tuple[tuple[float, float, float], tuple[
 def _build_annotations_list(result: ResolutionResult) -> list[dict]:
     """
     Return a list of annotation dicts for a field.
-
-    Same-domain variables are combined on one line with ' / ' separator.
-    Different domains stay as separate stacked entries.
-
-    SUPP variables render as SUPPXX.QVAL with where_clause = "QNAM = <variable>"
-    following the CDISC aCRF standard.
     """
     annotations: list[dict] = []
 
@@ -237,11 +221,10 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
     is_supp = result.is_supplemental
     base_domain = domain[4:] if domain.startswith("SUPP") else domain
 
-    # Build primary annotation text
     if is_supp:
         prefix = domain if domain.startswith("SUPP") else f"SUPP{domain}"
         primary_text = f"{prefix}.QVAL"
-        primary_qnam = result.sdtm_variable  # for where QNAM = <var>
+        primary_qnam = result.sdtm_variable
     else:
         primary_text = f"{domain}.{result.sdtm_variable}"
         primary_qnam = ""
@@ -250,7 +233,6 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
         primary_text += f" ({result.codelist_code})"
 
     from collections import OrderedDict
-    # groups: (base_domain, is_supp, qnam) → list of text fragments
     groups: OrderedDict[tuple[str, bool, str], list[str]] = OrderedDict()
     groups[(base_domain, is_supp, primary_qnam)] = [primary_text]
 
@@ -280,17 +262,12 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
             groups[key] = []
         groups[key].append(add_text)
 
-    # TESTCD qualifier applies only to primary non-SUPP annotations
     testcd_where = getattr(result, "where_clause", "") or ""
     is_derived = getattr(result, "is_derived", False)
     value_decode = getattr(result, "value_decode", "") or ""
 
     for grp_index, ((grp_domain, grp_is_supp, grp_qnam), texts) in enumerate(groups.items()):
         combined_text = " / ".join(texts)
-        # Where-clause logic:
-        # - SUPP → "QNAM = <variable>" (CDISC standard)
-        # - Primary non-SUPP → TESTCD qualifier (from findings_qualifier)
-        # - Additional non-SUPP in different domain → no qualifier
         if grp_is_supp:
             wc = f"QNAM = {grp_qnam}" if grp_qnam else ""
         elif grp_domain == base_domain and not is_supp:
@@ -305,7 +282,6 @@ def _build_annotations_list(result: ResolutionResult) -> list[dict]:
             "is_supp": grp_is_supp,
             "where_clause": wc,
             "is_derived": is_derived,
-            # Value-level decode applies to the primary variable only (issue #3)
             "value_decode": value_decode if grp_index == 0 else "",
         })
 
@@ -366,19 +342,13 @@ def _freetext(
     dashed: bool = False,
 ) -> None:
     """
-    Create a real PDF FreeText annotation (selectable, Pinnacle-21 extractable),
+    Create a real PDF FreeText annotation (selectable, extractable),
     rendered exactly once.
 
-    PyMuPDF ≥1.24 rejects ``annot.set_colors(stroke=...)`` for FreeText
-    ("cannot be used for FreeText annotations"). The previous implementation
-    called it inside the try AFTER the annotation was created, so it raised and
-    the except-branch drew the box+text a SECOND time into the content stream —
-    every annotation rendered twice (a faint regular copy plus a bold offset
-    copy that spilled below the box). We now create the annotation, then set the
-    border / update as independent best-effort steps so the drawn-text fallback
-    only runs when the annotation API is entirely unavailable. The FreeText
-    border renders in the text colour (≈ the domain colour already used), so a
-    separate stroke colour is unnecessary.
+    PyMuPDF >=1.24 rejects annot.set_colors(stroke=...) for FreeText.
+    We now create the annotation, then set border/update as independent
+    best-effort steps so the drawn-text fallback only runs when the
+    annotation API is entirely unavailable.
     """
     try:
         annot = page.add_freetext_annot(
@@ -412,10 +382,7 @@ def _freetext(
 
 
 def _draw_domain_name_top_left(page: fitz.Page, domains: list[str]) -> None:
-    """
-    Draw coloured domain-name boxes at the top-left of the page as FreeText annotations.
-    Format: 'VS = VITAL SIGNS' inside a colored background box.
-    """
+    """Draw coloured domain-name boxes at the top-left of the page."""
     if not domains:
         return
 
@@ -448,11 +415,7 @@ def _draw_domain_name_top_left(page: fitz.Page, domains: list[str]) -> None:
 
 
 def _draw_note(page: fitz.Page, text: str, ann_x: float, y_top: float) -> None:
-    """
-    Draw a navigation-note FreeText box ("Continued from page X" /
-    "For Annotations see page X") with a readable font and a visible border so
-    it reads as a real reference marker rather than faint grey text.
-    """
+    """Draw a navigation-note FreeText box."""
     tw = fitz.get_text_length(text, fontname=_FONT_NAME_BOLD, fontsize=_NOTE_FONT_SIZE)
     h = _NOTE_FONT_SIZE * _FT_LINE_FACTOR + 2 * _BOX_PADDING_Y
     rect = fitz.Rect(ann_x, y_top, ann_x + tw + 2 * _BOX_PADDING_X + _FT_SIDE_INSET, y_top + h)
@@ -462,7 +425,7 @@ def _draw_note(page: fitz.Page, text: str, ann_x: float, y_top: float) -> None:
 
 
 def _draw_see_page_reference(page: fitz.Page, first_pages: list[int], page_height: float, ann_x: float) -> None:
-    """Write 'For Annotations see page X · Y' as a navigation note at the bottom."""
+    """Write 'For Annotations see page X' as a navigation note at the bottom."""
     if not first_pages:
         return
 
@@ -477,7 +440,7 @@ def _draw_see_page_reference(page: fitz.Page, first_pages: list[int], page_heigh
 
 
 def _draw_continued_from_page(page: fitz.Page, prev_page_num: int, ann_x: float) -> None:
-    """Write 'Continued from page X' as a navigation note near the top of the column."""
+    """Write 'Continued from page X' near the top of the column."""
     _draw_note(page, f"Continued from page {prev_page_num}", ann_x, 72.0)
 
 
@@ -491,11 +454,7 @@ _DEDUP_Y_TOLERANCE = 3.0
 class _OverlapTracker:
     """
     Tracks placed annotation spans per page.
-
-    Duplicate detection is POSITION-AWARE: the same annotation text
-    IS allowed at different Y positions (required for repeated fields
-    like "Result" in Vital Signs). Only exact same text at the same
-    Y position is considered a duplicate.
+    Position-aware: same text IS allowed at different Y positions.
     """
 
     def __init__(self):
@@ -623,19 +582,10 @@ def _build_toc(
     form_domains: dict[str, str],
     form_visits: dict[str, list[tuple[str, int]]] | None = None,
 ) -> list[list]:
-    """
-    Build a dual bookmark hierarchy (CDISC MSG recommendation):
-
-      1. "CRFs by Topic"  → class → domain → form   (existing structure)
-      2. "CRFs by Visit"  → visit/folder → form     (chronological)
-
-    PDFs have a single outline tree, so the two views are rendered as two
-    top-level branches within that one outline. The by-visit branch is added
-    only when folder/visit metadata is available.
-    """
+    """Build a dual bookmark hierarchy."""
     toc: list[list] = []
 
-    # ── Branch 1: By Topic (class → domain → form) ───────────────────────────
+    # Branch 1: By Topic
     class_domain_forms: dict[str, dict[str, list[tuple[str, int]]]] = defaultdict(
         lambda: defaultdict(list)
     )
@@ -660,9 +610,8 @@ def _build_toc(
             for form_code, pg in forms:
                 toc.append([4, form_code, pg + 1])
 
-    # ── Branch 2: By Visit (folder → form), chronological by page order ──────
+    # Branch 2: By Visit
     if form_visits:
-        # Collect (visit, form_code, page_idx) and order visits by first appearance
         visit_entries: dict[str, list[tuple[str, int]]] = defaultdict(list)
         visit_first_page: dict[str, int] = {}
         for form_code, occurrences in form_visits.items():
@@ -696,11 +645,7 @@ def _build_toc(
 def _form_identity(field: CRFField) -> str:
     """
     Identity used to group repeat instances of the SAME form across visits.
-
-    Uses form_code + form_name, because form-name inference can collapse
-    distinct forms (e.g. "Enrolment" and "Demographics") onto the same code;
-    keying on code alone would merge them and hide the second form's
-    annotations behind a "For Annotations see page" reference.
+    Uses form_code + form_name to avoid conflating distinct forms.
     """
     fc = (field.form_code or "").strip().upper()
     fn = (getattr(field, "form_name", "") or "").strip().lower()
@@ -714,9 +659,7 @@ def annotate_pdf(
     fields: list[CRFField],
     font_size: float = _FONT_SIZE,
 ) -> dict:
-    """
-    Write industry-standard aCRF annotations onto a blank CRF PDF.
-    """
+    """Write industry-standard aCRF annotations onto a blank CRF PDF."""
     if len(results) != len(fields):
         raise ValueError(f"results ({len(results)}) and fields ({len(fields)}) length mismatch")
 
@@ -733,8 +676,7 @@ def annotate_pdf(
 
     tracker = _OverlapTracker()
 
-    # Pre-group by page. Repeat-instance grouping keys on FORM IDENTITY
-    # (code + name), not code alone — see _form_identity().
+    # Pre-group by page
     page_results: dict[int, list[ResolutionResult]] = defaultdict(list)
     page_form_codes: dict[int, set[str]] = defaultdict(set)
     form_all_pages: dict[str, list[int]] = defaultdict(list)
@@ -767,14 +709,13 @@ def annotate_pdf(
         for fid, pages in form_all_pages.items()
     }
 
-    # Track "Continued from page X" — pages 2,3,... within a form's first instance
-    # when consecutive pages belong to the same form (multi-page forms).
-    form_continued_from: dict[str, dict[int, int]] = {}  # fid -> {page_idx: preceding_page_idx}
+    # Track "Continued from page X"
+    form_continued_from: dict[str, dict[int, int]] = {}
     for fid, pages in form_all_pages.items():
         first_pages = sorted(form_first_instance_pages[fid])
         continued: dict[int, int] = {}
         for i in range(1, len(first_pages)):
-            if first_pages[i] - first_pages[i - 1] <= 1:  # consecutive pages
+            if first_pages[i] - first_pages[i - 1] <= 1:
                 continued[first_pages[i]] = first_pages[i - 1]
         form_continued_from[fid] = continued
 
@@ -791,7 +732,6 @@ def annotate_pdf(
 
     form_first_page: dict[str, tuple[int, str]] = {}
     form_primary_domain: dict[str, str] = {}
-    # For the chronological "by visit" bookmark branch: form_code -> [(visit, page_idx)]
     form_visits: dict[str, list[tuple[str, int]]] = defaultdict(list)
     _seen_visit_form: set[tuple[str, str]] = set()
     for field, result in zip(fields, results):
@@ -801,7 +741,6 @@ def annotate_pdf(
         if fc and fc not in form_primary_domain and result.sdtm_domain:
             d = result.sdtm_domain.upper()
             form_primary_domain[fc] = d[4:] if d.startswith("SUPP") else d
-        # Record one (visit, page) entry per (form, visit) pair
         visit = getattr(field, "folder", "") or ""
         if fc and visit and field.page_index is not None:
             key = (fc, visit)
@@ -840,7 +779,7 @@ def annotate_pdf(
             )
             if page_doms:
                 _draw_domain_name_top_left(page, page_doms)
-            # "Continued from page X" on subsequent pages of the same multi-page form
+            # "Continued from page X" on subsequent pages of multi-page form
             if fid:
                 prev_idx = form_continued_from.get(fid, {}).get(page_idx)
                 if prev_idx is not None:
@@ -870,7 +809,6 @@ def annotate_pdf(
                 n_lines += 1
             if entry.get("value_decode"):
                 n_lines += 1
-            # Budget the FreeText real line height so no line clips below the box.
             return n_lines * (eff_fs * _FT_LINE_FACTOR) + 2 * _BOX_PADDING_Y
 
         stack_h = sum(_entry_height(e) + _MULTI_BOX_SPACING for e in ann_entries) - _MULTI_BOX_SPACING
@@ -908,18 +846,14 @@ def annotate_pdf(
                 font_n = _FONT_NAME_BOLD
                 use_dash = is_derived
 
-            # Count extra lines (where-clause and/or value-decode) for box sizing
-            extra_lines = 0
             tw = fitz.get_text_length(ann_text, fontname=font_n, fontsize=eff_fs)
             wc_text = ""
             if where_clause:
                 wc_text = f"where {where_clause}"
                 tw = max(tw, fitz.get_text_length(wc_text, fontname=_FONT_NAME, fontsize=eff_fs))
-                extra_lines += 1
             if value_decode:
                 vd_text = f"({value_decode})"
                 tw = max(tw, fitz.get_text_length(vd_text, fontname=_FONT_NAME, fontsize=eff_fs))
-                extra_lines += 1
 
             box_top = text_y - eff_fs - _BOX_PADDING_Y
             box_rect = fitz.Rect(
@@ -929,9 +863,6 @@ def annotate_pdf(
                 box_top + this_h,
             )
 
-            # Combine text + where-clause + value-decode into one FreeText content
-            # string. FreeText annotations support multi-line content; each extra
-            # line stacks below the primary annotation.
             full_content = ann_text
             if where_clause:
                 full_content += f"\n{wc_text}"

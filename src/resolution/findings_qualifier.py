@@ -1,13 +1,7 @@
 """
 Findings domain qualifier resolver.
 
-For Findings domains (VS, LB, EG), annotated CRFs include TESTCD where-clauses
-to identify which test record a variable belongs to. E.g.:
-    VS.VSORRES → VS.VSORRES / VSTESTCD="WEIGHT"
-    LB.LBORRES → LB.LBORRES / LBTESTCD="ALB"
-
-This resolver examines the field label and context labels to determine the
-appropriate test code qualifier and appends it to the ResolutionResult.
+For Findings domains (VS, LB, EG), annotated CRFs include TESTCD where-clauses.
 """
 
 from __future__ import annotations
@@ -15,9 +9,6 @@ import re
 from src.resolution.models import ResolutionResult
 
 
-# Variables in Findings domains that need TESTCD qualifiers.
-# NOTE: SUPP variables (VSCLSIG, EGCLSIG, etc.) are intentionally excluded —
-# they appear as "SUPPVS.QVAL where QNAM = VSCLSIG" and don't get TESTCD qualifiers.
 _FINDINGS_QUALIFIER_VARS: dict[str, set[str]] = {
     "VS": {"VSORRES", "VSORRESU", "VSSTRESN", "VSSTRESC", "VSSTRESU",
            "VSNRIND", "VSSTAT", "VSREASND", "VSTEST", "VSSTRESC"},
@@ -31,7 +22,6 @@ _FINDINGS_QUALIFIER_VARS: dict[str, set[str]] = {
 _DOMAIN_TESTCD_VAR = {"VS": "VSTESTCD", "LB": "LBTESTCD", "EG": "EGTESTCD", "RP": "RPTESTCD"}
 
 _VS_TESTS: dict[str, str] = {
-    # VSALL — gating / "were vital signs performed" type fields
     "vital signs": "VSALL", "vital signs performed": "VSALL",
     "were vital signs collected": "VSALL",
     "weight": "WEIGHT", "body weight": "WEIGHT",
@@ -121,7 +111,6 @@ _LB_TESTS: dict[str, str] = {
     "cea": "CEA", "carcinoembryonic antigen": "CEA",
     "ca 125": "CA125", "ca125": "CA125",
     "ca 19-9": "CA199", "ca19-9": "CA199",
-    # Pregnancy tests
     "pregnancy test serum": "HCG", "choriogonadotropin": "HCG", "hcg": "HCG",
     "beta hcg": "HCG", "serum pregnancy test": "HCG",
 }
@@ -135,7 +124,6 @@ _EG_TESTS: dict[str, str] = {
     "overall interpretation": "INTP", "interpretation": "INTP",
     "ecg interpretation": "INTP",
     "overall ecg evaluation": "INTP",
-    # EGALL — gating / "was ECG performed" type fields
     "ecg tests": "EGALL", "was ecg performed": "EGALL",
     "was the ecg performed": "EGALL",
 }
@@ -166,36 +154,23 @@ _DOMAIN_TEST_MAP: dict[str, dict[str, str]] = {
 
 
 def _norm_label(text: str) -> str:
-    # Replace specific Unicode whitespace/zero-width chars explicitly.
-    # NOTE: do NOT use a regex range like [\xa0 -​] — the '-' between space
-    # (U+0020) and ZWSP (U+200B) is parsed as a RANGE covering almost every
-    # letter, digit, and hyphen, which collapses every label to "".
-    for ch in ("\xa0", " ", " ", "​", "﻿"):
+    for ch in ("\xa0", " ", " ", "​", "﻿"):
         text = text.replace(ch, " ")
     text = re.sub(r'\s+', ' ', text).strip().lower()
     return text
 
 
 class FindingsQualifierResolver:
-    """
-    Post-processor that adds TESTCD where-clauses to Findings domain results.
-
-    Called after primary SDTM resolution. Examines the field label and context
-    to determine whether a TESTCD qualifier can be added.
-    """
+    """Post-processor that adds TESTCD where-clauses to Findings domain results."""
 
     def _find_test_code(self, domain: str, label_norm: str) -> str | None:
         test_map = _DOMAIN_TEST_MAP.get(domain, {})
         if not label_norm:
             return None
-        # 1. Exact match (highest priority — avoids "pr" matching "pr interval")
+        # 1. Exact match
         if label_norm in test_map:
             return test_map[label_norm]
-        # 2. Test name appears as a whole phrase inside the label
-        #    (e.g. label "result for weight" contains test "weight").
-        #    Require the test name to be reasonably specific (>= 4 chars) and to
-        #    appear on a word boundary, so short codes like "pr"/"ck"/"k" can't
-        #    accidentally match unrelated labels.
+        # 2. Substring match (>= 4 chars, word boundary)
         best = None
         best_len = 0
         for test_name, test_code in test_map.items():
@@ -214,9 +189,7 @@ class FindingsQualifierResolver:
         context_labels_before: list[str] | None = None,
         value_options: list[str] | None = None,
     ) -> str | None:
-        """
-        Return the where-clause string (e.g. 'VSTESTCD = "WEIGHT"') or None.
-        """
+        """Return the where-clause string or None."""
         domain = (result.sdtm_domain or "").upper()
         variable = (result.sdtm_variable or "").upper()
 
@@ -226,31 +199,26 @@ class FindingsQualifierResolver:
             return None
 
         testcd_var = _DOMAIN_TESTCD_VAR[domain]
-
         label_norm = _norm_label(field_label)
 
-        # 1. Field label IS a specific test name (e.g. "Weight", "Height")
+        # 1. Field label IS a specific test name
         test_code = self._find_test_code(domain, label_norm)
         if test_code:
             return f'{testcd_var} = "{test_code}"'
 
-        # 2. Check context labels before (preceding field label = test name)
+        # 2. Check context labels before
         for ctx in reversed(context_labels_before or []):
             test_code = self._find_test_code(domain, _norm_label(ctx))
             if test_code:
                 return f'{testcd_var} = "{test_code}"'
 
-        # 3. Check value options (e.g. dropdown containing test names).
-        #    If MULTIPLE distinct test codes are found in value_options, this
-        #    is a multi-test grid selector (e.g. "Vital sign test name" with
-        #    Temperature, Weight, etc.). Return None — callers will clear the
-        #    propagation state rather than returning an arbitrary first match.
+        # 3. Check value options
         test_codes_from_opts: list[str] = []
         for opt in (value_options or []):
             tc = self._find_test_code(domain, _norm_label(opt))
             if tc:
                 test_codes_from_opts.append(tc)
-        unique_codes = list(dict.fromkeys(test_codes_from_opts))  # order-preserving dedup
+        unique_codes = list(dict.fromkeys(test_codes_from_opts))
         if len(unique_codes) > 1:
             return None  # ambiguous multi-test grid
         if unique_codes:
