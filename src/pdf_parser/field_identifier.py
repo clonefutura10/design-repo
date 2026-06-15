@@ -488,6 +488,11 @@ def _extract_fields_without_numbers(
 
     Some pages may have content but no numbered fields (rare).
     Extract any content lines as potential fields.
+
+    NOTE: This text-only fallback is a last resort. It cannot distinguish a
+    single-word field label ("Sex", "Race") from a value option, so it drops
+    1-word lines. Whenever per-line geometry is available the caller should use
+    ``identify_fields_geometric`` instead, which is far more accurate.
     """
     fields = []
     for _, text, role in classified:
@@ -500,4 +505,186 @@ def _extract_fields_without_numbers(
                     form_name=form_name,
                     folder=folder,
                 ))
+    return fields
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Geometry-aware extraction (for CRFs WITHOUT numeric field anchors)
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Many EDC exports (D9186R00001, UAT/preview builds, and a large class of
+# "generic" CRFs) do NOT print a numeric anchor next to each field. On those
+# pages the number-anchor parser has nothing to latch onto and the text-only
+# fallback above silently drops every single-word label.
+#
+# These layouts are, however, highly regular GEOMETRICALLY:
+#   • field LABELS sit in the left column   (x0 ≈ left page margin)
+#   • value OPTIONS are right-aligned        (indented well to the right)
+# so a left-column / right-column split recovers labels and their options
+# cleanly. A small known-option dictionary acts as a safety net for the rare
+# option that is not indented.
+
+# Value options that may occasionally appear at the left margin; used only as a
+# tie-breaker — geometry is the primary signal.
+_GEOM_KNOWN_OPTIONS: frozenset[str] = frozenset({
+    "yes", "no", "unknown", "not applicable", "n/a", "not done", "none",
+    "male", "female", "other", "not reported", "prefer not to answer",
+    "hispanic or latino", "not hispanic or latino",
+    "white", "black or african american", "asian",
+    "american indian or alaska native",
+    "native hawaiian or other pacific islander",
+    "mild", "moderate", "severe", "fatal",
+    "current", "former", "never", "past", "ongoing", "present", "absent",
+    "normal", "abnormal", "borderline", "clinically significant",
+    "positive", "negative", "equivocal", "indeterminate",
+})
+
+_GEOM_LABEL_X_TOL = 12.0        # x0 within this of the left margin → label column
+_GEOM_VALUE_MIN_INDENT = 36.0   # x0 at least this far right of margin → value option
+_GEOM_LINE_GAP = 20.0           # max y-gap (pt) to merge a wrapped label continuation
+
+# Page-chrome lines that the structural classifier misses (it only knows the
+# "DnCn" study format). Covers DnRn study IDs, UAT/preview build labels, the
+# "Project Name:" line and split internal-number footers — none are fields.
+_RE_GEOM_CHROME = re.compile(
+    r"^(?:D\d{3,}[A-Z]\d{2,}"                                    # study id (DnCn / DnRn)
+    r"|Project\s+Name:\s*\S"                                     # UAT project line
+    r"|UAT[_\s]"                                                 # UAT build label
+    r"|[A-Za-z0-9_.\- ]{2,40}:\s*(?:All|Unique|Expanded|Matrix|All\s+Blank\s+CRF)\b"  # build title
+    r"|\d*\s*\(\d+\)"                                            # internal number e.g. "25 (328)"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def page_has_field_numbers(lines: list[str]) -> bool:
+    """
+    Return True if the page uses numeric field anchors (standalone 1-3 digit
+    lines). Drives the choice between number-anchor and geometric extraction.
+    """
+    indexed = [(i, l.strip()) for i, l in enumerate(lines) if l.strip()]
+    total = len(indexed)
+    for pos, (_, text) in enumerate(indexed):
+        if _classify_structural_role(text, pos, total) == LineRole.FIELD_NUMBER:
+            return True
+    return False
+
+
+def _looks_like_label_continuation_fwd(prev_label: str, next_text: str) -> bool:
+    """Conservatively decide if ``next_text`` continues a wrapped ``prev_label``."""
+    nt = next_text.strip()
+    if not nt or _is_instruction(nt):
+        return False
+    # A line starting lowercase is almost always a wrap of the previous line.
+    if nt[0].islower():
+        return True
+    # Previous line ending on a connector word implies the phrase continues.
+    pl = prev_label.strip().lower()
+    connectors = (
+        " to", " for", " of", " in", " from", " with", " and", " or",
+        " the", " a", " an", " on", " at", " that", " which", " was", " were",
+    )
+    return pl.endswith(connectors)
+
+
+def identify_fields_geometric(
+    positioned_lines: list[tuple[float, float, float, float, str]],
+    page_index: int = 0,
+    form_code: str = "",
+    form_name: str = "",
+    folder: str = "",
+) -> list[CRFField]:
+    """
+    Extract fields from a numberless CRF page using column geometry.
+
+    Args:
+        positioned_lines: per-line tuples ``(x0, y0, x1, y1, text)`` in reading
+            order (top→bottom, left→right). Produced by the extractor from
+            PyMuPDF span boxes.
+        page_index, form_code, form_name, folder: page/form context.
+
+    Returns:
+        List of CRFField with field_label, value_options and x/y/width/height
+        populated directly from the span geometry (no later position matching
+        needed).
+    """
+    if not positioned_lines:
+        return []
+
+    # 1. Drop structural lines (header / footer / version / stray numbers).
+    total = len(positioned_lines)
+    content: list[tuple[float, float, float, float, str]] = []
+    for pos, (x0, y0, x1, y1, text) in enumerate(positioned_lines):
+        t = text.strip()
+        if not t:
+            continue
+        role = _classify_structural_role(t, pos, total)
+        if role in (LineRole.HEADER, LineRole.FOOTER, LineRole.VERSION,
+                    LineRole.FIELD_NUMBER):
+            continue
+        if _RE_GEOM_CHROME.match(t):
+            continue
+        content.append((x0, y0, x1, y1, t))
+
+    if not content:
+        return []
+
+    # 2. Left margin = leftmost text column on the page.
+    left_margin = min(x0 for x0, _, _, _, _ in content)
+
+    # 3. Walk lines, attaching right-column options to the active left label.
+    fields: list[CRFField] = []
+    cur: dict | None = None
+
+    def _flush() -> None:
+        nonlocal cur
+        if cur and cur["label"].strip():
+            label = cur["label"].strip()
+            fld = CRFField(
+                field_label=label,
+                value_options=_clean_value_options(cur["options"]),
+                is_instruction=_is_instruction(label),
+                page_index=page_index,
+                form_code=form_code,
+                form_name=form_name,
+                folder=folder,
+            )
+            fld.x = cur["x0"]
+            fld.y = cur["y1"]                       # bottom of label = annotation baseline
+            fld.width = max(0.0, cur["x1"] - cur["x0"])
+            fld.height = max(0.0, cur["y1"] - cur["y0"])
+            fields.append(fld)
+        cur = None
+
+    for x0, y0, x1, y1, text in content:
+        norm = text.lower()
+        is_left = x0 <= left_margin + _GEOM_LABEL_X_TOL
+        is_indented = x0 >= left_margin + _GEOM_VALUE_MIN_INDENT
+        known_option = norm in _GEOM_KNOWN_OPTIONS
+
+        # Treat as a value option when indented OR a known option word
+        # (and not sitting alone at the far left as a standalone label).
+        if (is_indented or (known_option and not is_left)) and cur is not None:
+            cur["options"].append(text)
+            continue
+
+        if is_left and not known_option:
+            # New label — unless it continues the current (wrapped) label.
+            if (cur is not None and not cur["options"]
+                    and (y0 - cur["y1"]) <= _GEOM_LINE_GAP
+                    and _looks_like_label_continuation_fwd(cur["label"], text)):
+                cur["label"] = f'{cur["label"]} {text}'.strip()
+                cur["x1"] = max(cur["x1"], x1)
+                cur["y1"] = y1
+                continue
+            _flush()
+            cur = {"label": text, "options": [],
+                   "x0": x0, "y0": y0, "x1": x1, "y1": y1}
+            continue
+
+        # Indented/known option with no active label, or other stray content.
+        if cur is not None:
+            cur["options"].append(text)
+
+    _flush()
     return fields

@@ -25,6 +25,8 @@ from src.pdf_parser.header_parser import parse_page_header, PageHeader
 from src.pdf_parser.field_identifier import (
     CRFField,
     identify_fields_from_lines,
+    identify_fields_geometric,
+    page_has_field_numbers,
 )
 from src.pdf_parser.context_window import build_contextual_windows
 from src.utils.logging_config import get_logger
@@ -106,20 +108,36 @@ def extract_crf(filepath: Path | None = None) -> CRFParseResult:
         # Split into lines for field identification
         lines = raw_text.split("\n")
 
-        # Identify fields — now passing form_name for domain inference
-        page_fields = identify_fields_from_lines(
-            lines=lines,
-            page_index=page_idx,
-            form_code=header.form_code,
-            form_name=header.form_name,
-            folder=header.folder,
-        )
-
-        # Build contextual windows
-        page_fields = build_contextual_windows(page_fields, window_size=3)
-
-        # Extract position information for annotation placement
-        _enrich_with_positions(page, page_fields)
+        # Choose the extraction strategy per page:
+        #   • numeric field anchors present → number-anchor parser (text-based)
+        #   • no anchors (UAT/preview/generic CRFs) → geometry-aware parser,
+        #     which separates left-column labels from right-column value options
+        #     and sets positions directly from the span boxes.
+        if page_has_field_numbers(lines):
+            page_fields = identify_fields_from_lines(
+                lines=lines,
+                page_index=page_idx,
+                form_code=header.form_code,
+                form_name=header.form_name,
+                folder=header.folder,
+            )
+            page_fields = build_contextual_windows(page_fields, window_size=3)
+            # Extract position information for annotation placement
+            _enrich_with_positions(page, page_fields)
+        else:
+            page_fields = identify_fields_geometric(
+                positioned_lines=_positioned_lines(page),
+                page_index=page_idx,
+                form_code=header.form_code,
+                form_name=header.form_name,
+                folder=header.folder,
+            )
+            page_fields = build_contextual_windows(page_fields, window_size=3)
+            # Geometric parser already assigned x/y from span boxes. Only run
+            # the fuzzy position matcher for any field left without a position.
+            missing = [f for f in page_fields if not f.y]
+            if missing:
+                _enrich_with_positions(page, missing)
 
         # Filter out instruction-only entries for the main field list
         data_fields = [f for f in page_fields if not f.is_instruction]
@@ -253,6 +271,35 @@ def _match_score(label_norm: str, text_norm: str) -> float:
         return 0.5 + 0.3 * jaccard
 
     return 0.0
+
+
+def _positioned_lines(
+    page: fitz.Page,
+) -> list[tuple[float, float, float, float, str]]:
+    """
+    Return per-line span geometry in reading order as ``(x0, y0, x1, y1, text)``.
+
+    Used by the geometry-aware identifier for numberless CRF pages.
+    """
+    out: list[tuple[float, float, float, float, str]] = []
+    blocks = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE, sort=True)["blocks"]
+    for block in blocks:
+        if block.get("type") != 0:
+            continue
+        for line in block.get("lines", []):
+            parts: list[str] = []
+            x0, y0, x1, y1 = float("inf"), float("inf"), 0.0, 0.0
+            for span in line.get("spans", []):
+                parts.append(span.get("text", ""))
+                bb = span.get("bbox", (0, 0, 0, 0))
+                x0 = min(x0, bb[0])
+                y0 = min(y0, bb[1])
+                x1 = max(x1, bb[2])
+                y1 = max(y1, bb[3])
+            full = "".join(parts).strip()
+            if full and x0 != float("inf"):
+                out.append((x0, y0, x1, y1, full))
+    return out
 
 
 def _enrich_with_positions(page: fitz.Page, fields: list[CRFField]) -> None:
