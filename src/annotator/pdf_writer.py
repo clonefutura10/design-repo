@@ -4,8 +4,8 @@ Professional aCRF PDF Annotation Writer — CDISC industry-standard output.
 Visual features matching real annotated CRF conventions:
 - Right-margin annotations as colored text with subtle boxes
 - NO separator line, NO tick marks (clean professional look)
-- Colour-coded by SDTM domain class (Events/Interventions/Findings/Special)
-- Stacked entries for multi-domain mappings
+- Colour-coded by SDTM domain (unique colour per domain)
+- Stacked entries for multi-domain mappings placed SIDE BY SIDE
 - Domain dataset-name headers at top-left with colored background box
 - [NOT SUBMITTED] in distinct grey with dashed border
 - Where-clauses on second line, same font weight
@@ -13,7 +13,8 @@ Visual features matching real annotated CRF conventions:
 - Legend page appended at the end of the output PDF
 - "For Annotations see page X" on repeated form pages
 - Adaptive font sizing for dense pages
-- Robust per-page overlap avoidance
+- Horizontal stagger for overlapping annotations (different fields)
+- Side-by-side layout for multiple mappings (same field)
 - REPEATED ANNOTATIONS: Same variable at different Y positions is annotated
   each time (CDISC requirement for multi-instance fields)
 """
@@ -47,7 +48,7 @@ _LEGEND_FONT_SIZE = 8.0
 _BORDER_WIDTH = 0.6
 _BOX_PADDING_X = 3.0
 _BOX_PADDING_Y = 2.0
-_MULTI_BOX_SPACING = 2.5
+_MULTI_BOX_H_GAP = 4.0  # horizontal gap between side-by-side boxes
 
 _ANNOTATION_X_RATIO = 0.56
 
@@ -66,6 +67,9 @@ _LINE_SPACING = 1.5
 
 _FT_LINE_FACTOR = 1.45
 _FT_SIDE_INSET = 4.0
+
+# Horizontal stagger for overlapping annotations (different fields)
+_STAGGER_SHIFT_X = -120.0
 
 # Navigation-note style
 _NOTE_FONT_SIZE = 9.0
@@ -138,44 +142,44 @@ def _get_domain_full_name(domain: str) -> str:
 
 
 # =============================================================================
-# Domain Colour Map (border_rgb, fill_rgb)
+# Domain Colour Map — UNIQUE colour per domain (border_rgb, fill_rgb)
 # =============================================================================
 
 _DOMAIN_COLOURS: dict[str, tuple[tuple[float, float, float], tuple[float, float, float]]] = {
-    "AE": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
-    "CE": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
-    "DD": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
-    "HO": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
-    "MH": ((0.72, 0.08, 0.08), (1.00, 0.82, 0.82)),
-    "CM": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
-    "EC": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
-    "EX": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
-    "PR": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
-    "SU": ((0.06, 0.45, 0.06), (0.80, 0.96, 0.80)),
-    "BE": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "EG": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "FA": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "FACE": ((0.00, 0.44, 0.52), (0.78, 0.95, 1.00)),
-    "FAHO": ((0.00, 0.44, 0.52), (0.78, 0.95, 1.00)),
-    "IS": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "LB": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "MB": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "PC": ((0.00, 0.40, 0.40), (0.78, 0.96, 0.96)),
-    "PE": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "QS": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "RE": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "RP": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "VS": ((0.06, 0.12, 0.68), (0.82, 0.86, 1.00)),
-    "CO": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
-    "DM": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
-    "DS": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
-    "IE": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
-    "SC": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
-    "SV": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
-    "TI": ((0.42, 0.06, 0.58), (0.90, 0.82, 1.00)),
-    "RS": ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
-    "TR": ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
-    "TU": ((0.52, 0.00, 0.18), (1.00, 0.80, 0.86)),
+    "AE": ((0.80, 0.05, 0.05), (1.00, 0.85, 0.85)),
+    "CE": ((0.75, 0.35, 0.00), (1.00, 0.90, 0.78)),
+    "DD": ((0.50, 0.00, 0.00), (0.92, 0.78, 0.78)),
+    "HO": ((0.85, 0.20, 0.40), (1.00, 0.84, 0.88)),
+    "MH": ((0.60, 0.00, 0.30), (0.94, 0.80, 0.86)),
+    "CM": ((0.00, 0.52, 0.00), (0.82, 0.96, 0.82)),
+    "EC": ((0.00, 0.50, 0.45), (0.78, 0.95, 0.93)),
+    "EX": ((0.35, 0.55, 0.00), (0.88, 0.94, 0.76)),
+    "PR": ((0.10, 0.38, 0.10), (0.80, 0.92, 0.80)),
+    "SU": ((0.00, 0.42, 0.30), (0.78, 0.93, 0.88)),
+    "BE": ((0.00, 0.25, 0.70), (0.80, 0.86, 1.00)),
+    "EG": ((0.45, 0.00, 0.70), (0.90, 0.80, 1.00)),
+    "FA": ((0.00, 0.40, 0.60), (0.78, 0.90, 0.96)),
+    "FACE": ((0.00, 0.55, 0.55), (0.78, 0.94, 0.94)),
+    "FAHO": ((0.20, 0.30, 0.60), (0.82, 0.85, 0.96)),
+    "IS": ((0.30, 0.10, 0.55), (0.86, 0.80, 0.94)),
+    "LB": ((0.00, 0.30, 0.55), (0.78, 0.87, 0.96)),
+    "MB": ((0.10, 0.45, 0.55), (0.80, 0.91, 0.94)),
+    "PC": ((0.00, 0.50, 0.50), (0.78, 0.94, 0.94)),
+    "PE": ((0.25, 0.25, 0.65), (0.84, 0.84, 0.98)),
+    "QS": ((0.50, 0.20, 0.50), (0.92, 0.82, 0.92)),
+    "RE": ((0.00, 0.35, 0.70), (0.78, 0.88, 1.00)),
+    "RP": ((0.55, 0.00, 0.55), (0.93, 0.78, 0.93)),
+    "VS": ((0.00, 0.45, 0.75), (0.78, 0.90, 1.00)),
+    "CO": ((0.40, 0.40, 0.00), (0.92, 0.92, 0.76)),
+    "DM": ((0.55, 0.00, 0.68), (0.92, 0.78, 0.96)),
+    "DS": ((0.00, 0.45, 0.20), (0.78, 0.93, 0.84)),
+    "IE": ((0.60, 0.30, 0.00), (0.96, 0.88, 0.76)),
+    "SC": ((0.50, 0.10, 0.40), (0.92, 0.80, 0.90)),
+    "SV": ((0.20, 0.20, 0.55), (0.84, 0.84, 0.94)),
+    "TI": ((0.45, 0.25, 0.00), (0.92, 0.86, 0.76)),
+    "RS": ((0.65, 0.00, 0.20), (0.96, 0.78, 0.84)),
+    "TR": ((0.70, 0.25, 0.00), (0.98, 0.86, 0.76)),
+    "TU": ((0.55, 0.00, 0.40), (0.94, 0.78, 0.88)),
 }
 
 _DEFAULT_BORDER = (0.35, 0.35, 0.35)
@@ -344,11 +348,6 @@ def _freetext(
     """
     Create a real PDF FreeText annotation (selectable, extractable),
     rendered exactly once.
-
-    PyMuPDF >=1.24 rejects annot.set_colors(stroke=...) for FreeText.
-    We now create the annotation, then set border/update as independent
-    best-effort steps so the drawn-text fallback only runs when the
-    annotation API is entirely unavailable.
     """
     try:
         annot = page.add_freetext_annot(
@@ -361,7 +360,6 @@ def _freetext(
             align=fitz.TEXT_ALIGN_LEFT,
         )
     except Exception:
-        # Hard fallback (drawn once) only if the annotation API is unavailable.
         page.draw_rect(rect, color=text_color, fill=fill_color, width=border_width,
                        dashes="[2 2] 0" if dashed else None, overlay=True)
         page.insert_text(fitz.Point(rect.x0 + _BOX_PADDING_X, rect.y1 - _BOX_PADDING_Y),
@@ -445,64 +443,44 @@ def _draw_continued_from_page(page: fitz.Page, prev_page_num: int, ann_x: float)
 
 
 # =============================================================================
-# Overlap Tracker — POSITION-AWARE duplicate detection
+# Placement Tracker — Dedup + Horizontal Stagger on Overlap
 # =============================================================================
 
 _DEDUP_Y_TOLERANCE = 3.0
 
 
-class _OverlapTracker:
+class _PlacementTracker:
     """
-    Tracks placed annotation spans per page.
-    Position-aware: same text IS allowed at different Y positions.
+    Tracks placed annotations for:
+    1. Deduplication (same text at same Y = skip)
+    2. Horizontal stagger (when different-field annotations overlap vertically)
     """
 
     def __init__(self):
-        self._occupied: dict[int, list[tuple[float, float]]] = defaultdict(list)
         self._placed: dict[int, list[tuple[str, float]]] = defaultdict(list)
+        self._occupied: dict[int, list[tuple[float, float]]] = defaultdict(list)
 
     def is_duplicate(self, page_idx: int, text: str, y_pos: float) -> bool:
+        """Check if this exact text was already placed at this Y position."""
         for placed_text, placed_y in self._placed[page_idx]:
             if placed_text == text and abs(placed_y - y_pos) < _DEDUP_Y_TOLERANCE:
                 return True
         self._placed[page_idx].append((text, y_pos))
         return False
 
-    def find_slot(self, page_idx: int, desired_y: float, box_height: float, page_height: float) -> float:
-        min_y = _PAGE_TOP_MARGIN + box_height
-        max_y = page_height - _PAGE_BOTTOM_MARGIN
-        gap = 1.5
+    def get_x_offset(self, page_idx: int, box_top: float, box_bottom: float) -> float:
+        """
+        If this box's vertical range overlaps with an existing annotation
+        from a DIFFERENT field, return a LEFT shift so both are readable.
+        """
+        for (ot, ob) in self._occupied[page_idx]:
+            if box_top < ob and box_bottom > ot:
+                return _STAGGER_SHIFT_X
+        return 0.0
 
-        desired_y = max(min_y, min(desired_y, max_y))
-
-        def _overlaps(y: float) -> bool:
-            top = y - box_height - gap
-            bot = y + gap
-            for (ot, ob) in self._occupied[page_idx]:
-                if top < ob and bot > ot:
-                    return True
-            return False
-
-        if not _overlaps(desired_y):
-            self._mark(page_idx, desired_y, box_height, gap)
-            return desired_y
-
-        for direction in (1, -1):
-            y = desired_y
-            for _ in range(80):
-                y += direction * (box_height + gap)
-                if y > max_y or y < min_y:
-                    break
-                if not _overlaps(y):
-                    self._mark(page_idx, y, box_height, gap)
-                    return y
-
-        fallback = max_y - len(self._occupied[page_idx]) * (box_height + gap)
-        self._mark(page_idx, max(min_y, fallback), box_height, gap)
-        return max(min_y, fallback)
-
-    def _mark(self, page_idx: int, y: float, h: float, gap: float):
-        self._occupied[page_idx].append((y - h - gap, y + gap))
+    def mark_occupied(self, page_idx: int, box_top: float, box_bottom: float) -> None:
+        """Record the vertical span of a placed annotation."""
+        self._occupied[page_idx].append((box_top, box_bottom))
 
 
 # =============================================================================
@@ -674,7 +652,7 @@ def annotate_pdf(
         "multi_domain_fields": 0,
     }
 
-    tracker = _OverlapTracker()
+    tracker = _PlacementTracker()
 
     # Pre-group by page
     page_results: dict[int, list[ResolutionResult]] = defaultdict(list)
@@ -811,10 +789,20 @@ def annotate_pdf(
                 n_lines += 1
             return n_lines * (eff_fs * _FT_LINE_FACTOR) + 2 * _BOX_PADDING_Y
 
-        stack_h = sum(_entry_height(e) + _MULTI_BOX_SPACING for e in ann_entries) - _MULTI_BOX_SPACING
-        slot_y = tracker.find_slot(page_idx, y, stack_h, ph)
+        # ─── PLACEMENT: Direct at field Y, clamped to page bounds ───
+        slot_y = max(_PAGE_TOP_MARGIN + _entry_height(ann_entries[0]), min(y, ph - _PAGE_BOTTOM_MARGIN))
 
-        y_off = 0.0
+        # ─── Determine max height across all entries (for overlap tracking) ───
+        max_entry_h = max(_entry_height(e) for e in ann_entries)
+        box_top_for_field = slot_y - eff_fs - _BOX_PADDING_Y
+        box_bottom_for_field = box_top_for_field + max_entry_h
+
+        # ─── Check stagger for overlap with OTHER fields' annotations ───
+        x_offset = tracker.get_x_offset(page_idx, box_top_for_field, box_bottom_for_field)
+        base_x = max(36.0, ann_x + x_offset)
+
+        # ─── Draw entries SIDE BY SIDE horizontally ───
+        x_cursor = base_x
         any_drawn = False
 
         for entry in ann_entries:
@@ -826,11 +814,10 @@ def annotate_pdf(
             if not ann_text:
                 continue
 
-            if tracker.is_duplicate(page_idx, ann_text + where_clause, slot_y + y_off):
+            if tracker.is_duplicate(page_idx, ann_text + where_clause, slot_y):
                 stats["duplicates_skipped"] += 1
                 continue
 
-            text_y = slot_y + y_off
             this_h = _entry_height(entry)
 
             if entry["is_not_submitted"]:
@@ -855,11 +842,18 @@ def annotate_pdf(
                 vd_text = f"({value_decode})"
                 tw = max(tw, fitz.get_text_length(vd_text, fontname=_FONT_NAME, fontsize=eff_fs))
 
-            box_top = text_y - eff_fs - _BOX_PADDING_Y
+            box_width = tw + 2 * _BOX_PADDING_X + _FT_SIDE_INSET
+
+            # If this box would exceed page width, wrap to next line below
+            if x_cursor + box_width > pw - 10.0 and x_cursor != base_x:
+                # Fallback: can't fit side-by-side, skip (rare edge case)
+                continue
+
+            box_top = slot_y - eff_fs - _BOX_PADDING_Y
             box_rect = fitz.Rect(
-                ann_x,
+                x_cursor,
                 box_top,
-                ann_x + tw + 2 * _BOX_PADDING_X + _FT_SIDE_INSET,
+                x_cursor + box_width,
                 box_top + this_h,
             )
 
@@ -876,11 +870,14 @@ def annotate_pdf(
                 border_width=_BORDER_WIDTH, dashed=use_dash,
             )
 
-            y_off += this_h + _MULTI_BOX_SPACING
+            # Advance cursor to the RIGHT for next entry
+            x_cursor += box_width + _MULTI_BOX_H_GAP
             any_drawn = True
             stats["total_annotations"] += 1
 
+        # Mark the full occupied vertical range for this field
         if any_drawn:
+            tracker.mark_occupied(page_idx, box_top_for_field, box_bottom_for_field)
             stats["pages_annotated"].add(page_idx)
 
     ref_page = doc[0]
