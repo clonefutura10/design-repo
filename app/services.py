@@ -18,7 +18,9 @@ import re
 from src.pdf_parser.extractor import extract_crf
 from src.pdf_parser.field_identifier import CRFField
 from src.resolution.noise_filter import is_noise_field
-from src.resolution.tier0_rules import Tier0Rules, _reset_usage_tracking, set_study_context
+from src.resolution.tier0_rules import (
+    Tier0Rules, _reset_usage_tracking, set_study_context, is_derived_dictionary_field,
+)
 from src.resolution.tier1_not_submitted import Tier1NotSubmitted
 from src.resolution.tier3_llm import Tier3LLM
 from src.annotator.pdf_writer import annotate_pdf
@@ -110,7 +112,13 @@ def run_pipeline(input_pdf_path: Path, original_filename: str = "unknown.pdf") -
     # ══════════════════════════════════════════════════════════
     # STEP 2: Filter Noise
     # ══════════════════════════════════════════════════════════
-    data_fields = [f for f in all_fields if not is_noise_field(f)]
+    # Drop noise AND derived dictionary fields (MedDRA / WHO-Drug / ATC codes &
+    # dictionary text) — the latter are never annotated on an aCRF, so they are
+    # excluded entirely (not counted, not drawn) rather than marked NOT SUBMITTED.
+    data_fields = [
+        f for f in all_fields
+        if not is_noise_field(f) and not is_derived_dictionary_field(f.field_label)
+    ]
     fields_after_filter = len(data_fields)
     noise_removed = total_fields - fields_after_filter
 
