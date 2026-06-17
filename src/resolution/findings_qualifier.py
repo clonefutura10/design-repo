@@ -21,6 +21,20 @@ _FINDINGS_QUALIFIER_VARS: dict[str, set[str]] = {
 
 _DOMAIN_TESTCD_VAR = {"VS": "VSTESTCD", "LB": "LBTESTCD", "EG": "EGTESTCD", "RP": "RPTESTCD"}
 
+# Synthetic codes used to recognise generic panel/gating labels (e.g. a single
+# "Vital signs performed?" header that covers the whole panel). They are NOT
+# CDISC controlled-terminology TESTCD values, so they must never be emitted as
+# a `where <DOMAIN>TESTCD = "..."` clause.
+_PLACEHOLDER_TESTCODES: frozenset[str] = frozenset({"VSALL", "EGALL"})
+
+# Helper / instruction / NOT_SUBMITTED labels must never be used to infer a
+# TESTCD from surrounding context — e.g. "Field created for RSG to calculate
+# weight" would otherwise wrongly pin a whole generic vital-signs grid to WEIGHT.
+_CONTEXT_SKIP_RE = re.compile(
+    r"field created for|for rsg|internal use|please record|to calculate",
+    re.IGNORECASE,
+)
+
 _VS_TESTS: dict[str, str] = {
     "vital signs": "VSALL", "vital signs performed": "VSALL",
     "were vital signs collected": "VSALL",
@@ -203,20 +217,22 @@ class FindingsQualifierResolver:
 
         # 1. Field label IS a specific test name
         test_code = self._find_test_code(domain, label_norm)
-        if test_code:
+        if test_code and test_code not in _PLACEHOLDER_TESTCODES:
             return f'{testcd_var} = "{test_code}"'
 
-        # 2. Check context labels before
+        # 2. Check context labels before (ignoring helper/instruction labels)
         for ctx in reversed(context_labels_before or []):
+            if not ctx or _CONTEXT_SKIP_RE.search(ctx):
+                continue
             test_code = self._find_test_code(domain, _norm_label(ctx))
-            if test_code:
+            if test_code and test_code not in _PLACEHOLDER_TESTCODES:
                 return f'{testcd_var} = "{test_code}"'
 
         # 3. Check value options
         test_codes_from_opts: list[str] = []
         for opt in (value_options or []):
             tc = self._find_test_code(domain, _norm_label(opt))
-            if tc:
+            if tc and tc not in _PLACEHOLDER_TESTCODES:
                 test_codes_from_opts.append(tc)
         unique_codes = list(dict.fromkeys(test_codes_from_opts))
         if len(unique_codes) > 1:
